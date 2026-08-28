@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Local context documentation
+CONTEXT.md
+
 # Agent local files
 .agents
 
