@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #002452;
+  --color-primary-container: #1b3a6b;
+  --color-on-primary-container: #89a5dd;
+  --color-secondary: #855300;
+  --color-secondary-container: #fea619;
+  --color-accent: #f59e0b;
+  --color-tertiary: #222529;
+  --color-tertiary-container: #383b3e;
+  --color-surface: #fcf9f8;
+  --color-surface-container-low: #f6f3f2;
+  --color-surface-container-lowest: #ffffff;
+  --color-outline: #747780;
+  --color-outline-variant: #c4c6d0;
+  --color-on-surface: #1b1b1c;
+  --color-on-surface-variant: #44474f;
+
+  --font-headline: "Hanken Grotesk", sans-serif;
+  --font-display: "Hanken Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+}
+
+@layer utilities {
+  .font-headline {
+    font-family: 'Hanken Grotesk', sans-serif;
+  }
+  .font-display {
+    font-family: 'Hanken Grotesk', sans-serif;
+  }
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .fade-in-section {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+  .fade-in-section.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .ghost-border {
+    border: 1px solid #c4c6d0;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .ghost-border:hover {
+    border-color: #1b3a6b;
+  }
+
+  .hover-shift {
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+  .group:hover .hover-shift {
+    transform: translateX(10px);
+  }
+}
+
+/* Custom scrollbar for enterprise elegance */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #fcf9f8;
+}
+::-webkit-scrollbar-thumb {
+  background: #c4c6d0;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #1b3a6b;
+}
