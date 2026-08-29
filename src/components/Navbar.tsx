@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
-export type PortalRoute = 'landing' | 'mine-selection' | 'dongri-buzurg-workspace';
+export type PortalRoute = 'landing' | 'mine-selection' | 'dongri-buzurg-workspace' | 'reserve-mapping';
 
 interface NavbarProps {
   currentRoute?: PortalRoute;
-  onNavigate?: (route: any) => void;
+  onNavigate?: (route: PortalRoute) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentRoute, onNavigate }) => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
         </a>
 
         {/* Center: National Emblem of India (Ashoka Lion Capital with Satyameva Jayate) */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center text-center pointer-events-none">
+        <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center text-center pointer-events-none hidden md:flex">
           <svg 
             viewBox="0 0 100 120" 
             className="h-11 md:h-12 w-auto text-white drop-shadow-md"
@@ -95,10 +95,32 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
           </span>
         </div>
 
-        {/* Right side is intentionally empty per user request */}
-        <div className="w-12 h-12 invisible"></div>
+        {/* Right: Quick Geospatial Map & Mines Navigation */}
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => onNavigate && onNavigate('reserve-mapping')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-md ${
+              currentRoute === 'reserve-mapping'
+                ? 'bg-amber-400 text-slate-950 ring-2 ring-amber-300'
+                : 'bg-amber-500 hover:bg-amber-400 text-slate-950 hover:shadow-lg'
+            }`}
+          >
+            <span>🗺️</span>
+            <span>Reserve Mapping</span>
+          </button>
+
+          <button
+            onClick={() => onNavigate && onNavigate('mine-selection')}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-colors"
+          >
+            <span>Mines & Telemetry</span>
+          </button>
+        </div>
 
       </div>
     </header>
   );
 };
+
+export default Navbar;
+

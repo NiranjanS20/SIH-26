@@ -347,11 +347,12 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
         {/* Right Header Icons */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => alert('Search MOIL Reserve Platform Index')}
-            className="p-1.5 text-white/80 hover:text-white transition-colors cursor-pointer"
-            title="Search Platform"
+            onClick={() => onNavigate('reserve-mapping')}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold transition-all shadow-md cursor-pointer"
+            title="Open National Geospatial Reserve Mapping"
           >
-            <span className="material-symbols-outlined text-lg">search</span>
+            <span>🗺️</span>
+            <span>National Reserve Map</span>
           </button>
 
           <button
@@ -362,14 +363,6 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
             <span className="material-symbols-outlined text-lg text-[#FEA619]">notifications</span>
             <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#B03A2E] animate-ping" />
             <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#B03A2E]" />
-          </button>
-
-          <button
-            onClick={() => alert('MOIL Reserve Platform System Settings')}
-            className="p-1.5 text-white/80 hover:text-white transition-colors cursor-pointer"
-            title="Settings"
-          >
-            <span className="material-symbols-outlined text-lg">settings</span>
           </button>
 
           {onToggleTheme && (

@@ -13,6 +13,7 @@ import { ServiceModal } from './components/ServiceModal';
 import { MineDetailModal } from './components/MineDetailModal';
 import { MineSelectionPage } from './components/MineSelectionPage';
 import { DongriBuzurgWorkspace } from './components/DongriBuzurgWorkspace';
+import { ReserveMappingPage } from './components/ReserveMappingPage';
 
 export function App() {
   const [currentRoute, setCurrentRoute] = useState<PortalRoute>('landing');
@@ -51,6 +52,9 @@ export function App() {
     setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
+  const isFullScreenWorkspace =
+    currentRoute === 'dongri-buzurg-workspace' || currentRoute === 'reserve-mapping';
+
   return (
     <div
       className={`min-h-screen font-body transition-colors duration-300 ${
@@ -59,8 +63,8 @@ export function App() {
           : 'bg-[#FCF9F8] text-[#1B1B1C] selection:bg-[#FEA619] selection:text-[#1B1B1C]'
       }`}
     >
-      {/* 1. Header / Top Portal Navigation with Theme Toggle (Landing & Mine Selection only) */}
-      {currentRoute !== 'dongri-buzurg-workspace' && (
+      {/* 1. Header / Top Portal Navigation (Landing & Mine Selection only) */}
+      {!isFullScreenWorkspace && (
         <Navbar
           currentRoute={currentRoute}
           onNavigate={handleNavigate}
@@ -72,7 +76,10 @@ export function App() {
         {currentRoute === 'landing' && (
           <>
             {/* 2. Hero Section */}
-            <Hero onExploreClick={() => handleNavigate('mine-selection')} />
+            <Hero
+              onExploreClick={() => handleNavigate('mine-selection')}
+              onReserveMapClick={() => handleNavigate('reserve-mapping')}
+            />
 
             {/* 3. Value Proposition Section */}
             <ValuePropSection />
@@ -120,10 +127,18 @@ export function App() {
             onToggleTheme={handleToggleTheme}
           />
         )}
+
+        {currentRoute === 'reserve-mapping' && (
+          <ReserveMappingPage
+            onNavigate={handleNavigate}
+            themeMode={themeMode}
+            onToggleTheme={handleToggleTheme}
+          />
+        )}
       </main>
 
       {/* Footer (Landing & Mine Selection only) */}
-      {currentRoute !== 'dongri-buzurg-workspace' && (
+      {!isFullScreenWorkspace && (
         <Footer themeMode={themeMode} />
       )}
 
@@ -142,3 +157,4 @@ export function App() {
 }
 
 export default App;
+

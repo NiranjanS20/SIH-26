@@ -165,6 +165,16 @@ export const MineSelectionPage: React.FC<MineSelectionPageProps> = ({
                 </span>
               </div>
 
+              {/* National Geospatial Reserve Mapping CTA Button */}
+              <button
+                onClick={() => onNavigate('reserve-mapping')}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider transition-all shadow-md cursor-pointer"
+                title="Open Interactive Geospatial Reserve Mapping Map of India"
+              >
+                <span className="text-sm">🗺️</span>
+                <span>National Reserve Mapping</span>
+              </button>
+
               {/* Theme Toggle Button strictly for Mine Selection Page */}
               {onToggleTheme && (
                 <button
