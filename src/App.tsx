@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Navbar } from './components/Navbar';
+import { Navbar, type PortalRoute } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { ValuePropSection } from './components/ValuePropSection';
 import { DataSourcesSection } from './components/DataSourcesSection';
@@ -11,8 +11,12 @@ import { CTASection } from './components/CTASection';
 import { Footer } from './components/Footer';
 import { ServiceModal } from './components/ServiceModal';
 import { MineDetailModal } from './components/MineDetailModal';
+import { MineSelectionPage } from './components/MineSelectionPage';
+import { DongriBuzurgWorkspace } from './components/DongriBuzurgWorkspace';
 
 export function App() {
+  const [currentRoute, setCurrentRoute] = useState<PortalRoute>('landing');
+  const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark'); // Default theme is Dark Mode per request
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [selectedMine, setSelectedMine] = useState<any | null>(null);
 
@@ -36,49 +40,92 @@ export function App() {
     sections.forEach((sec) => observer.observe(sec));
 
     return () => observer.disconnect();
-  }, []);
+  }, [currentRoute, themeMode]);
 
-  const handleNavigate = (sectionId: string) => {
-    const elem = document.getElementById(sectionId);
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
+  const handleNavigate = (route: PortalRoute) => {
+    setCurrentRoute(route);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleToggleTheme = () => {
+    setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   return (
-    <div className="min-h-screen bg-[#FCF9F8] text-[#1B1B1C] font-body selection:bg-[#FEA619] selection:text-[#1B1B1C]">
-      {/* 1. Header / Top Navigation */}
-      <Navbar onNavigate={handleNavigate} />
+    <div
+      className={`min-h-screen font-body transition-colors duration-300 ${
+        themeMode === 'dark'
+          ? 'bg-[#181B20] text-white selection:bg-[#F59E0B] selection:text-[#181B20]'
+          : 'bg-[#FCF9F8] text-[#1B1B1C] selection:bg-[#FEA619] selection:text-[#1B1B1C]'
+      }`}
+    >
+      {/* 1. Header / Top Portal Navigation with Theme Toggle (Landing & Mine Selection only) */}
+      {currentRoute !== 'dongri-buzurg-workspace' && (
+        <Navbar
+          currentRoute={currentRoute}
+          onNavigate={handleNavigate}
+        />
+      )}
 
-      {/* Main Content Area */}
+      {/* Main Content Area based on current route */}
       <main>
-        {/* 2. Hero Section */}
-        <Hero onExploreClick={() => handleNavigate('mines')} />
+        {currentRoute === 'landing' && (
+          <>
+            {/* 2. Hero Section */}
+            <Hero onExploreClick={() => handleNavigate('mine-selection')} />
 
-        {/* 3. Value Proposition Section ("Built for Smarter Mine Operations") */}
-        <ValuePropSection />
+            {/* 3. Value Proposition Section */}
+            <ValuePropSection />
 
-        {/* 4. Data Sources Section ("One Platform. Multiple Data Sources.") */}
-        <DataSourcesSection />
+            {/* 4. Data Sources Section */}
+            <DataSourcesSection />
 
-        {/* 5. What We're Solving Section ("What We're Solving") */}
-        <WhatWeAreSolvingSection />
+            {/* 5. What We're Solving Section */}
+            <WhatWeAreSolvingSection />
 
-        {/* 6. Mine Launcher & Selection Section ("Your Mine") */}
-        <MineCardSection onOpenMineModal={(mine) => setSelectedMine(mine)} />
+            {/* 6. Mine Launcher & Selection Section */}
+            <MineCardSection
+              onOpenMineModal={(mine) => {
+                if (mine.id === 'dongri-buzurg') {
+                  handleNavigate('dongri-buzurg-workspace');
+                } else {
+                  setSelectedMine(mine);
+                }
+              }}
+            />
 
-        {/* 6. Digital Mine Services Section */}
-        <ServicesSection onSelectService={(service) => setSelectedService(service)} />
+            {/* 7. Digital Mine Services Section */}
+            <ServicesSection onSelectService={(service) => setSelectedService(service)} />
 
-        {/* 7. Latest Updates Timeline Section */}
-        <UpdatesSection />
+            {/* 8. Latest Updates Timeline Section */}
+            <UpdatesSection />
 
-        {/* 8. Final Sub-Footer CTA Section */}
-        <CTASection onCTAClick={() => handleNavigate('hero')} />
+            {/* 9. Final Sub-Footer CTA Section */}
+            <CTASection onCTAClick={() => handleNavigate('mine-selection')} />
+          </>
+        )}
+
+        {currentRoute === 'mine-selection' && (
+          <MineSelectionPage
+            onNavigate={handleNavigate}
+            themeMode={themeMode}
+            onToggleTheme={handleToggleTheme}
+          />
+        )}
+
+        {currentRoute === 'dongri-buzurg-workspace' && (
+          <DongriBuzurgWorkspace
+            onNavigate={handleNavigate}
+            themeMode={themeMode}
+            onToggleTheme={handleToggleTheme}
+          />
+        )}
       </main>
 
-      {/* 9. Footer */}
-      <Footer />
+      {/* Footer (Landing & Mine Selection only) */}
+      {currentRoute !== 'dongri-buzurg-workspace' && (
+        <Footer themeMode={themeMode} />
+      )}
 
       {/* Interactive Modals */}
       <ServiceModal
