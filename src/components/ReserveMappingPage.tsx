@@ -20,7 +20,6 @@ import {
   Compass,
   RotateCcw,
   Target,
-  Pickaxe,
   CheckCircle2,
   AlertCircle,
   Info,
@@ -377,20 +376,21 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
 
           {/* Logo & Section Title */}
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-slate-950 font-black shadow-md">
-              <Pickaxe className="w-4 h-4 text-slate-950" />
+            <div className="w-8 h-8 rounded-full bg-[#2B3990] flex flex-col items-center justify-center text-white text-[6px] font-black leading-none shrink-0 border border-white/30 shadow-md">
+              <span>मॉयल</span>
+              <span>MOIL</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className={`text-sm font-bold tracking-tight ${textHeader}`}>
-                  MANGAN-X Geospatial
+                <span className={`text-sm font-bold tracking-tight uppercase ${textHeader}`}>
+                  MOIL Reserve Intelligence
                 </span>
                 <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
                   DEMO
                 </span>
               </div>
               <p className={`text-[10px] hidden md:block ${textMuted}`}>
-                National Manganese Reserve Prospectivity & Telemetry Hub
+                National Geospatial Manganese Prospectivity & Telemetry Hub
               </p>
             </div>
           </div>
