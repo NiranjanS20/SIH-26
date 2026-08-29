@@ -42,35 +42,12 @@ import {
   SPECTRAL_REFLECTANCE_DATA,
   SPECTRAL_INDICES_METRICS,
   SATELLITE_ACQUISITION_METADATA,
+  TILE_PROVIDERS,
   type MineGeoLocation,
   type ExplorationTarget,
   type EquipmentTelemetry,
 } from '../data/reserveMappingData';
 import { type PortalRoute } from './Navbar';
-
-// ── Leaflet Tile Providers (Configurable & Free) ──────────────────────────────
-export const TILE_PROVIDERS = {
-  dark: {
-    name: 'CartoDB Dark Matter',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://osm.org/copyright">OpenStreetMap</a>',
-  },
-  light: {
-    name: 'CartoDB Positron',
-    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://osm.org/copyright">OpenStreetMap</a>',
-  },
-  satellite: {
-    name: 'Esri World Imagery (Satellite)',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: '&copy; <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics',
-  },
-  osm: {
-    name: 'OpenStreetMap Standard',
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  },
-};
 
 // ── Custom Leaflet Icons ──────────────────────────────────────────────────────
 const createMineIcon = (mine: MineGeoLocation, isSelected: boolean) => {
