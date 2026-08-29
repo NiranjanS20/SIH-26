@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
+export type PortalRoute = 'landing' | 'mine-selection' | 'dongri-buzurg-workspace';
+
 interface NavbarProps {
-  onNavigate?: (sectionId: string) => void;
+  currentRoute?: PortalRoute;
+  onNavigate?: (route: any) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
@@ -32,7 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
           href="#hero" 
           onClick={(e) => {
             e.preventDefault();
-            if (onNavigate) onNavigate('hero');
+            if (onNavigate) onNavigate('landing');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           className="flex items-center gap-3.5 group cursor-pointer"
