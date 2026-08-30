@@ -250,7 +250,7 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
               {/* CASE A: OPEN CAST TERRAIN (Dongri Buzurg, Kandri, Tirodi)    */}
               {/* ============================================================ */}
               {isOpenCast && (
-                <g className="transition-all duration-300">
+                <g>
                   {/* Outer Rim / Top Crest Polygon */}
                   <polygon
                     points="30,35 510,35 480,85 60,85"
@@ -364,7 +364,7 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
               {/* CASE B: UNDERGROUND SUB-SURFACE (Balaghat & Chikla)          */}
               {/* ============================================================ */}
               {!isOpenCast && (
-                <g className="transition-all duration-300">
+                <g>
                   {/* Ground Surface Line */}
                   <rect x="20" y="30" width="500" height="8" fill="#334155" rx="2" />
                   <text x="25" y="24" fill="#94A3B8" fontSize="8.5" fontWeight="bold" fontFamily="monospace">
@@ -410,7 +410,7 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
                 </g>
               )}
 
-              {/* Equipment Assets / Fleet Pins (Non-overlapping smart offsets) */}
+              {/* Equipment Assets / Fleet Pins (Fixed stable SVG coordinates) */}
               {profile.terrainData.equipmentAssets.map((eq, eqIdx) => {
                 const isSelected = selectedEquipment?.id === eq.id;
                 // Smart offset to prevent badge collisions
@@ -421,27 +421,26 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
                 return (
                   <g
                     key={eq.id}
-                    className="cursor-pointer transition-transform duration-200 hover:scale-105"
+                    className="cursor-pointer"
                     onClick={() => setSelectedEquipment(eq)}
                   >
-                    {/* Flashing Status Beacon Halo */}
+                    {/* Fixed Status Halo (No scale drift) */}
                     <circle
                       cx={eq.x}
                       cy={eq.y}
-                      r={isSelected ? 12 : 8}
+                      r={isSelected ? 10 : 7}
                       fill={eq.status === 'ACTIVE' ? '#10B981' : '#F59E0B'}
-                      fillOpacity="0.3"
-                      className="animate-ping"
+                      fillOpacity={isSelected ? 0.4 : 0.25}
                     />
 
-                    {/* Machine Pin */}
+                    {/* Machine Center Pin */}
                     <circle
                       cx={eq.x}
                       cy={eq.y}
-                      r={isSelected ? 6.5 : 5}
+                      r={isSelected ? 5.5 : 4.5}
                       fill={eq.status === 'ACTIVE' ? '#10B981' : '#F59E0B'}
                       stroke="#FFFFFF"
-                      strokeWidth="2"
+                      strokeWidth="1.8"
                     />
 
                     {/* Name Pill Badge */}
