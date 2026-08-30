@@ -78,7 +78,6 @@ export function App() {
             {/* 2. Hero Section */}
             <Hero
               onExploreClick={() => handleNavigate('mine-selection')}
-              onReserveMapClick={() => handleNavigate('reserve-mapping')}
             />
 
             {/* 3. Value Proposition Section */}
