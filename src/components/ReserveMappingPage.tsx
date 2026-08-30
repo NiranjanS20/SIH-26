@@ -307,10 +307,17 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
 
   const isDark = themeMode === 'dark';
 
+  // Dynamic theme tokens for high-contrast readability in both Light & Dark modes
+  const textHeading = isDark ? 'text-white' : 'text-slate-900';
+  const textBody = isDark ? 'text-slate-300' : 'text-slate-700';
+  const textMuted = isDark ? 'text-slate-400' : 'text-slate-600';
+  const cardBg = isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200 shadow-xs';
+  const panelBg = isDark ? 'bg-[#121620]/95 border-white/10' : 'bg-white/95 border-slate-200 shadow-xl';
+
   return (
     <div
       className={`flex flex-col h-screen w-screen overflow-hidden ${
-        isDark ? 'bg-[#0b0e14] text-slate-100' : 'bg-[#f8fafc] text-slate-900'
+        isDark ? 'bg-[#0b0e14] text-slate-100' : 'bg-[#f1f5f9] text-slate-900'
       } font-body select-none`}
     >
       {/* ──────────────────────────────────────────────────────────────────────────
@@ -320,14 +327,14 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
         className={`h-14 shrink-0 flex items-center justify-between px-4 z-30 border-b ${
           isDark
             ? 'bg-[#10141d]/90 border-white/10 backdrop-blur-md'
-            : 'bg-white/90 border-slate-200 backdrop-blur-md'
+            : 'bg-white/95 border-slate-200 shadow-xs backdrop-blur-md'
         }`}
       >
         {/* Left: Branding & Back Navigation */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => onNavigate('landing')}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
               isDark ? 'hover:bg-white/10 text-slate-300' : 'hover:bg-slate-100 text-slate-700'
             }`}
             title="Return to MOIL Home"
@@ -336,7 +343,7 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
             <span className="hidden sm:inline">Home</span>
           </button>
 
-          <div className="h-5 w-px bg-white/10 hidden sm:block" />
+          <div className={`h-5 w-px hidden sm:block ${isDark ? 'bg-white/10' : 'bg-slate-200'}`} />
 
           {/* MOIL Emblem & Title */}
           <div className="flex items-center gap-2.5">
@@ -346,14 +353,14 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs sm:text-sm font-bold tracking-tight uppercase">
+                <span className={`text-xs sm:text-sm font-bold tracking-tight uppercase ${textHeading}`}>
                   MOIL Space-Reserve Intelligence
                 </span>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30">
                   SATELLITE GIS
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 hidden md:block">
+              <p className={`text-[10px] hidden md:block ${textMuted}`}>
                 Problem Statement 26009 • Satellite-Based Manganese Reserve Mapping
               </p>
             </div>
@@ -361,12 +368,18 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
         </div>
 
         {/* Center: Quick Region Switcher Pills */}
-        <div className="hidden lg:flex items-center gap-1.5 p-1 rounded-xl bg-white/5 border border-white/10">
+        <div className={`hidden lg:flex items-center gap-1.5 p-1 rounded-xl border ${
+          isDark ? 'bg-white/5 border-white/10' : 'bg-slate-100 border-slate-200'
+        }`}>
           {QUICK_REGIONS.map((r) => (
             <button
               key={r.name}
               onClick={() => handleSelectRegion(r)}
-              className="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
+                isDark
+                  ? 'text-slate-300 hover:text-white hover:bg-white/10'
+                  : 'text-slate-700 hover:text-slate-950 hover:bg-white shadow-2xs'
+              }`}
             >
               {r.name}
             </button>
@@ -388,7 +401,11 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
           {onToggleTheme && (
             <button
               onClick={onToggleTheme}
-              className="p-2 rounded-lg border border-white/10 bg-white/5 text-amber-400 hover:bg-white/10 transition-colors"
+              className={`p-2 rounded-lg border transition-colors cursor-pointer ${
+                isDark
+                  ? 'border-white/10 bg-white/5 text-amber-400 hover:bg-white/10'
+                  : 'border-slate-200 bg-slate-100 text-amber-600 hover:bg-slate-200'
+              }`}
               title="Toggle Theme"
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -404,11 +421,11 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
         className={`h-11 shrink-0 px-4 border-b flex items-center justify-between gap-2 overflow-x-auto z-20 text-xs ${
           isDark
             ? 'bg-[#141822] border-white/10 text-slate-300'
-            : 'bg-slate-100 border-slate-200 text-slate-700'
+            : 'bg-white border-slate-200 text-slate-700'
         }`}
       >
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono font-bold uppercase text-slate-400 tracking-wider hidden sm:inline">
+          <span className={`text-[10px] font-mono font-bold uppercase tracking-wider hidden sm:inline ${textMuted}`}>
             Satellite Layer:
           </span>
           <div className="flex items-center gap-1.5">
@@ -418,10 +435,12 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
                 <button
                   key={mode.id}
                   onClick={() => setActiveSatelliteMode(mode.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-semibold text-xs transition-all cursor-pointer ${
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold text-xs transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-amber-500 text-slate-950 font-bold shadow-md ring-1 ring-amber-400'
-                      : 'bg-white/5 hover:bg-white/10 text-slate-300'
+                      ? 'bg-amber-500 text-slate-950 shadow-md ring-1 ring-amber-400'
+                      : isDark
+                      ? 'bg-white/5 hover:bg-white/10 text-slate-300'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
                   }`}
                   title={mode.description}
                 >
@@ -434,17 +453,17 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
         </div>
 
         {/* Active Sensor & Ground Resolution Telemetry */}
-        <div className="hidden md:flex items-center gap-3 text-[10px] font-mono text-slate-400">
+        <div className={`hidden md:flex items-center gap-3 text-[10px] font-mono ${textMuted}`}>
           <span>
             Sensor:{' '}
-            <strong className="text-slate-200">
+            <strong className={isDark ? 'text-slate-200' : 'text-slate-900'}>
               {SATELLITE_MODES.find((m) => m.id === activeSatelliteMode)?.sensor}
             </strong>
           </span>
           <span>•</span>
           <span>
             Pass:{' '}
-            <strong className="text-emerald-400">
+            <strong className={isDark ? 'text-emerald-400' : 'text-emerald-600 font-bold'}>
               {SATELLITE_ACQUISITION_METADATA.acquisitionDate.split(' ')[0]}
             </strong>
           </span>
@@ -473,19 +492,27 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
             {/* Zoom Controls */}
             <div
               className={`flex flex-col rounded-xl border shadow-lg backdrop-blur-md overflow-hidden ${
-                isDark ? 'bg-[#111622]/90 border-white/15' : 'bg-white/90 border-slate-200'
+                isDark ? 'bg-[#111622]/90 border-white/15' : 'bg-white/95 border-slate-200'
               }`}
             >
               <button
                 onClick={() => setMapZoom((z) => (z ? Math.min(15, z + 1) : 8))}
-                className="p-2 hover:bg-white/10 text-slate-200 transition-colors border-b border-white/10"
+                className={`p-2 transition-colors cursor-pointer border-b ${
+                  isDark
+                    ? 'hover:bg-white/10 text-slate-200 border-white/10'
+                    : 'hover:bg-slate-100 text-slate-800 border-slate-200'
+                }`}
                 title="Zoom In"
               >
                 <ZoomIn className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setMapZoom((z) => (z ? Math.max(4, z - 1) : 4))}
-                className="p-2 hover:bg-white/10 text-slate-200 transition-colors border-b border-white/10"
+                className={`p-2 transition-colors cursor-pointer border-b ${
+                  isDark
+                    ? 'hover:bg-white/10 text-slate-200 border-white/10'
+                    : 'hover:bg-slate-100 text-slate-800 border-slate-200'
+                }`}
                 title="Zoom Out"
               >
                 <ZoomOut className="w-4 h-4" />
@@ -495,7 +522,11 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
                   setMapCenter([22.5, 80.0]);
                   setMapZoom(5.2);
                 }}
-                className="p-2 hover:bg-white/10 text-amber-400 transition-colors"
+                className={`p-2 transition-colors cursor-pointer ${
+                  isDark
+                    ? 'hover:bg-white/10 text-amber-400'
+                    : 'hover:bg-slate-100 text-amber-600'
+                }`}
                 title="Reset to Full India Extent"
               >
                 <Target className="w-4 h-4" />
@@ -506,8 +537,10 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
             {!rightPanelOpen && (
               <button
                 onClick={() => setRightPanelOpen(true)}
-                className={`p-2 rounded-xl border shadow-lg backdrop-blur-md flex items-center justify-center text-amber-400 hover:bg-white/10 transition-colors ${
-                  isDark ? 'bg-[#111622]/90 border-white/15' : 'bg-white/90 border-slate-200'
+                className={`p-2 rounded-xl border shadow-lg backdrop-blur-md flex items-center justify-center transition-colors cursor-pointer ${
+                  isDark
+                    ? 'bg-[#111622]/90 border-white/15 text-amber-400 hover:bg-white/10'
+                    : 'bg-white/95 border-slate-200 text-amber-600 hover:bg-slate-100'
                 }`}
                 title="Open Satellite Insights Panel"
               >
@@ -522,10 +555,10 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
               className={`px-3 py-1.5 rounded-lg border backdrop-blur-md font-mono text-[10px] shadow-lg flex items-center gap-2 ${
                 isDark
                   ? 'bg-[#111622]/90 border-white/15 text-slate-300'
-                  : 'bg-white/90 border-slate-200 text-slate-700'
+                  : 'bg-white/95 border-slate-200 text-slate-800 font-bold'
               }`}
             >
-              <MapPin className="w-3.5 h-3.5 text-amber-400" />
+              <MapPin className="w-3.5 h-3.5 text-amber-500" />
               <span>
                 {currentCoords.lat.toFixed(4)}°N · {currentCoords.lng.toFixed(4)}°E · Zoom{' '}
                 {currentCoords.zoom.toFixed(1)}x
@@ -534,22 +567,22 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
 
             {/* Colormap Legend */}
             <div
-              className={`p-2.5 rounded-xl border backdrop-blur-md shadow-xl text-xs space-y-1 ${
+              className={`p-2.5 rounded-xl border backdrop-blur-md shadow-xl text-xs space-y-1.5 ${
                 isDark
                   ? 'bg-[#111622]/90 border-white/15 text-slate-300'
-                  : 'bg-white/90 border-slate-200 text-slate-700'
+                  : 'bg-white/95 border-slate-200 text-slate-800 shadow-md'
               }`}
             >
-              <div className="flex justify-between items-center text-[10px] font-mono text-slate-400">
-                <span>
+              <div className="flex justify-between items-center text-[10px] font-mono">
+                <span className={textMuted}>
                   Colormap:{' '}
-                  <strong className="text-amber-400">
+                  <strong className={isDark ? 'text-amber-400' : 'text-amber-600 font-bold'}>
                     {SATELLITE_MODES.find((m) => m.id === activeSatelliteMode)?.colormap}
                   </strong>
                 </span>
               </div>
               <div
-                className="w-48 h-2 rounded-full"
+                className="w-48 h-2 rounded-full border border-black/10"
                 style={{
                   background:
                     activeSatelliteMode === 'NDVI_VEGETATION'
@@ -703,25 +736,29 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
 
         {/* ── RIGHT PANEL: SATELLITE TELEMETRY & RESERVE ANALYSIS ─────────────── */}
         <aside
-          className={`w-80 shrink-0 z-20 flex flex-col border-l transition-all ${
-            isDark ? 'bg-[#121620]/95 border-white/10' : 'bg-white/95 border-slate-200'
-          } ${rightPanelOpen ? 'block' : 'hidden'}`}
+          className={`w-80 shrink-0 z-20 flex flex-col border-l transition-all ${panelBg} ${
+            rightPanelOpen ? 'block' : 'hidden'
+          }`}
         >
           {/* Header */}
-          <div className="p-4 border-b border-white/10 flex items-center justify-between">
+          <div className={`p-4 border-b flex items-center justify-between ${
+            isDark ? 'border-white/10' : 'border-slate-200'
+          }`}>
             <div className="flex items-center gap-2">
-              <Satellite className="w-4 h-4 text-amber-400" />
-              <span className="font-bold text-xs uppercase tracking-wider text-white">
+              <Satellite className="w-4 h-4 text-amber-500" />
+              <span className={`font-bold text-xs uppercase tracking-wider ${textHeading}`}>
                 Satellite Reserve Insights
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">
+              <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">
                 LIVE
               </span>
               <button
                 onClick={() => setRightPanelOpen(false)}
-                className="text-slate-400 hover:text-white text-xs px-1"
+                className={`text-xs px-1 cursor-pointer transition-colors ${
+                  isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'
+                }`}
                 title="Collapse Panel"
               >
                 ✕
@@ -731,58 +768,60 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
             {/* Selected Location Summary */}
-            <div className="p-3 rounded-xl border border-white/10 bg-white/5 space-y-1">
-              <span className="text-[9px] font-mono uppercase text-slate-400 block font-bold">
+            <div className={`p-3 rounded-xl border space-y-1 ${cardBg}`}>
+              <span className={`text-[9px] font-mono uppercase block font-bold ${textMuted}`}>
                 Focused Mine Area
               </span>
-              <h3 className="font-bold text-sm text-white">
+              <h3 className={`font-bold text-sm ${textHeading}`}>
                 {selectedMine ? selectedMine.name : selectedTarget.name}
               </h3>
-              <p className="text-[11px] text-slate-300">
+              <p className={`text-[11px] ${textBody}`}>
                 {selectedMine ? selectedMine.location : `${selectedTarget.region}, ${selectedTarget.state}`}
               </p>
             </div>
 
             {/* Live Satellite Index Cards */}
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 block font-mono">
+              <span className={`text-[10px] font-bold uppercase tracking-wider mb-2 block font-mono ${textMuted}`}>
                 Satellite Indicators (Sentinel-2 & TIR)
               </span>
 
               <div className="grid grid-cols-2 gap-2">
-                <div className="p-2.5 rounded-lg border border-white/10 bg-white/5 space-y-0.5">
-                  <span className="text-[9px] text-slate-400 block font-mono">NDVI (Vegetation)</span>
-                  <span className="text-base font-bold text-emerald-400 font-mono">-0.14</span>
-                  <span className="text-[8.5px] text-slate-400 block">Exposed mineral reef</span>
+                <div className={`p-2.5 rounded-lg border space-y-0.5 ${cardBg}`}>
+                  <span className={`text-[9px] block font-mono ${textMuted}`}>NDVI (Vegetation)</span>
+                  <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-mono">-0.14</span>
+                  <span className={`text-[8.5px] block ${textMuted}`}>Exposed mineral reef</span>
                 </div>
 
-                <div className="p-2.5 rounded-lg border border-white/10 bg-white/5 space-y-0.5">
-                  <span className="text-[9px] text-slate-400 block font-mono">LST Thermal</span>
-                  <span className="text-base font-bold text-amber-400 font-mono">+3.4 °C</span>
-                  <span className="text-[8.5px] text-slate-400 block">Bedrock inertia anomaly</span>
+                <div className={`p-2.5 rounded-lg border space-y-0.5 ${cardBg}`}>
+                  <span className={`text-[9px] block font-mono ${textMuted}`}>LST Thermal</span>
+                  <span className="text-base font-bold text-amber-600 dark:text-amber-400 font-mono">+3.4 °C</span>
+                  <span className={`text-[8.5px] block ${textMuted}`}>Bedrock inertia anomaly</span>
                 </div>
 
-                <div className="p-2.5 rounded-lg border border-white/10 bg-white/5 space-y-0.5">
-                  <span className="text-[9px] text-slate-400 block font-mono">Soil Moisture</span>
-                  <span className="text-base font-bold text-cyan-400 font-mono">0.31</span>
-                  <span className="text-[8.5px] text-slate-400 block">SAR dielectric contrast</span>
+                <div className={`p-2.5 rounded-lg border space-y-0.5 ${cardBg}`}>
+                  <span className={`text-[9px] block font-mono ${textMuted}`}>Soil Moisture</span>
+                  <span className="text-base font-bold text-cyan-600 dark:text-cyan-400 font-mono">0.31</span>
+                  <span className={`text-[8.5px] block ${textMuted}`}>SAR dielectric contrast</span>
                 </div>
 
-                <div className="p-2.5 rounded-lg border border-white/10 bg-white/5 space-y-0.5">
-                  <span className="text-[9px] text-slate-400 block font-mono">ASTER Fe-Mn Ratio</span>
-                  <span className="text-base font-bold text-purple-400 font-mono">1.38</span>
-                  <span className="text-[8.5px] text-slate-400 block">Oxide gossan signature</span>
+                <div className={`p-2.5 rounded-lg border space-y-0.5 ${cardBg}`}>
+                  <span className={`text-[9px] block font-mono ${textMuted}`}>ASTER Fe-Mn Ratio</span>
+                  <span className="text-base font-bold text-purple-600 dark:text-purple-400 font-mono">1.38</span>
+                  <span className={`text-[8.5px] block ${textMuted}`}>Oxide gossan signature</span>
                 </div>
               </div>
             </div>
 
             {/* Multi-Band Reflectance Chart */}
-            <div className="p-3 rounded-xl border border-white/10 bg-white/5 space-y-2">
+            <div className={`p-3 rounded-xl border space-y-2 ${cardBg}`}>
               <div className="flex justify-between items-center">
-                <span className="text-[10px] font-bold text-slate-300 font-mono uppercase">
+                <span className={`text-[10px] font-bold font-mono uppercase ${textHeading}`}>
                   Reflectance Curve (BOA)
                 </span>
-                <span className="text-[9px] text-amber-400 font-mono">Sentinel-2B L2A</span>
+                <span className="text-[9px] text-amber-600 dark:text-amber-400 font-mono font-bold">
+                  Sentinel-2B L2A
+                </span>
               </div>
               <div className="h-24 w-full flex items-end justify-between gap-1 pt-2">
                 {SPECTRAL_REFLECTANCE_DATA.map((band, idx) => {
@@ -790,10 +829,10 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
                   return (
                     <div key={idx} className="flex-1 flex flex-col items-center gap-1">
                       <div
-                        className="w-full rounded-t bg-gradient-to-t from-amber-600 to-amber-400"
+                        className="w-full rounded-t bg-gradient-to-t from-amber-600 to-amber-400 shadow-2xs"
                         style={{ height: `${heightPct}%` }}
                       />
-                      <span className="text-[7.5px] font-mono text-slate-400">
+                      <span className={`text-[7.5px] font-mono font-semibold ${textMuted}`}>
                         {band.band.split(' ')[0]}
                       </span>
                     </div>
@@ -803,31 +842,45 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
             </div>
 
             {/* AI Exploration Priority & Recommendation */}
-            <div className="p-3.5 rounded-xl border border-amber-500/40 bg-amber-500/10 space-y-1.5">
-              <span className="text-[9px] font-bold uppercase tracking-wider text-amber-400 font-mono block">
+            <div className={`p-3.5 rounded-xl border space-y-1.5 ${
+              isDark
+                ? 'border-amber-500/40 bg-amber-500/10'
+                : 'border-amber-400 bg-amber-50/90 shadow-2xs'
+            }`}>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 font-mono block">
                 Exploration Recommendation
               </span>
-              <p className="text-xs font-bold text-white leading-tight">
+              <p className={`text-xs font-bold leading-tight ${
+                isDark ? 'text-white' : 'text-slate-900'
+              }`}>
                 {selectedTarget.recommendedStep}
               </p>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
+              <p className={`text-[11px] leading-relaxed ${
+                isDark ? 'text-slate-300' : 'text-slate-700'
+              }`}>
                 {selectedTarget.recommendation}
               </p>
             </div>
 
             {/* Satellite Acquisition Telemetry */}
-            <div className="p-3 rounded-xl border border-white/10 bg-white/5 space-y-1 text-[10px] font-mono text-slate-400">
+            <div className={`p-3 rounded-xl border space-y-1 text-[10px] font-mono ${cardBg} ${textMuted}`}>
               <div className="flex justify-between">
                 <span>Constellation:</span>
-                <span className="text-slate-200">Sentinel-2B + Landsat-9</span>
+                <span className={`font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                  Sentinel-2B + Landsat-9
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Ground Res:</span>
-                <span className="text-slate-200">10m Optical / 30m TIR</span>
+                <span className={`font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                  10m Optical / 30m TIR
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>CRS:</span>
-                <span className="text-slate-200">EPSG:4326 (WGS84)</span>
+                <span className={`font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+                  EPSG:4326 (WGS84)
+                </span>
               </div>
             </div>
           </div>
