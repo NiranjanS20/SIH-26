@@ -16,8 +16,6 @@ import {
   ZoomOut,
   Target,
   MapPin,
-  Sun,
-  Moon,
   ArrowLeft,
   Compass,
 } from 'lucide-react';
@@ -33,6 +31,7 @@ import {
   type ExplorationTarget,
 } from '../data/reserveMappingData';
 import { type PortalRoute } from './Navbar';
+import { ThemeToggleSwitch } from './ui/ThemeToggleSwitch';
 import { getNasaEarthdataConfig } from '../services/nasaEarthdataService';
 import { fetchLiveMineWeather, type LiveWeatherData } from '../services/weatherService';
 
@@ -415,19 +414,12 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
             <span>Dongri Pilot Hub →</span>
           </button>
 
-          {/* Theme Toggle */}
+          {/* Theme Toggle Pill Switch */}
           {onToggleTheme && (
-            <button
-              onClick={onToggleTheme}
-              className={`p-2 rounded-lg border transition-colors cursor-pointer ${
-                isDark
-                  ? 'border-white/10 bg-white/5 text-amber-400 hover:bg-white/10'
-                  : 'border-slate-200 bg-slate-100 text-amber-600 hover:bg-slate-200'
-              }`}
-              title="Toggle Theme"
-            >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
+            <ThemeToggleSwitch
+              isDark={isDark}
+              onToggle={onToggleTheme}
+            />
           )}
         </div>
       </header>

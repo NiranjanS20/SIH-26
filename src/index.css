@@ -124,3 +124,19 @@
   background: rgba(245, 158, 11, 0.6);
 }
 
+@keyframes binauralFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-binaural-flow {
+  animation: binauralFlow 6s ease infinite;
+}
+

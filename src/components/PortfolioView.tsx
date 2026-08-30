@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ShaderCard } from './ui/ShaderCard';
+import ColorBends from './ui/ColorBends';
 
 interface PortfolioViewProps {
   isDark?: boolean;
@@ -103,12 +104,28 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
       {/* ========================================================================= */}
       {/* 1. PORTFOLIO PAGE HEADER & CONTROLS */}
       {/* ========================================================================= */}
-      <div className={`p-6 sm:p-8 rounded-xl border relative overflow-hidden shadow-xl ${
-        isDark
-          ? 'bg-gradient-to-r from-[#001D42] via-[#1F3864] to-[#14233D] border-white/15 text-white'
-          : 'bg-gradient-to-r from-[#1F3864] via-[#254A85] to-[#122B54] text-white border-[#1F3864]'
-      }`}>
-        <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.03)_0px,rgba(255,255,255,0.03)_1px,transparent_1px,transparent_12px)] pointer-events-none" />
+      <div className="p-6 sm:p-8 rounded-xl border border-white/15 relative overflow-hidden shadow-xl min-h-[160px] flex flex-col justify-center text-white">
+        {/* React Bits Interactive ColorBends WebGL Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <ColorBends
+            colors={["#0E7C7B", "#001433", "#FEA619", "#00d2ff"]}
+            rotation={45}
+            speed={0.15}
+            scale={1.2}
+            frequency={1}
+            warpStrength={1.2}
+            mouseInfluence={1}
+            noise={0.1}
+            parallax={0.4}
+            iterations={2}
+            intensity={1.3}
+            bandWidth={6}
+            transparent={true}
+          />
+        </div>
+
+        {/* Subtle Vignette Overlay for Text Contrast */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#001433]/85 via-[#001433]/60 to-[#001433]/80 backdrop-blur-[0.5px] z-5 pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">

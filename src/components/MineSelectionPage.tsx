@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MOIL_MINES, type MineItem } from '../data/minesData';
 import { OperationalFootprintMap } from './OperationalFootprintMap';
 import { type PortalRoute } from './Navbar';
+import { ThemeToggleSwitch } from './ui/ThemeToggleSwitch';
 
 interface MineSelectionPageProps {
   onNavigate: (route: PortalRoute) => void;
@@ -175,22 +176,12 @@ export const MineSelectionPage: React.FC<MineSelectionPageProps> = ({
                 <span>National Reserve Mapping</span>
               </button>
 
-              {/* Theme Toggle Button strictly for Mine Selection Page */}
+              {/* Sleek Theme Toggle Pill Switch */}
               {onToggleTheme && (
-                <button
-                  onClick={onToggleTheme}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-lg border text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm ${
-                    isDark
-                      ? 'bg-[#2E333E] hover:bg-[#383E4B] text-white border-white/20'
-                      : 'bg-white hover:bg-[#F1F5F9] text-[#002452] border-[#CBD5E1]'
-                  }`}
-                  title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
-                >
-                  <span className="material-symbols-outlined text-base text-[#D97706]">
-                    {isDark ? 'dark_mode' : 'light_mode'}
-                  </span>
-                  <span>{isDark ? 'Dark Mode' : 'Light Mode'}</span>
-                </button>
+                <ThemeToggleSwitch
+                  isDark={isDark}
+                  onToggle={onToggleTheme}
+                />
               )}
             </div>
           </div>

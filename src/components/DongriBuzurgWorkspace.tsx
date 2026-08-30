@@ -6,6 +6,11 @@ import { FeatureImportanceEChart } from './FeatureImportanceEChart';
 import { MineSiteVisualizer } from './MineSiteVisualizer';
 import { PortfolioView } from './PortfolioView';
 import { ShaderCard } from './ui/ShaderCard';
+import Beams from './ui/Beams';
+import { GlowCard } from './ui/spotlight-card';
+import FeatureCard from './ui/binaural-glow-feature-card';
+import { ThemeToggleSwitch } from './ui/ThemeToggleSwitch';
+import { CustomerView } from './CustomerView';
 import {
   getMineProductionProfile,
   MINE_PRODUCTION_PROFILES,
@@ -23,7 +28,8 @@ export type OverviewTab =
   | 'shortfall-diagnosis'
   | 'corrective-actions'
   | 'alerts'
-  | 'portfolio-view';
+  | 'portfolio-view'
+  | 'customer-view';
 
 export interface ActionItem {
   id: string;
@@ -397,15 +403,10 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
           </button>
 
           {onToggleTheme && (
-            <button
-              onClick={onToggleTheme}
-              className="p-1.5 text-white/90 hover:text-white transition-colors cursor-pointer"
-              title="Toggle Theme Mode"
-            >
-              <span className="material-symbols-outlined text-lg text-[#FEA619]">
-                {isDark ? 'dark_mode' : 'light_mode'}
-              </span>
-            </button>
+            <ThemeToggleSwitch
+              isDark={isDark}
+              onToggle={onToggleTheme}
+            />
           )}
         </div>
       </header>
@@ -424,32 +425,103 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
           }`}
         >
           {/* Top Sidebar Nav Links */}
-          <div className="p-2 space-y-1">
-            {[
-              { id: 'overview', label: 'Overview', icon: 'dashboard' },
-              { id: 'portfolio-view', label: 'Portfolio Overview', icon: 'grid_view' },
-              { id: 'production-forecast', label: 'Production & Forecast', icon: 'trending_up' },
-              { id: 'shortfall-diagnosis', label: 'Shortfall Diagnosis', icon: 'analytics' },
-              { id: 'corrective-actions', label: 'Corrective Actions', icon: 'checklist' },
-              { id: 'alerts', label: 'Alerts', icon: 'notifications' },
-            ].map((item) => {
-              const isSelected = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id as OverviewTab)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-[#0E7C7B] text-white font-bold shadow-md'
-                      : 'text-slate-400 hover:text-white hover:bg-white/5'
-                  }`}
-                  title={sidebarCollapsed ? item.label : undefined}
-                >
-                  <span className="material-symbols-outlined text-base shrink-0">{item.icon}</span>
-                  {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
-                </button>
-              );
-            })}
+          <div className="p-2 space-y-3 overflow-y-auto">
+            {/* 1. MINE OPERATIONS SECTION */}
+            <div className="space-y-1">
+              {!sidebarCollapsed && (
+                <div className="px-3 py-1 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                  MINE OPERATIONS
+                </div>
+              )}
+              {[
+                { id: 'overview', label: 'Overview', icon: 'dashboard' },
+                { id: 'production-forecast', label: 'Production & Forecast', icon: 'trending_up' },
+                { id: 'shortfall-diagnosis', label: 'Shortfall Diagnosis', icon: 'analytics' },
+                { id: 'corrective-actions', label: 'Corrective Actions', icon: 'checklist' },
+                { id: 'alerts', label: 'Alerts', icon: 'notifications' },
+              ].map((item) => {
+                const isSelected = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id as OverviewTab)}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#0E7C7B] text-white font-bold shadow-md'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                    title={sidebarCollapsed ? item.label : undefined}
+                  >
+                    <span className="material-symbols-outlined text-base shrink-0">{item.icon}</span>
+                    {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-white/10 my-1" />
+
+            {/* 2. PORTFOLIO SECTION */}
+            <div className="space-y-1">
+              {!sidebarCollapsed && (
+                <div className="px-3 py-1 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                  PORTFOLIO
+                </div>
+              )}
+              {[
+                { id: 'portfolio-view', label: 'Portfolio View', icon: 'grid_view' },
+              ].map((item) => {
+                const isSelected = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id as OverviewTab)}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#0E7C7B] text-white font-bold shadow-md'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                    title={sidebarCollapsed ? item.label : undefined}
+                  >
+                    <span className="material-symbols-outlined text-base shrink-0">{item.icon}</span>
+                    {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-white/10 my-1" />
+
+            {/* 3. CUSTOMER SECTION */}
+            <div className="space-y-1">
+              {!sidebarCollapsed && (
+                <div className="px-3 py-1 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                  CUSTOMER
+                </div>
+              )}
+              {[
+                { id: 'customer-view', label: 'Customer View', icon: 'factory' },
+              ].map((item) => {
+                const isSelected = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id as OverviewTab)}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#0E7C7B] text-white font-bold shadow-md'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    }`}
+                    title={sidebarCollapsed ? item.label : undefined}
+                  >
+                    <span className="material-symbols-outlined text-base shrink-0">{item.icon}</span>
+                    {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Bottom Sidebar Nav Items */}
@@ -489,60 +561,77 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
         {/* MAIN DASHBOARD CONTENT SHELL */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 space-y-8 max-w-[1440px] mx-auto">
 
-          {/* MINE HERO BANNER */}
-          <div
-            className={`p-6 sm:p-8 rounded-xl border relative overflow-hidden shadow-xl ${
-              isDark
-                ? 'bg-gradient-to-r from-[#001D42] via-[#1F3864] to-[#14233D] border-white/15 text-white'
-                : 'bg-gradient-to-r from-[#1F3864] via-[#254A85] to-[#122B54] text-white border-[#1F3864]'
-            }`}
-          >
-            {/* Subtle Diagonal Mining Texture Overlay */}
-            <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.03)_0px,rgba(255,255,255,0.03)_1px,transparent_1px,transparent_12px)] pointer-events-none" />
+          {/* MINE HERO BANNER WITH REACT BITS BEAMS EFFECT (Only shown on Mine Operations tabs) */}
+          {activeTab !== 'customer-view' && activeTab !== 'portfolio-view' && (
+            <div
+              className="p-8 sm:p-12 lg:p-14 rounded-3xl border border-white/20 relative overflow-hidden shadow-2xl min-h-[360px] md:min-h-[400px] flex flex-col justify-center transition-all duration-300"
+            >
+              {/* React Bits Interactive WebGL Beams Background */}
+              <div className="absolute inset-0 z-0 pointer-events-none">
+                <Beams
+                  beamWidth={3.5}
+                  beamHeight={25}
+                  beamNumber={18}
+                  lightColor="#FFC107"
+                  beamColor="#185a9d"
+                  backgroundColor="#020914"
+                  speed={2.2}
+                  noiseIntensity={1.8}
+                  scale={0.22}
+                  rotation={20}
+                />
+              </div>
 
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              {/* Left Mine Details & Navigation */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[10px] font-black uppercase tracking-widest">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>● OPERATIONAL</span>
+              {/* Light Overlay Tint for Maximum Background Beam Visibility & High Text Contrast */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#020b18]/75 via-[#020b18]/45 to-[#020b18]/65 backdrop-blur-[0.5px] z-5 pointer-events-none" />
+
+              <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8 lg:gap-12">
+                {/* Left Mine Details & Navigation */}
+                <div className="space-y-5 max-w-3xl">
+                  {/* Top Badges & Back Button */}
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/25 border border-emerald-400/50 text-emerald-300 text-[11px] font-black uppercase tracking-widest backdrop-blur-md shadow-md">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span>● OPERATIONAL</span>
+                    </div>
+
+                    {/* Prominent Back to Mine Selection Button inside Hero Banner */}
+                    <button
+                      onClick={() => onNavigate('mine-selection')}
+                      className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 hover:bg-white/30 border border-white/40 text-white text-[11px] font-extrabold uppercase tracking-wider transition-all cursor-pointer backdrop-blur-md shadow-md active:scale-95"
+                    >
+                      <span className="material-symbols-outlined text-sm">arrow_back</span>
+                      <span>Back to Mine Selection</span>
+                    </button>
                   </div>
 
-                  {/* Prominent Back to Mine Selection Button inside Hero Banner */}
-                  <button
-                    onClick={() => onNavigate('mine-selection')}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined text-xs">arrow_back</span>
-                    <span>Back to Mine Selection</span>
-                  </button>
+                  {/* Main Heading Title */}
+                  <h1 className="font-headline font-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl uppercase tracking-tight text-white leading-tight drop-shadow-2xl">
+                    {mineProfile.mineName}
+                  </h1>
+
+                  {/* Location Badge */}
+                  <p className="text-sm sm:text-base md:text-lg text-slate-100 font-bold flex items-center gap-2 pt-1 drop-shadow-md">
+                    <span className="material-symbols-outlined text-[#FEA619] text-xl shrink-0">location_on</span>
+                    <span>{mineProfile.district} District, {mineProfile.state}</span>
+                  </p>
                 </div>
 
-                <h1 className="font-headline font-black text-3xl sm:text-4xl md:text-5xl uppercase tracking-tight text-white leading-none">
-                  DONGRI BUZURG
-                </h1>
-
-                <p className="text-xs sm:text-sm text-slate-200 font-semibold flex items-center gap-2 pt-1">
-                  <span className="material-symbols-outlined text-[#FEA619] text-base">location_on</span>
-                  <span>Bhandara District, Maharashtra</span>
-                </p>
-              </div>
-
-              {/* Right High-Level Production Metric */}
-              <div className="p-5 rounded-xl bg-[#001433]/85 border border-white/20 text-right shrink-0 backdrop-blur-md shadow-lg min-w-[220px]">
-                <span className="text-[10px] font-black font-mono text-[#94A3B8] uppercase tracking-widest block">
-                  CURRENT ANNUAL OUTPUT
-                </span>
-                <span className="font-headline font-black text-3xl sm:text-4xl text-white block mt-0.5">
-                  550,000
-                </span>
-                <span className="text-xs font-extrabold text-[#FEA619] block uppercase tracking-wider">
-                  Tonnes
-                </span>
+                {/* Right High-Level Production Metric */}
+                <div className="p-6 sm:p-7 rounded-2xl bg-[#001433]/85 border border-white/25 shrink-0 backdrop-blur-md shadow-2xl min-w-[240px] sm:min-w-[270px]">
+                  <span className="text-[11px] font-black font-mono text-slate-300 uppercase tracking-widest block text-right">
+                    CURRENT ANNUAL OUTPUT
+                  </span>
+                  <span className="font-headline font-black text-4xl sm:text-5xl text-white block mt-1.5 drop-shadow-md text-right">
+                    550,000
+                  </span>
+                  <span className="text-xs sm:text-sm font-extrabold text-[#FEA619] block uppercase tracking-wider mt-0.5 text-right">
+                    Tonnes
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* ========================================================================= */}
           {/* TAB 1: OVERVIEW TAB CONTENT */}
@@ -579,59 +668,64 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   <MineSiteVisualizer mineId={selectedMineId} themeMode={themeMode} />
                 </div>
 
-                {/* CURRENT STATUS CARD (5 COLS) */}
-                <div className={`lg:col-span-5 p-6 rounded-xl border flex flex-col justify-between space-y-5 ${cardBg}`}>
-                  <div className="space-y-4">
-                    <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
-                      <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
-                        <span className="material-symbols-outlined text-[#D97706] text-base">verified</span>
-                        CURRENT STATUS
-                      </h2>
-                      <span className="text-[10px] font-mono text-[#D97706] font-bold uppercase">
-                        ACTIVE MONITORING
-                      </span>
-                    </div>
-
-                    <div className="p-4 rounded-lg bg-[#D97706]/15 border border-[#D97706]/40 flex items-center justify-between gap-4">
-                      <div>
-                        <span className="text-[10px] font-extrabold text-[#D97706] uppercase tracking-wider block">
-                          RISK ASSESSMENT STATE
-                        </span>
-                        <span className="font-headline text-3xl font-black text-[#D97706] block mt-0.5">
-                          MEDIUM RISK
+                {/* CURRENT STATUS CARD (5 COLS) WITH ELEGANT BINAURAL GLOW EFFECT */}
+                <FeatureCard
+                  glowColors="from-amber-500/70 via-blue-600/50 via-teal-500/60 to-amber-500/70"
+                  className="lg:col-span-5 h-full"
+                >
+                  <div className="flex flex-col justify-between h-full space-y-5">
+                    <div className="space-y-4">
+                      <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
+                        <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
+                          <span className="material-symbols-outlined text-[#D97706] text-base">verified</span>
+                          CURRENT STATUS
+                        </h2>
+                        <span className="text-[10px] font-mono text-[#D97706] font-bold uppercase tracking-wider">
+                          ACTIVE MONITORING
                         </span>
                       </div>
-                      <span className="w-3.5 h-3.5 rounded-full bg-[#D97706] animate-pulse shrink-0" />
+
+                      <div className="p-4 rounded-xl bg-[#D97706]/15 border border-[#D97706]/40 flex items-center justify-between gap-4">
+                        <div>
+                          <span className="text-[10px] font-extrabold text-[#D97706] uppercase tracking-wider block">
+                            RISK ASSESSMENT STATE
+                          </span>
+                          <span className="font-headline text-3xl font-black text-[#D97706] block mt-0.5">
+                            MEDIUM RISK
+                          </span>
+                        </div>
+                        <span className="w-3.5 h-3.5 rounded-full bg-[#D97706] animate-pulse shrink-0" />
+                      </div>
+
+                      <p className={`text-sm leading-relaxed font-semibold ${textSecondary}`}>
+                        “Production is currently being monitored against the monthly target.”
+                      </p>
+
+                      <div className={`space-y-2.5 pt-1 border-t text-xs font-bold ${borderDivider} ${textSecondary}`}>
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                          <span>Operational</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                          <span>Production Monitoring Active</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-blue-500" />
+                          <span>Forecast Monitoring Active</span>
+                        </div>
+                      </div>
                     </div>
 
-                    <p className={`text-sm leading-relaxed font-semibold ${textSecondary}`}>
-                      “Production is currently being monitored against the monthly target.”
-                    </p>
-
-                    <div className={`space-y-2 pt-1 border-t text-xs font-bold ${borderDivider} ${textSecondary}`}>
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                        <span>Operational</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                        <span>Production Monitoring Active</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-blue-500" />
-                        <span>Forecast Monitoring Active</span>
-                      </div>
-                    </div>
+                    <button
+                      onClick={() => setActiveTab('shortfall-diagnosis')}
+                      className={`w-full py-2.5 rounded-xl border border-[#D97706]/30 text-[#D97706] hover:bg-[#D97706]/15 hover:text-[#FEA619] text-xs font-extrabold uppercase tracking-wider transition-all text-center flex items-center justify-center gap-2 cursor-pointer ${nestedBg}`}
+                    >
+                      <span>View shortfall diagnosis</span>
+                      <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                    </button>
                   </div>
-
-                  <button
-                    onClick={() => setActiveTab('shortfall-diagnosis')}
-                    className={`w-full py-2.5 rounded-lg border text-[#D97706] hover:text-[#B45309] text-xs font-extrabold uppercase tracking-wider transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${nestedBg}`}
-                  >
-                    <span>View shortfall diagnosis</span>
-                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                  </button>
-                </div>
+                </FeatureCard>
               </div>
 
               {/* KEY PERFORMANCE INDICATORS */}
@@ -642,52 +736,96 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                 </h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  <div className={`p-5 rounded-xl border space-y-3 ${cardBg}`}>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-[11px] font-bold uppercase tracking-wider ${textMuted}`}>CURRENT PRODUCTION</span>
-                      <span className="material-symbols-outlined text-base text-[#0E7C7B]">trending_up</span>
+                  {/* CARD 1: CURRENT PRODUCTION (EMERALD GREEN GLOW) */}
+                  <GlowCard 
+                    glowColor="green" 
+                    customSize={true} 
+                    className="relative p-5 rounded-2xl border border-emerald-500/30 flex flex-col justify-between space-y-4 overflow-hidden shadow-xl"
+                    style={{
+                      background: 'radial-gradient(circle at 85% 15%, rgba(16, 185, 129, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)',
+                    }}
+                  >
+                    <div className="flex items-center justify-between relative z-10">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-300">CURRENT PRODUCTION</span>
+                      <span className="material-symbols-outlined text-lg text-emerald-400">trending_up</span>
                     </div>
-                    <span className={`font-headline font-black text-3xl block ${textPrimary}`}>4,100 t</span>
-                    <div className="space-y-1.5">
+                    <span className="font-headline font-black text-3xl sm:text-4xl text-white block relative z-10 drop-shadow-md">
+                      4,100 t
+                    </span>
+                    <div className="space-y-2 relative z-10">
                       <div className="flex justify-between text-xs font-bold">
-                        <span className="text-emerald-500">82% of target</span>
-                        <span className={`font-mono ${textMuted}`}>4,100 / 5,000 t</span>
+                        <span className="text-emerald-400">82% of target</span>
+                        <span className="font-mono text-slate-400">4,100 / 5,000 t</span>
                       </div>
-                      <div className={`w-full h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-[#14171C]' : 'bg-slate-200'}`}>
-                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: '82%' }} />
+                      <div className="w-full h-1.5 rounded-full overflow-hidden bg-slate-800/80 border border-white/10">
+                        <div className="h-full bg-emerald-400 rounded-full shadow-[0_0_10px_rgba(52,211,153,0.8)]" style={{ width: '82%' }} />
                       </div>
                     </div>
-                  </div>
+                  </GlowCard>
 
-                  <div className={`p-5 rounded-xl border space-y-3 ${cardBg}`}>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-[11px] font-bold uppercase tracking-wider ${textMuted}`}>TARGET</span>
-                      <span className="material-symbols-outlined text-base text-blue-500">flag</span>
+                  {/* CARD 2: TARGET (BLUE GLOW) */}
+                  <GlowCard 
+                    glowColor="blue" 
+                    customSize={true} 
+                    className="relative p-5 rounded-2xl border border-blue-500/30 flex flex-col justify-between space-y-4 overflow-hidden shadow-xl"
+                    style={{
+                      background: 'radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)',
+                    }}
+                  >
+                    <div className="flex items-center justify-between relative z-10">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-300">TARGET</span>
+                      <span className="material-symbols-outlined text-lg text-blue-400">flag</span>
                     </div>
-                    <span className="font-headline font-black text-3xl text-blue-600 block">5,000 t</span>
-                    <span className={`text-xs font-bold block ${textMuted}`}>Current month allocation</span>
-                  </div>
+                    <span className="font-headline font-black text-3xl sm:text-4xl text-blue-400 block relative z-10 drop-shadow-md">
+                      5,000 t
+                    </span>
+                    <span className="text-xs font-semibold text-slate-300 block relative z-10">
+                      Current month allocation
+                    </span>
+                  </GlowCard>
 
-                  <div className={`p-5 rounded-xl border space-y-3 ${isDark ? 'bg-[#20242D] border-[#D97706]/40' : 'bg-white border-[#D97706]/40 shadow-sm'}`}>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-[#D97706] uppercase tracking-wider">PROSPECTIVITY</span>
-                      <span className="material-symbols-outlined text-base text-[#D97706]">layers</span>
+                  {/* CARD 3: PROSPECTIVITY (AMBER GOLD GLOW) */}
+                  <GlowCard 
+                    glowColor="orange" 
+                    customSize={true} 
+                    className="relative p-5 rounded-2xl border border-amber-500/30 flex flex-col justify-between space-y-4 overflow-hidden shadow-xl"
+                    style={{
+                      background: 'radial-gradient(circle at 85% 15%, rgba(245, 158, 11, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)',
+                    }}
+                  >
+                    <div className="flex items-center justify-between relative z-10">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-400">PROSPECTIVITY</span>
+                      <span className="material-symbols-outlined text-lg text-amber-400">layers</span>
                     </div>
-                    <span className="font-headline font-black text-3xl text-[#D97706] block">82%</span>
-                    <span className="text-xs font-bold text-[#D97706] block">Highest potential: Zone 14</span>
-                  </div>
+                    <span className="font-headline font-black text-3xl sm:text-4xl text-amber-400 block relative z-10 drop-shadow-md">
+                      82%
+                    </span>
+                    <span className="text-xs font-semibold text-amber-300/90 block relative z-10">
+                      Highest potential: Zone 14
+                    </span>
+                  </GlowCard>
 
-                  <div className={`p-5 rounded-xl border space-y-3 ${cardBg}`}>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-[11px] font-bold uppercase tracking-wider ${textMuted}`}>ACTIVE ALERTS</span>
-                      <span className="material-symbols-outlined text-base text-[#B03A2E]">notifications</span>
+                  {/* CARD 4: ACTIVE ALERTS (RED GLOW) */}
+                  <GlowCard 
+                    glowColor="red" 
+                    customSize={true} 
+                    className="relative p-5 rounded-2xl border border-red-500/30 flex flex-col justify-between space-y-4 overflow-hidden shadow-xl"
+                    style={{
+                      background: 'radial-gradient(circle at 85% 15%, rgba(239, 68, 68, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)',
+                    }}
+                  >
+                    <div className="flex items-center justify-between relative z-10">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-300">ACTIVE ALERTS</span>
+                      <span className="material-symbols-outlined text-lg text-red-400">notifications</span>
                     </div>
-                    <span className={`font-headline font-black text-3xl block ${textPrimary}`}>2</span>
-                    <div className="flex items-center gap-1.5 text-xs font-bold">
-                      <span className="px-2 py-0.5 rounded bg-[#B03A2E]/20 text-[#B03A2E]">1 High Risk</span>
-                      <span className="px-2 py-0.5 rounded bg-[#D97706]/20 text-[#D97706]">1 Medium Risk</span>
+                    <span className="font-headline font-black text-3xl sm:text-4xl text-white block relative z-10 drop-shadow-md">
+                      2
+                    </span>
+                    <div className="flex items-center gap-2 text-xs font-bold relative z-10">
+                      <span className="px-2.5 py-0.5 rounded-full bg-red-500/25 text-red-300 border border-red-500/40">1 High Risk</span>
+                      <span className="px-2.5 py-0.5 rounded-full bg-amber-500/25 text-amber-300 border border-amber-500/40">1 Medium Risk</span>
                     </div>
-                  </div>
+                  </GlowCard>
                 </div>
               </div>
 
@@ -1830,6 +1968,18 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   setSelectedMineId(mineId);
                   setActiveTab('overview');
                 }}
+              />
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB 7: CUSTOMER SUPPLY VIEW TAB CONTENT */}
+          {/* ========================================================================= */}
+          {activeTab === 'customer-view' && (
+            <div className="space-y-8 animate-in fade-in duration-300">
+              <CustomerView
+                isDark={isDark}
+                onNavigateTab={(tab) => setActiveTab(tab as OverviewTab)}
               />
             </div>
           )}

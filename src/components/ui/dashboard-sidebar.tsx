@@ -179,12 +179,17 @@ function NavItem({
         onClick={handleClick}
       >
         <div className="flex items-center gap-2.5">
-          <item.icon 
-            className={`w-[16px] h-[16px] transition-colors
-              ${isActive ? 'text-foreground' : 'text-muted-foreground/70 group-hover:text-foreground/70'}
-            `} 
-            strokeWidth={1.5} 
-          />
+          {(() => {
+            const IconComp = item.icon as React.ComponentType<{ className?: string; strokeWidth?: number }>;
+            return (
+              <IconComp 
+                className={`w-[16px] h-[16px] transition-colors ${
+                  isActive ? 'text-foreground' : 'text-muted-foreground/70 group-hover:text-foreground/70'
+                }`} 
+                strokeWidth={1.5} 
+              />
+            );
+          })()}
           <span className="text-[13px] tracking-wide truncate">
             {item.title}
           </span>
