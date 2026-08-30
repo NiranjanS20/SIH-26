@@ -4,6 +4,8 @@ import { fetchLiveMineWeather, type LiveWeatherData } from '../services/weatherS
 import { ProductionForecastEChart } from './ProductionForecastEChart';
 import { FeatureImportanceEChart } from './FeatureImportanceEChart';
 import { MineSiteVisualizer } from './MineSiteVisualizer';
+import { PortfolioView } from './PortfolioView';
+import { ShaderCard } from './ui/ShaderCard';
 import {
   getMineProductionProfile,
   MINE_PRODUCTION_PROFILES,
@@ -20,7 +22,8 @@ export type OverviewTab =
   | 'production-forecast'
   | 'shortfall-diagnosis'
   | 'corrective-actions'
-  | 'alerts';
+  | 'alerts'
+  | 'portfolio-view';
 
 export interface ActionItem {
   id: string;
@@ -424,6 +427,7 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
           <div className="p-2 space-y-1">
             {[
               { id: 'overview', label: 'Overview', icon: 'dashboard' },
+              { id: 'portfolio-view', label: 'Portfolio Overview', icon: 'grid_view' },
               { id: 'production-forecast', label: 'Production & Forecast', icon: 'trending_up' },
               { id: 'shortfall-diagnosis', label: 'Shortfall Diagnosis', icon: 'analytics' },
               { id: 'corrective-actions', label: 'Corrective Actions', icon: 'checklist' },
@@ -935,38 +939,91 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                 </div>
               </div>
 
-              {/* FORECAST SUMMARY CARDS */}
+              {/* FORECAST SUMMARY CARDS WITH SHADER EFFECTS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <div className={`p-5 rounded-xl border space-y-2 ${cardBg}`}>
-                  <span className={`text-[11px] font-bold uppercase tracking-wider block ${textMuted}`}>CURRENT OUTPUT</span>
-                  <span className={`font-headline font-black text-3xl block ${textPrimary}`}>
-                    {mineProfile.currentOutputTons.toLocaleString()} t
-                  </span>
-                  <span className={`text-xs font-semibold block ${textMuted}`}>Current month</span>
-                </div>
-                <div className={`p-5 rounded-xl border space-y-2 ${cardBg}`}>
-                  <span className={`text-[11px] font-bold uppercase tracking-wider block ${textMuted}`}>PLANNED TARGET</span>
-                  <span className="font-headline font-black text-3xl text-blue-600 block">
-                    {mineProfile.plannedTargetTons.toLocaleString()} t
-                  </span>
-                  <span className={`text-xs font-semibold block ${textMuted}`}>Current month</span>
-                </div>
-                <div className={`p-5 rounded-xl border space-y-2 ${cardBg}`}>
-                  <span className="text-[11px] font-bold text-[#0E7C7B] uppercase tracking-wider block">PREDICTED OUTPUT</span>
-                  <span className="font-headline font-black text-3xl text-[#0E7C7B] block">
-                    {mineProfile.predictedOutputTons.toLocaleString()} t
-                  </span>
-                  <span className="text-xs font-semibold text-[#0E7C7B] block">Model forecast</span>
-                </div>
-                <div className={`p-5 rounded-xl border space-y-2 ${isDark ? 'bg-[#20242D] border-[#D97706]/40' : 'bg-white border-[#D97706]/40 shadow-sm'}`}>
-                  <span className="text-[11px] font-bold text-[#D97706] uppercase tracking-wider block">PROJECTED GAP</span>
-                  <span className="font-headline font-black text-3xl text-[#D97706] block">
-                    {mineProfile.projectedGapTons.toLocaleString()} t
-                  </span>
-                  <span className="text-xs font-bold text-[#D97706] block">
-                    {mineProfile.gapPct}% below target
-                  </span>
-                </div>
+                <ShaderCard variant="teal" className="p-5 flex flex-col justify-between">
+                  <div className="flex items-start justify-between">
+                    <span className={`text-[11px] font-black uppercase tracking-wider ${textMuted}`}>
+                      CURRENT OUTPUT
+                    </span>
+                    <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                      <span className="material-symbols-outlined text-base">trending_up</span>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <span className={`font-headline font-black text-3xl block ${textPrimary}`}>
+                      {mineProfile.currentOutputTons.toLocaleString()} t
+                    </span>
+                    <div className="w-full bg-slate-700/50 h-1.5 rounded-full mt-2.5 overflow-hidden">
+                      <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${Math.min(100, Math.round((mineProfile.currentOutputTons / mineProfile.plannedTargetTons) * 100))}%` }} />
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-400 block mt-1.5">
+                      {Math.round((mineProfile.currentOutputTons / mineProfile.plannedTargetTons) * 100)}% of target
+                    </span>
+                  </div>
+                </ShaderCard>
+
+                <ShaderCard variant="indigo" className="p-5 flex flex-col justify-between">
+                  <div className="flex items-start justify-between">
+                    <span className={`text-[11px] font-black uppercase tracking-wider ${textMuted}`}>
+                      PLANNED TARGET
+                    </span>
+                    <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                      <span className="material-symbols-outlined text-base">flag</span>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <span className="font-headline font-black text-3xl text-blue-400 block">
+                      {mineProfile.plannedTargetTons.toLocaleString()} t
+                    </span>
+                    <span className={`text-xs font-semibold block mt-1.5 ${textMuted}`}>
+                      Current month allocation
+                    </span>
+                  </div>
+                </ShaderCard>
+
+                <ShaderCard variant="teal" className="p-5 flex flex-col justify-between">
+                  <div className="flex items-start justify-between">
+                    <span className="text-[11px] font-black text-[#0E7C7B] uppercase tracking-wider block">
+                      PREDICTED OUTPUT
+                    </span>
+                    <div className="w-7 h-7 rounded-lg bg-[#0E7C7B]/15 border border-[#0E7C7B]/30 flex items-center justify-center text-[#0E7C7B]">
+                      <span className="material-symbols-outlined text-base">layers</span>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <span className="font-headline font-black text-3xl text-[#0E7C7B] block">
+                      {mineProfile.predictedOutputTons.toLocaleString()} t
+                    </span>
+                    <span className="text-xs font-semibold text-[#0E7C7B] block mt-1.5">
+                      Model forecast
+                    </span>
+                  </div>
+                </ShaderCard>
+
+                <ShaderCard variant="amber" className="p-5 flex flex-col justify-between">
+                  <div className="flex items-start justify-between">
+                    <span className="text-[11px] font-black text-[#D97706] uppercase tracking-wider block">
+                      PROJECTED GAP
+                    </span>
+                    <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-[#D97706]">
+                      <span className="material-symbols-outlined text-base">notifications</span>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <span className="font-headline font-black text-3xl text-[#D97706] block">
+                      {mineProfile.projectedGapTons.toLocaleString()} t
+                    </span>
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px] font-extrabold border border-red-500/30">
+                        1 High Risk
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px] font-extrabold border border-amber-500/30">
+                        {mineProfile.gapPct}% deficit
+                      </span>
+                    </div>
+                  </div>
+                </ShaderCard>
               </div>
 
               {/* MAIN APACHE ECHARTS PRODUCTION VS TARGET CHART */}
@@ -1759,6 +1816,21 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                 </div>
               </div>
 
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB 6: PORTFOLIO OVERVIEW TAB CONTENT */}
+          {/* ========================================================================= */}
+          {activeTab === 'portfolio-view' && (
+            <div className="space-y-8 animate-in fade-in duration-300">
+              <PortfolioView
+                isDark={isDark}
+                onOpenMine={(mineId) => {
+                  setSelectedMineId(mineId);
+                  setActiveTab('overview');
+                }}
+              />
             </div>
           )}
 
