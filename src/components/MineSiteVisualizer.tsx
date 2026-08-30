@@ -1,9 +1,9 @@
 // ==============================================================================
 // MOIL Mine Intelligence View Component (TERRAIN, SATELLITE, INTELLIGENCE)
-// Provides mine-specific, data-driven visualizations for each selected mine.
+// Provides mine-specific, data-driven visualizations with Full-Screen Zoom mode.
 // ==============================================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polygon, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import { TILE_PROVIDERS } from '../data/reserveMappingData';
@@ -24,6 +24,8 @@ import {
   Fuel,
   Gauge,
   User,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 
 export type IntelligenceMode = 'TERRAIN' | 'SATELLITE' | 'INTELLIGENCE';
@@ -45,10 +47,22 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
   const [selectedDrillHoleId, setSelectedDrillHoleId] = useState<string | null>(null);
   const [selectedEquipment, setSelectedEquipment] = useState<EquipmentAsset | null>(null);
   const [highlightedElevation, setHighlightedElevation] = useState<number | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
   const isDark = themeMode === 'dark';
   const profile = getMineIntelligenceProfile(mineId);
   const isOpenCast = profile.type === 'Open Cast';
+
+  // Listen for Escape key to cleanly exit fullscreen
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen]);
 
   // Default active zone if none explicitly selected
   const activeZone =
@@ -64,37 +78,38 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
     className: 'mine-center-pin',
     html: `
       <div style="
-        width: 32px;
-        height: 32px;
+        width: 34px;
+        height: 34px;
         border-radius: 50%;
         background: linear-gradient(135deg, #f59e0b, #d97706);
-        border: 2px solid #ffffff;
-        box-shadow: 0 0 14px rgba(245, 158, 11, 0.85);
+        border: 2.5px solid #ffffff;
+        box-shadow: 0 0 16px rgba(245, 158, 11, 0.9);
         display: flex;
         align-items: center;
         justify-content: center;
         color: #ffffff;
         font-weight: 900;
-        font-size: 13px;
+        font-size: 14px;
         cursor: pointer;
       ">
         ⛏
       </div>
     `,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
+    iconSize: [34, 34],
+    iconAnchor: [17, 17],
   });
 
-  return (
-    <div className="space-y-3 pt-1">
-      {/* Header with Title and Mode Selector */}
+  // Render the core visualizer canvas & overlays
+  const renderVisualizerContent = (inFullscreen: boolean) => (
+    <div className={`space-y-3 ${inFullscreen ? 'flex-1 flex flex-col justify-between' : ''}`}>
+      {/* Header with Title, Mode Selector, and Fullscreen Zoom Button */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-          <h3 className={`text-xs font-black uppercase tracking-wider ${
-            isDark ? 'text-slate-200' : 'text-slate-800'
+          <h3 className={`font-black uppercase tracking-wider ${
+            inFullscreen ? 'text-base sm:text-lg text-white' : 'text-xs ' + (isDark ? 'text-slate-200' : 'text-slate-800')
           }`}>
-            MINE INTELLIGENCE VIEW
+            MINE INTELLIGENCE VIEW {inFullscreen && <span className="text-amber-400 ml-1">· EXPANDED FULLSCREEN</span>}
           </h3>
           <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-bold ${
             isDark ? 'bg-white/5 border-white/10 text-amber-400' : 'bg-slate-100 border-slate-300 text-[#002452]'
@@ -103,60 +118,85 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
           </span>
         </div>
 
-        {/* 3 Main Modes */}
-        <div className={`flex items-center gap-1 p-1 rounded-lg border shadow-sm ${
-          isDark ? 'bg-[#14171C] border-white/10' : 'bg-slate-100 border-slate-200'
-        }`}>
-          <button
-            onClick={() => setActiveMode('TERRAIN')}
-            className={`px-3 py-1.5 rounded-md text-[10px] font-extrabold uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeMode === 'TERRAIN'
-                ? 'bg-[#0E7C7B] text-white shadow-md font-black'
-                : isDark
-                ? 'text-slate-400 hover:text-white hover:bg-white/5'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-            }`}
-          >
-            <Mountain className="w-3.5 h-3.5" />
-            <span>Terrain DEM</span>
-          </button>
+        {/* Right Controls: 3 Modes & Fullscreen Toggle */}
+        <div className="flex items-center gap-2">
+          <div className={`flex items-center gap-1 p-1 rounded-lg border shadow-sm ${
+            isDark ? 'bg-[#14171C] border-white/10' : 'bg-slate-100 border-slate-200'
+          }`}>
+            <button
+              onClick={() => setActiveMode('TERRAIN')}
+              className={`px-3 py-1.5 rounded-md text-[10px] font-extrabold uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeMode === 'TERRAIN'
+                  ? 'bg-[#0E7C7B] text-white shadow-md font-black'
+                  : isDark
+                  ? 'text-slate-400 hover:text-white hover:bg-white/5'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              <Mountain className="w-3.5 h-3.5" />
+              <span>Terrain DEM</span>
+            </button>
 
-          <button
-            onClick={() => setActiveMode('SATELLITE')}
-            className={`px-3 py-1.5 rounded-md text-[10px] font-extrabold uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeMode === 'SATELLITE'
-                ? 'bg-blue-600 text-white shadow-md font-black'
-                : isDark
-                ? 'text-slate-400 hover:text-white hover:bg-white/5'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-            }`}
-          >
-            <Satellite className="w-3.5 h-3.5" />
-            <span>Satellite GIS</span>
-          </button>
+            <button
+              onClick={() => setActiveMode('SATELLITE')}
+              className={`px-3 py-1.5 rounded-md text-[10px] font-extrabold uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeMode === 'SATELLITE'
+                  ? 'bg-blue-600 text-white shadow-md font-black'
+                  : isDark
+                  ? 'text-slate-400 hover:text-white hover:bg-white/5'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+              }`}
+            >
+              <Satellite className="w-3.5 h-3.5" />
+              <span>Satellite GIS</span>
+            </button>
 
+            <button
+              onClick={() => setActiveMode('INTELLIGENCE')}
+              className={`px-3.5 py-1.5 rounded-md text-[10px] font-black uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeMode === 'INTELLIGENCE'
+                  ? 'bg-amber-500 text-slate-950 font-black shadow-md ring-1 ring-amber-300'
+                  : isDark
+                  ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-500/10'
+                  : 'text-amber-700 hover:text-amber-900 hover:bg-amber-100'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Intelligence</span>
+            </button>
+          </div>
+
+          {/* Fullscreen Expand / Shrink Button */}
           <button
-            onClick={() => setActiveMode('INTELLIGENCE')}
-            className={`px-3.5 py-1.5 rounded-md text-[10px] font-black uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeMode === 'INTELLIGENCE'
-                ? 'bg-amber-500 text-slate-950 font-black shadow-md ring-1 ring-amber-300'
-                : isDark
-                ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-500/10'
-                : 'text-amber-700 hover:text-amber-900 hover:bg-amber-100'
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-all cursor-pointer shadow-md ${
+              inFullscreen
+                ? 'bg-red-500/20 hover:bg-red-500/30 text-red-300 border-red-500/40'
+                : 'bg-white/10 hover:bg-white/20 text-white border-white/20'
             }`}
+            title={inFullscreen ? "Exit Full Screen (Esc)" : "Expand to Full Screen"}
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Intelligence</span>
+            {inFullscreen ? (
+              <>
+                <Minimize2 className="w-3.5 h-3.5" />
+                <span>Exit Full Screen (Esc)</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span>Full Screen ⛶</span>
+              </>
+            )}
           </button>
         </div>
       </div>
 
       {/* Main Visual Display Container */}
       <div
-        className={`w-full rounded-xl border relative overflow-hidden shadow-2xl ${
+        className={`w-full rounded-xl border relative overflow-hidden shadow-2xl transition-all ${
           isDark ? 'bg-[#0b0e14] border-white/15' : 'bg-slate-900 border-slate-700'
-        }`}
-        style={{ height: '300px' }}
+        } ${inFullscreen ? 'flex-1 min-h-[480px]' : ''}`}
+        style={{ height: inFullscreen ? 'calc(100vh - 240px)' : '300px' }}
       >
         {/* ========================================================================= */}
         {/* 1. TERRAIN MODE (Rich 2.5D Terraced DEM Open-Cast Pit or Underground)      */}
@@ -170,7 +210,7 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
               </span>
               <button
                 onClick={() => setHighlightedElevation(null)}
-                className={`px-1.5 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
+                className={`px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
                   highlightedElevation === null
                     ? 'bg-[#0E7C7B] text-white font-black'
                     : 'text-slate-300 hover:bg-white/10'
@@ -182,7 +222,7 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
                 <button
                   key={c.elevationM}
                   onClick={() => setHighlightedElevation(c.elevationM)}
-                  className={`px-1.5 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
+                  className={`px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
                     highlightedElevation === c.elevationM
                       ? 'bg-amber-500 text-slate-950 font-black'
                       : 'text-slate-300 hover:bg-white/10'
@@ -194,9 +234,8 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
             </div>
 
             {/* SVG 3D Terraced DEM Canvas */}
-            <svg viewBox="0 0 540 220" className="w-full h-full relative z-10">
+            <svg viewBox="0 0 540 220" className="w-full h-full relative z-10" preserveAspectRatio="xMidYMid meet">
               <defs>
-                {/* Elevation Gradients */}
                 <linearGradient id="crestTerrainGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" stopColor="#334155" stopOpacity="0.85" />
                   <stop offset="100%" stopColor="#1e293b" stopOpacity="0.95" />
@@ -362,7 +401,6 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
                   {/* Surface Steel Lattice Headframe Tower */}
                   <polygon points="120,30 140,5 160,5 180,30" fill="none" stroke="#F59E0B" strokeWidth="2" />
                   <line x1="130" y1="18" x2="170" y2="18" stroke="#F59E0B" strokeWidth="1.5" />
-                  {/* Winder Sheave Wheel */}
                   <circle cx="150" cy="8" r="6" fill="#1E293B" stroke="#F59E0B" strokeWidth="2" />
                   <circle cx="150" cy="8" r="2" fill="#F59E0B" />
                   <text x="190" y="16" fill="#FBBF24" fontSize="8" fontWeight="bold">
@@ -371,7 +409,6 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
 
                   {/* Vertical Hoisting Shaft (420m Deep) */}
                   <rect x="142" y="30" width="16" height="175" fill="url(#undergroundShaftGrad)" stroke="#64748B" strokeWidth="1.5" />
-                  {/* Shaft Skip Cage */}
                   <rect x="144" y="105" width="12" height="20" fill="#EF4444" stroke="#FFFFFF" strokeWidth="1" />
                   <line x1="150" y1="8" x2="150" y2="105" stroke="#FFFFFF" strokeWidth="1" strokeDasharray="3 1" />
 
@@ -515,7 +552,7 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
               zoom={14}
               minZoom={12}
               maxZoom={18}
-              scrollWheelZoom={false}
+              scrollWheelZoom={true}
               zoomControl={false}
               className="w-full h-full"
             >
@@ -601,7 +638,7 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
             {/* Background Grid */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
 
-            <svg viewBox="0 0 540 210" className="w-full h-full relative z-10">
+            <svg viewBox="0 0 540 210" className="w-full h-full relative z-10" preserveAspectRatio="xMidYMid meet">
               {/* Structural Faults / Axes */}
               {profile.structuralFeatures.map((feat, idx) => (
                 <g key={idx}>
@@ -860,5 +897,23 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
         </div>
       )}
     </div>
+  );
+
+  return (
+    <>
+      {/* 1. Normal In-Place Visualizer */}
+      <div className="space-y-3 pt-1">
+        {renderVisualizerContent(false)}
+      </div>
+
+      {/* 2. Full-Screen Zoom Overlay Modal */}
+      {isFullscreen && (
+        <div className="fixed inset-0 z-[9999] bg-[#090C10]/95 backdrop-blur-2xl p-4 sm:p-6 md:p-8 flex flex-col justify-between overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+          <div className="max-w-[1700px] w-full mx-auto flex-1 flex flex-col justify-between">
+            {renderVisualizerContent(true)}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
