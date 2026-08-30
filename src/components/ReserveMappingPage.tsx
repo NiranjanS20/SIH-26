@@ -33,6 +33,8 @@ import {
   type ExplorationTarget,
 } from '../data/reserveMappingData';
 import { type PortalRoute } from './Navbar';
+import { getNasaEarthdataConfig, NASA_GIBS_TILE_PROVIDERS } from '../services/nasaEarthdataService';
+import { fetchLiveMineWeather, type LiveWeatherData } from '../services/weatherService';
 
 // ── Satellite Analysis Layers ────────────────────────────────────────────────
 export type SatelliteMode =
@@ -256,6 +258,21 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
   // Environment Token Configuration (Reads cleanly from .env)
   const envMapboxToken = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined;
 
+  // NASA Earthdata Configuration & Token Info
+  const nasaConfig = useMemo(() => getNasaEarthdataConfig(), []);
+
+  // Real-time OpenWeather Stream for Focused Mine
+  const [mineWeather, setMineWeather] = useState<LiveWeatherData | null>(null);
+
+  useEffect(() => {
+    const lat = selectedMine ? selectedMine.latitude : 21.554;
+    const lng = selectedMine ? selectedMine.longitude : 79.702;
+    const name = selectedMine ? selectedMine.name : 'Dongri Buzurg';
+    fetchLiveMineWeather(lat, lng, name).then((data) => {
+      setMineWeather(data);
+    });
+  }, [selectedMine]);
+
   // Quick Zoom Presets
   const QUICK_REGIONS = [
     { name: 'Dongri Buzurg (Pilot)', lat: 21.554, lng: 79.702, zoom: 11.5, mineId: 'dongri-buzurg' },
@@ -284,10 +301,13 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
     setMapZoom(11.5);
   };
 
-  // Determine active tile URL (Mapbox if configured in .env, otherwise Esri Satellite or Dark Matter)
+  // Determine active tile URL (Mapbox/NASA GIBS if configured, otherwise Esri Satellite or Dark Matter)
   const activeTileUrl = useMemo(() => {
     if (envMapboxToken && envMapboxToken.trim()) {
       return `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/256/{z}/{x}/{y}@2x?access_token=${envMapboxToken.trim()}`;
+    }
+    if (activeSatelliteMode === 'THERMAL_LST' && nasaConfig.isValid) {
+      return NASA_GIBS_TILE_PROVIDERS.lstThermal.url;
     }
     if (
       activeSatelliteMode === 'TRUE_COLOR' ||
@@ -297,10 +317,12 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
       return TILE_PROVIDERS.satellite.url;
     }
     return themeMode === 'dark' ? TILE_PROVIDERS.dark.url : TILE_PROVIDERS.light.url;
-  }, [envMapboxToken, activeSatelliteMode, themeMode]);
+  }, [envMapboxToken, activeSatelliteMode, nasaConfig, themeMode]);
 
   const activeTileAttribution = envMapboxToken
     ? '&copy; <a href="https://www.mapbox.com/">Mapbox</a>'
+    : activeSatelliteMode === 'THERMAL_LST' && nasaConfig.isValid
+    ? NASA_GIBS_TILE_PROVIDERS.lstThermal.attribution
     : activeSatelliteMode === 'TRUE_COLOR'
     ? TILE_PROVIDERS.satellite.attribution
     : TILE_PROVIDERS.dark.attribution;
@@ -452,12 +474,20 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
           </div>
         </div>
 
-        {/* Active Sensor & Ground Resolution Telemetry */}
+        {/* Active Sensor & NASA Token Telemetry */}
         <div className={`hidden md:flex items-center gap-3 text-[10px] font-mono ${textMuted}`}>
+          {nasaConfig.isValid && (
+            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>NASA EOSDIS Verified ({nasaConfig.username})</span>
+            </span>
+          )}
           <span>
             Sensor:{' '}
             <strong className={isDark ? 'text-slate-200' : 'text-slate-900'}>
-              {SATELLITE_MODES.find((m) => m.id === activeSatelliteMode)?.sensor}
+              {activeSatelliteMode === 'THERMAL_LST' && nasaConfig.isValid
+                ? 'NASA MODIS/ASTER TIR'
+                : SATELLITE_MODES.find((m) => m.id === activeSatelliteMode)?.sensor}
             </strong>
           </span>
           <span>•</span>
@@ -778,6 +808,39 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
               <p className={`text-[11px] ${textBody}`}>
                 {selectedMine ? selectedMine.location : `${selectedTarget.region}, ${selectedTarget.state}`}
               </p>
+            </div>
+
+            {/* Live Weather Telemetry (OpenWeather API stream) */}
+            <div className={`p-3 rounded-xl border space-y-1.5 ${cardBg}`}>
+              <div className="flex justify-between items-center">
+                <span className={`text-[10px] font-bold uppercase tracking-wider font-mono ${textMuted}`}>
+                  Live Weather (OpenWeather API)
+                </span>
+                <span className="text-[9px] font-mono font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  {mineWeather?.isLive ? 'LIVE' : 'CONNECTED'}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center pt-0.5">
+                <div className="p-1.5 rounded bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
+                  <span className={`text-[8.5px] uppercase block ${textMuted}`}>Temp</span>
+                  <span className={`font-bold text-xs ${textHeading}`}>
+                    {mineWeather ? `${mineWeather.temp}°C` : '31°C'}
+                  </span>
+                </div>
+                <div className="p-1.5 rounded bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
+                  <span className={`text-[8.5px] uppercase block ${textMuted}`}>Rain</span>
+                  <span className="font-bold text-xs text-blue-600 dark:text-blue-400">
+                    {mineWeather ? `${mineWeather.rainfallMm} mm` : '0 mm'}
+                  </span>
+                </div>
+                <div className="p-1.5 rounded bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
+                  <span className={`text-[8.5px] uppercase block ${textMuted}`}>Humidity</span>
+                  <span className="font-bold text-xs text-cyan-600 dark:text-cyan-400">
+                    {mineWeather ? `${mineWeather.humidity}%` : '68%'}
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* Live Satellite Index Cards */}

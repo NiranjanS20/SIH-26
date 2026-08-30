@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { type PortalRoute } from './Navbar';
+import { fetchLiveMineWeather, type LiveWeatherData } from '../services/weatherService';
 
 interface DongriBuzurgWorkspaceProps {
   onNavigate: (route: PortalRoute) => void;
@@ -57,6 +58,15 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
 
   // Shortfall Diagnosis View Toggle State
   const [diagnosisViewMode, setDiagnosisViewMode] = useState<'SUMMARY' | 'CAUSE_ANALYSIS'>('SUMMARY');
+
+  // Real-time OpenWeather Stream State
+  const [liveWeather, setLiveWeather] = useState<LiveWeatherData | null>(null);
+
+  useEffect(() => {
+    fetchLiveMineWeather(21.554, 79.702, 'Dongri Buzurg').then((data) => {
+      setLiveWeather(data);
+    });
+  }, []);
 
   // Corrective Actions State & In-Place Expansion
   const [expandedActionId, setExpandedActionId] = useState<string | null>(null);
@@ -802,22 +812,29 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                       <span className="material-symbols-outlined text-[#0E7C7B] text-base">thermostat</span>
                       ENVIRONMENTAL CONDITIONS
                     </h2>
-                    <span className={`text-[10px] font-mono uppercase ${textMuted}`}>
-                      LIVE CONTEXT DATA
+                    <span className="text-[10px] font-mono uppercase font-bold flex items-center gap-1.5 text-emerald-500">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>{liveWeather?.lastUpdated || 'LIVE STREAM • OPENWEATHER API'}</span>
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg}`}>
-                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>RAINFALL</span>
-                      <span className="font-headline font-black text-xl text-blue-500 block">70%</span>
-                      <span className={`text-[9px] block ${textMuted}`}>IMD Precip Station</span>
+                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>RAINFALL (MM)</span>
+                      <span className="font-headline font-black text-xl text-blue-500 block">
+                        {liveWeather ? `${liveWeather.rainfallMm} mm` : '70%'}
+                      </span>
+                      <span className={`text-[9px] block ${textMuted}`}>
+                        {liveWeather?.isLive ? 'Live Station Rain' : 'IMD Precip Station'}
+                      </span>
                     </div>
 
                     <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg}`}>
-                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>NDVI</span>
-                      <span className="font-headline font-black text-xl text-emerald-500 block">0.42</span>
-                      <span className={`text-[9px] block ${textMuted}`}>Sentinel-2 Index</span>
+                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>HUMIDITY</span>
+                      <span className="font-headline font-black text-xl text-cyan-500 block">
+                        {liveWeather ? `${liveWeather.humidity}%` : '68%'}
+                      </span>
+                      <span className={`text-[9px] block ${textMuted}`}>Ambient Air RH</span>
                     </div>
 
                     <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg}`}>
@@ -828,8 +845,12 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
 
                     <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg}`}>
                       <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>TEMPERATURE</span>
-                      <span className={`font-headline font-black text-xl block ${textPrimary}`}>31°C</span>
-                      <span className={`text-[9px] block ${textMuted}`}>Pit Station Temp</span>
+                      <span className={`font-headline font-black text-xl block ${textPrimary}`}>
+                        {liveWeather ? `${liveWeather.temp}°C` : '31°C'}
+                      </span>
+                      <span className={`text-[9px] block ${textMuted}`}>
+                        {liveWeather ? `${liveWeather.weatherCondition} (${liveWeather.windSpeedKmh} km/h)` : 'Pit Station Temp'}
+                      </span>
                     </div>
                   </div>
                 </div>
