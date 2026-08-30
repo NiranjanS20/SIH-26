@@ -95,15 +95,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
           </span>
         </div>
 
-        {/* Right: Mines & Telemetry Portal Navigation */}
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={() => onNavigate && onNavigate('mine-selection')}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-white/15 hover:bg-white/25 text-white border border-white/30 transition-all shadow-md cursor-pointer"
-          >
-            <span>Mines & Telemetry</span>
-          </button>
-        </div>
+        {/* Right side is intentionally empty per user request */}
+        <div className="w-12 h-12 invisible"></div>
 
       </div>
     </header>
