@@ -313,47 +313,50 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
                         strokeWidth="1.5"
                         strokeDasharray="5 3"
                       />
+                    </g>
+                  ))}
+
+                  {/* Left Margin Elevation Indicators (Clean non-overlapping column) */}
+                  {profile.terrainData.contours.map((c, i) => (
+                    <g key={c.elevationM}>
+                      <rect
+                        x="12"
+                        y={40 + i * 36}
+                        width="54"
+                        height="18"
+                        rx="4"
+                        fill="rgba(15,23,42,0.85)"
+                        stroke={c.color}
+                        strokeWidth="1"
+                      />
+                      <circle cx="21" cy={49 + i * 36} r="2.5" fill={c.color} />
                       <text
-                        x={idx === 0 ? "115" : "400"}
-                        y={idx === 0 ? "55" : "60"}
-                        fill="#FBBF24"
-                        fontSize="7"
+                        x="28"
+                        y={52 + i * 36}
+                        fill={c.color}
+                        fontSize="8"
                         fontWeight="extrabold"
                         fontFamily="monospace"
                       >
-                        ▲ {road.name} ({road.gradePct}%)
+                        +{c.elevationM}m
                       </text>
                     </g>
                   ))}
 
-                  {/* Contour Level Labels on Left */}
-                  {profile.terrainData.contours.map((c, i) => (
-                    <g key={c.elevationM}>
-                      <circle cx="45" cy={48 + i * 40} r="3" fill={c.color} />
-                      <text
-                        x="53"
-                        y={51 + i * 40}
-                        fill={c.color}
-                        fontSize="8.5"
-                        fontWeight="bold"
-                        fontFamily="monospace"
-                      >
-                        {c.label}
-                      </text>
-                    </g>
-                  ))}
-
-                  {/* Blasting Safety Exclusion Zone Warning Polygon */}
-                  <polygon
-                    points="310,95 435,95 405,150 280,150"
-                    fill="none"
-                    stroke="#EF4444"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 3"
-                  />
-                  <text x="355" y="108" fill="#FCA5A5" fontSize="7" fontWeight="black" textAnchor="middle">
-                    ⚠ BLAST HAZARD PERIMETER
-                  </text>
+                  {/* Blasting Safety Exclusion Zone Warning */}
+                  <g>
+                    <polygon
+                      points="350,95 460,95 425,145 315,145"
+                      fill="rgba(239,68,68,0.08)"
+                      stroke="#EF4444"
+                      strokeWidth="1.2"
+                      strokeDasharray="4 3"
+                    />
+                    <rect x="330" y="105" width="115" height="14" rx="3" fill="rgba(15,23,42,0.85)" stroke="rgba(239,68,68,0.4)" />
+                    <text x="387" y="115" fill="#FCA5A5" fontSize="7" fontWeight="black" textAnchor="middle">
+                      ⚠ BLAST HAZARD PERIMETER
+                    </text>
+                  </g>
                 </g>
               )}
 
@@ -407,9 +410,14 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
                 </g>
               )}
 
-              {/* Equipment Assets / Fleet Pins (Interactive) */}
-              {profile.terrainData.equipmentAssets.map((eq) => {
+              {/* Equipment Assets / Fleet Pins (Non-overlapping smart offsets) */}
+              {profile.terrainData.equipmentAssets.map((eq, eqIdx) => {
                 const isSelected = selectedEquipment?.id === eq.id;
+                // Smart offset to prevent badge collisions
+                const badgeWidth = eq.name.length * 5.8 + 16;
+                const badgeX = eqIdx === 2 ? eq.x - badgeWidth - 10 : eq.x + 10;
+                const badgeY = eqIdx === 0 ? eq.y + 4 : eq.y - 12;
+
                 return (
                   <g
                     key={eq.id}
@@ -420,9 +428,9 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
                     <circle
                       cx={eq.x}
                       cy={eq.y}
-                      r={isSelected ? 14 : 9}
+                      r={isSelected ? 12 : 8}
                       fill={eq.status === 'ACTIVE' ? '#10B981' : '#F59E0B'}
-                      fillOpacity="0.25"
+                      fillOpacity="0.3"
                       className="animate-ping"
                     />
 
@@ -430,7 +438,7 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
                     <circle
                       cx={eq.x}
                       cy={eq.y}
-                      r={isSelected ? 7 : 5.5}
+                      r={isSelected ? 6.5 : 5}
                       fill={eq.status === 'ACTIVE' ? '#10B981' : '#F59E0B'}
                       stroke="#FFFFFF"
                       strokeWidth="2"
@@ -438,10 +446,10 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
 
                     {/* Name Pill Badge */}
                     <rect
-                      x={eq.x + 8}
-                      y={eq.y - 12}
-                      width={eq.name.length * 6 + 18}
-                      height="20"
+                      x={badgeX}
+                      y={badgeY}
+                      width={badgeWidth}
+                      height="18"
                       rx="4"
                       fill="rgba(15,23,42,0.92)"
                       stroke={isSelected ? '#F59E0B' : 'rgba(255,255,255,0.25)'}
@@ -449,8 +457,8 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
                       filter="drop-shadow(0 2px 4px rgba(0,0,0,0.6))"
                     />
                     <text
-                      x={eq.x + 14}
-                      y={eq.y + 2}
+                      x={badgeX + 6}
+                      y={badgeY + 12}
                       fill="#FFFFFF"
                       fontSize="8"
                       fontWeight="bold"
