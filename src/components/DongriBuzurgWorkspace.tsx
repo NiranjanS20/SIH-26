@@ -571,8 +571,8 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                     </div>
                   </div>
 
-                  {/* 3 DISTINCT VISUAL & RASTER MODES (CONTOUR, SATELLITE GIS, GEOLOGY) */}
-                  <MineSiteVisualizer mineProfile={mineProfile} themeMode={themeMode} />
+                  {/* MINE INTELLIGENCE VIEW (TERRAIN, SATELLITE, INTELLIGENCE) */}
+                  <MineSiteVisualizer mineId={selectedMineId} themeMode={themeMode} />
                 </div>
 
                 {/* CURRENT STATUS CARD (5 COLS) */}

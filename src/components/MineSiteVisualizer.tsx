@@ -1,50 +1,61 @@
 // ==============================================================================
-// MOIL Mine Site Visualizer (Contour Topography, Live Satellite GIS, Subsurface Geology)
+// MOIL Mine Intelligence View Component (TERRAIN, SATELLITE, INTELLIGENCE)
+// Provides mine-specific, data-driven visualizations for each selected mine.
 // ==============================================================================
 
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polygon } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polygon, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import { TILE_PROVIDERS } from '../data/reserveMappingData';
-import { type MineProductionProfile } from '../data/mineProductionData';
-import { Layers, Mountain, Satellite } from 'lucide-react';
+import {
+  getMineIntelligenceProfile,
+  type ProspectivityZone,
+} from '../data/mineIntelligenceData';
+import {
+  Mountain,
+  Satellite,
+  Sparkles,
+  Target,
+  Truck,
+  CheckCircle2,
+  Info,
+} from 'lucide-react';
+
+export type IntelligenceMode = 'TERRAIN' | 'SATELLITE' | 'INTELLIGENCE';
 
 interface MineSiteVisualizerProps {
-  mineProfile: MineProductionProfile;
+  mineId: string;
   themeMode?: 'dark' | 'light';
+  onSelectZone?: (zone: ProspectivityZone) => void;
 }
 
-export type VisualMode = 'CONTOUR' | 'SATELLITE' | 'GEOLOGY';
-
-// Coordinates mapping for each mine
-const MINE_COORDINATES: Record<string, [number, number]> = {
-  'dongri-buzurg': [21.554, 79.702],
-  'balaghat': [21.870, 80.185],
-  'chikla': [21.565, 79.755],
-  'kandri': [21.415, 79.280],
-  'tirodi': [21.680, 79.720],
-};
-
 export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
-  mineProfile,
+  mineId,
   themeMode = 'dark',
+  onSelectZone,
 }) => {
-  const [visualMode, setVisualMode] = useState<VisualMode>('CONTOUR');
-  const [activeElevation, setActiveElevation] = useState<number>(280);
+  const [activeMode, setActiveMode] = useState<IntelligenceMode>('INTELLIGENCE');
+  const [selectedSatelliteLayerId, setSelectedSatelliteLayerId] = useState<string>('TRUE_COLOR');
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const [selectedDrillHoleId, setSelectedDrillHoleId] = useState<string | null>(null);
+  const [hoveredEquipmentId, setHoveredEquipmentId] = useState<string | null>(null);
 
   const isDark = themeMode === 'dark';
-  const coords = MINE_COORDINATES[mineProfile.id] || [21.554, 79.702];
+  const profile = getMineIntelligenceProfile(mineId);
 
-  // Bench polygon coordinates around the mine center
-  const benchPolygon: [number, number][] = [
-    [coords[0] + 0.003, coords[1] - 0.004],
-    [coords[0] + 0.004, coords[1] + 0.003],
-    [coords[0] - 0.003, coords[1] + 0.004],
-    [coords[0] - 0.004, coords[1] - 0.003],
-  ];
+  // Default active zone if none explicitly selected
+  const activeZone =
+    profile.prospectivityZones.find((z) => z.id === selectedZoneId) ||
+    profile.prospectivityZones[0] ||
+    null;
 
-  const markerIcon = L.divIcon({
-    className: 'pit-center-marker',
+  const activeDrillHole = profile.drillHoles.find((d) => d.id === selectedDrillHoleId) || null;
+
+  const coords: [number, number] = [profile.latitude, profile.longitude];
+
+  // Mine center custom leaflet pin
+  const minePinIcon = L.divIcon({
+    className: 'mine-center-pin',
     html: `
       <div style="
         width: 32px;
@@ -52,13 +63,14 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
         border-radius: 50%;
         background: linear-gradient(135deg, #f59e0b, #d97706);
         border: 2px solid #ffffff;
-        box-shadow: 0 0 14px rgba(245, 158, 11, 0.9);
+        box-shadow: 0 0 14px rgba(245, 158, 11, 0.85);
         display: flex;
         align-items: center;
         justify-content: center;
         color: #ffffff;
         font-weight: 900;
         font-size: 13px;
+        cursor: pointer;
       ">
         ⛏
       </div>
@@ -68,181 +80,223 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
   });
 
   return (
-    <div className="space-y-2 pt-2">
-      {/* Header with 3 Mode Pills */}
+    <div className="space-y-3 pt-1">
+      {/* Header with Title and Mode Selector */}
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <span className={`text-[10px] font-bold uppercase tracking-wider ${
-          isDark ? 'text-slate-400' : 'text-slate-500'
-        }`}>
-          SITE VISUAL & RASTER OVERLAY
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+          <h3 className={`text-xs font-black uppercase tracking-wider ${
+            isDark ? 'text-slate-200' : 'text-slate-800'
+          }`}>
+            MINE INTELLIGENCE VIEW
+          </h3>
+          <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-bold ${
+            isDark ? 'bg-white/5 border-white/10 text-amber-400' : 'bg-slate-100 border-slate-300 text-[#002452]'
+          }`}>
+            {profile.shortCode} • {profile.type.toUpperCase()}
+          </span>
+        </div>
 
-        {/* 3 Distinct View Mode Buttons */}
-        <div className={`flex items-center gap-1 p-1 rounded-lg border ${
+        {/* 3 Main Modes */}
+        <div className={`flex items-center gap-1 p-1 rounded-lg border shadow-sm ${
           isDark ? 'bg-[#14171C] border-white/10' : 'bg-slate-100 border-slate-200'
         }`}>
           <button
-            onClick={() => setVisualMode('CONTOUR')}
-            className={`px-3 py-1 rounded text-[10px] font-extrabold uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
-              visualMode === 'CONTOUR'
+            onClick={() => setActiveMode('TERRAIN')}
+            className={`px-3 py-1.5 rounded-md text-[10px] font-extrabold uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeMode === 'TERRAIN'
                 ? 'bg-[#0E7C7B] text-white shadow-md'
                 : isDark
-                ? 'text-slate-400 hover:text-white'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'text-slate-400 hover:text-white hover:bg-white/5'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
             }`}
           >
-            <Mountain className="w-3 h-3" />
-            <span>Contour</span>
+            <Mountain className="w-3.5 h-3.5" />
+            <span>Terrain</span>
           </button>
 
           <button
-            onClick={() => setVisualMode('SATELLITE')}
-            className={`px-3 py-1 rounded text-[10px] font-extrabold uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
-              visualMode === 'SATELLITE'
-                ? 'bg-amber-500 text-slate-950 font-black shadow-md'
+            onClick={() => setActiveMode('SATELLITE')}
+            className={`px-3 py-1.5 rounded-md text-[10px] font-extrabold uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeMode === 'SATELLITE'
+                ? 'bg-blue-600 text-white shadow-md'
                 : isDark
-                ? 'text-slate-400 hover:text-white'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'text-slate-400 hover:text-white hover:bg-white/5'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
             }`}
           >
-            <Satellite className="w-3 h-3" />
-            <span>Satellite GIS</span>
+            <Satellite className="w-3.5 h-3.5" />
+            <span>Satellite</span>
           </button>
 
           <button
-            onClick={() => setVisualMode('GEOLOGY')}
-            className={`px-3 py-1 rounded text-[10px] font-extrabold uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
-              visualMode === 'GEOLOGY'
-                ? 'bg-purple-600 text-white shadow-md'
+            onClick={() => setActiveMode('INTELLIGENCE')}
+            className={`px-3.5 py-1.5 rounded-md text-[10px] font-black uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeMode === 'INTELLIGENCE'
+                ? 'bg-amber-500 text-slate-950 font-black shadow-md ring-1 ring-amber-300'
                 : isDark
-                ? 'text-slate-400 hover:text-white'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-500/10'
+                : 'text-amber-700 hover:text-amber-900 hover:bg-amber-100'
             }`}
           >
-            <Layers className="w-3 h-3" />
-            <span>Geology</span>
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Intelligence</span>
           </button>
         </div>
       </div>
 
       {/* Main Visual Display Container */}
       <div
-        className={`w-full rounded-xl border relative overflow-hidden shadow-lg ${
-          isDark ? 'bg-[#12151B] border-white/15' : 'bg-slate-900 border-slate-700'
+        className={`w-full rounded-xl border relative overflow-hidden shadow-xl ${
+          isDark ? 'bg-[#0F1218] border-white/15' : 'bg-slate-900 border-slate-700'
         }`}
-        style={{ height: '240px' }}
+        style={{ height: '280px' }}
       >
         {/* ========================================================================= */}
-        {/* OPTION 1: CONTOUR MODE (Topography, Bench Elevations, Excavation Limits) */}
+        {/* 1. TERRAIN MODE                                                           */}
         {/* ========================================================================= */}
-        {visualMode === 'CONTOUR' && (
+        {activeMode === 'TERRAIN' && (
           <div className="w-full h-full relative p-3 flex flex-col justify-between select-none">
-            {/* Background Grid & Elevation Isolines */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px]" />
+            {/* Grid Lines */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
-            <svg viewBox="0 0 540 200" className="w-full h-full relative z-10">
-              {/* Elevation Contours */}
-              {/* +340m Top Crest */}
-              <path
-                d="M 20 50 Q 140 10 270 50 T 520 50"
-                fill="none"
-                stroke="#64748B"
-                strokeWidth="1.2"
-                strokeDasharray="4 2"
-                opacity="0.6"
-              />
-              <text x="30" y="44" fill="#94A3B8" fontSize="8" fontFamily="monospace">+340m Crest</text>
+            <svg viewBox="0 0 540 210" className="w-full h-full relative z-10">
+              {/* Mine Contours */}
+              {profile.terrainData.contours.map((contour, idx) => (
+                <g key={idx}>
+                  <path
+                    d={contour.pathD}
+                    fill="none"
+                    stroke={contour.color}
+                    strokeWidth={contour.type === 'ore_face' ? '2.4' : '1.4'}
+                    strokeDasharray={contour.type === 'crest' || contour.type === 'sump' ? '4 2' : undefined}
+                    opacity="0.9"
+                  />
+                  <text
+                    x="25"
+                    y={32 + idx * 36}
+                    fill={contour.color}
+                    fontSize="8.5"
+                    fontWeight="bold"
+                    fontFamily="monospace"
+                  >
+                    {contour.label}
+                  </text>
+                </g>
+              ))}
 
-              {/* +310m Intermediate Bench */}
-              <path
-                d="M 35 85 Q 160 30 270 85 T 505 85"
-                fill="none"
-                stroke="#0E7C7B"
-                strokeWidth="1.6"
-                opacity="0.85"
-              />
-              <text x="45" y="80" fill="#0E7C7B" fontSize="8" fontWeight="bold" fontFamily="monospace">+310m ROM Bench</text>
+              {/* Haul Roads */}
+              {profile.terrainData.haulRoads.map((road, idx) => (
+                <g key={idx}>
+                  <path
+                    d={road.pathD}
+                    fill="none"
+                    stroke="#E2E8F0"
+                    strokeWidth="3"
+                    strokeDasharray="6 4"
+                    opacity="0.75"
+                  />
+                  <path
+                    d={road.pathD}
+                    fill="none"
+                    stroke="#D97706"
+                    strokeWidth="1.5"
+                    opacity="0.9"
+                  />
+                </g>
+              ))}
 
-              {/* +280m Active Extraction Pit Face */}
-              <path
-                d="M 60 120 Q 180 55 270 120 T 480 120"
-                fill="none"
-                stroke="#F59E0B"
-                strokeWidth="2.4"
-                opacity="0.95"
-              />
-              <text x="70" y="115" fill="#F59E0B" fontSize="9" fontWeight="extrabold" fontFamily="monospace">+280m Active Ore Face</text>
-
-              {/* +240m Sump Inflow Bottom */}
-              <path
-                d="M 90 155 Q 200 90 270 155 T 450 155"
-                fill="none"
-                stroke="#3B82F6"
-                strokeWidth="1.8"
-                strokeDasharray="3 3"
-                opacity="0.8"
-              />
-              <text x="100" y="150" fill="#60A5FA" fontSize="8" fontFamily="monospace">+240m Pit Sump Basin</text>
-
-              {/* Ore Pit Polygon Boundary */}
-              <polygon
-                points="110,65 430,70 390,165 150,160"
-                fill="#F59E0B"
-                fillOpacity="0.15"
-                stroke="#F59E0B"
-                strokeWidth="1.8"
-                strokeDasharray="5 3"
-              />
-
-              {/* Dynamic Ore Pins */}
-              <g className="cursor-pointer">
-                <circle cx="230" cy="98" r="5" fill="#F59E0B" stroke="#FFFFFF" strokeWidth="2" />
-                <rect x="242" y="88" width="165" height="20" rx="4" fill="rgba(15,23,42,0.85)" stroke="rgba(245,158,11,0.5)" />
-                <text x="248" y="102" fill="#FFFFFF" fontSize="9" fontWeight="bold">
-                  Pit Bench DB-01 (46.2% Mn)
-                </text>
-              </g>
-
-              <g className="cursor-pointer">
-                <circle cx="340" cy="132" r="5" fill="#38BDF8" stroke="#FFFFFF" strokeWidth="2" />
-                <rect x="352" y="122" width="140" height="20" rx="4" fill="rgba(15,23,42,0.85)" stroke="rgba(56,189,248,0.5)" />
-                <text x="358" y="136" fill="#FFFFFF" fontSize="9" fontWeight="bold">
-                  East Ridge (+12.4kt ROM)
-                </text>
-              </g>
+              {/* Equipment Assets Pins */}
+              {profile.terrainData.equipmentAssets.map((eq) => {
+                const isHovered = hoveredEquipmentId === eq.id;
+                return (
+                  <g
+                    key={eq.id}
+                    className="cursor-pointer"
+                    onMouseEnter={() => setHoveredEquipmentId(eq.id)}
+                    onMouseLeave={() => setHoveredEquipmentId(null)}
+                  >
+                    <circle
+                      cx={eq.x}
+                      cy={eq.y}
+                      r={isHovered ? 7 : 5}
+                      fill={eq.status === 'ACTIVE' ? '#10B981' : '#F59E0B'}
+                      stroke="#FFFFFF"
+                      strokeWidth="1.5"
+                    />
+                    <rect
+                      x={eq.x + 8}
+                      y={eq.y - 12}
+                      width={eq.name.length * 5.8 + 14}
+                      height="18"
+                      rx="3"
+                      fill="rgba(15,23,42,0.9)"
+                      stroke={isHovered ? '#F59E0B' : 'rgba(255,255,255,0.2)'}
+                      strokeWidth="1"
+                    />
+                    <text
+                      x={eq.x + 14}
+                      y={eq.y}
+                      fill="#F8FAFC"
+                      fontSize="8"
+                      fontWeight="bold"
+                    >
+                      {eq.name}
+                    </text>
+                  </g>
+                );
+              })}
             </svg>
 
-            {/* Bottom Status Bar with Interactive Elevation Selector */}
+            {/* Bottom Status Bar */}
             <div className="relative z-20 flex items-center justify-between px-3 py-1.5 rounded-lg bg-black/85 backdrop-blur-md text-[10px] font-mono text-slate-300 border border-white/10">
               <span className="flex items-center gap-1.5 text-emerald-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>TOPOGRAPHIC BENCH CONTOUR</span>
+                <Truck className="w-3 h-3 text-emerald-400" />
+                <span>
+                  {profile.terrainData.equipmentAssets.length} Active Fleet Assets · Elevation Range:{' '}
+                  {profile.terrainData.elevationRangeM.min}m to +{profile.terrainData.elevationRangeM.max}m MSL
+                </span>
               </span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-slate-400 text-[9px]">BENCH:</span>
-                {[240, 280, 310, 340].map((elev) => (
-                  <button
-                    key={elev}
-                    onClick={() => setActiveElevation(elev)}
-                    className={`px-1.5 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
-                      activeElevation === elev
-                        ? 'bg-amber-500 text-slate-950 font-black ring-1 ring-amber-300'
-                        : 'bg-white/10 text-slate-300 hover:bg-white/20'
-                    }`}
-                  >
-                    +{elev}m
-                  </button>
-                ))}
-              </div>
+              <span className="text-amber-400 font-bold">
+                LEASE AREA: {profile.leaseAreaHa} Ha
+              </span>
             </div>
           </div>
         )}
 
         {/* ========================================================================= */}
-        {/* OPTION 2: SATELLITE GIS MODE (High-Resolution Space-Tech Pit View)       */}
+        {/* 2. SATELLITE MODE                                                         */}
         {/* ========================================================================= */}
-        {visualMode === 'SATELLITE' && (
+        {activeMode === 'SATELLITE' && (
           <div className="w-full h-full relative">
+            {/* Top Layer Switcher Overlay */}
+            <div className="absolute top-2 left-2 right-2 z-400 flex items-center justify-between pointer-events-none gap-2">
+              <div className="pointer-events-auto flex items-center gap-1 p-1 rounded-lg bg-black/80 backdrop-blur-md border border-white/15 shadow-lg overflow-x-auto max-w-[90%]">
+                {profile.satelliteConfig.availableLayers.map((layer) => {
+                  const isSelected = selectedSatelliteLayerId === layer.id;
+                  return (
+                    <button
+                      key={layer.id}
+                      onClick={() => setSelectedSatelliteLayerId(layer.id)}
+                      className={`px-2 py-1 rounded text-[9.5px] font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+                        isSelected
+                          ? 'bg-blue-600 text-white font-extrabold shadow-md'
+                          : 'text-slate-300 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      <span>{layer.icon}</span>
+                      <span>{layer.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="pointer-events-auto px-2 py-1 rounded-lg bg-black/80 backdrop-blur-md border border-white/15 text-[9px] font-mono text-emerald-400 font-bold hidden sm:block">
+                HIGH-RES SATELLITE TILE
+              </div>
+            </div>
+
+            {/* Leaflet Satellite Map centered on selected mine */}
             <MapContainer
               center={coords}
               zoom={14}
@@ -259,93 +313,285 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
                 maxZoom={18}
               />
 
-              {/* Active Lease Bench Boundary */}
+              {/* Working Pit / Mining Lease Boundary Polygon */}
               <Polygon
-                positions={benchPolygon}
+                positions={profile.terrainData.boundaryCoords}
                 pathOptions={{
                   color: '#f59e0b',
                   weight: 2,
-                  dashArray: '4 4',
+                  dashArray: '5 3',
                   fillColor: '#f59e0b',
-                  fillOpacity: 0.2,
+                  fillOpacity: selectedSatelliteLayerId === 'TRUE_COLOR' ? 0.15 : 0.05,
                 }}
               />
 
+              {/* Thematic Simulated Raster Sample Overlay */}
+              {selectedSatelliteLayerId !== 'TRUE_COLOR' && (
+                <Circle
+                  center={coords}
+                  radius={750}
+                  pathOptions={{
+                    color:
+                      selectedSatelliteLayerId === 'NDVI'
+                        ? '#15803d'
+                        : selectedSatelliteLayerId === 'SOIL_MOISTURE'
+                        ? '#0284c7'
+                        : selectedSatelliteLayerId === 'SAR_SUBSIDENCE'
+                        ? '#8b5cf6'
+                        : '#ef4444',
+                    fillColor:
+                      selectedSatelliteLayerId === 'NDVI'
+                        ? '#15803d'
+                        : selectedSatelliteLayerId === 'SOIL_MOISTURE'
+                        ? '#0284c7'
+                        : selectedSatelliteLayerId === 'SAR_SUBSIDENCE'
+                        ? '#8b5cf6'
+                        : '#ef4444',
+                    fillOpacity: 0.35,
+                    weight: 2,
+                  }}
+                />
+              )}
+
               {/* Mine Head Marker */}
-              <Marker position={coords} icon={markerIcon}>
+              <Marker position={coords} icon={minePinIcon}>
                 <Popup>
-                  <div className="p-1.5 text-xs font-bold">
-                    <span className="text-amber-500 block">{mineProfile.mineName}</span>
+                  <div className="p-1 text-xs">
+                    <strong className="text-amber-500 block font-bold">{profile.mineName}</strong>
                     <span className="text-[10px] text-slate-600 block">
-                      Coord: {coords[0].toFixed(3)}°N, {coords[1].toFixed(3)}°E
+                      {profile.district}, {profile.state}
                     </span>
                   </div>
                 </Popup>
               </Marker>
             </MapContainer>
 
-            {/* Live Space Telemetry HUD */}
+            {/* Bottom Telemetry HUD */}
             <div className="absolute bottom-2 left-2 right-2 z-400 flex items-center justify-between px-3 py-1.5 rounded-lg bg-black/85 backdrop-blur-md text-[10px] font-mono text-slate-200 border border-white/15 shadow-xl">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-bold text-amber-400">Sentinel-2B Optical MSI (10m)</span>
+                <span className="font-bold text-amber-400">{profile.satelliteConfig.sensor}</span>
+                <span className="text-slate-400">({profile.satelliteConfig.spatialResolution})</span>
               </div>
               <span className="text-slate-400">
-                Lat: {coords[0].toFixed(3)}°N · Lng: {coords[1].toFixed(3)}°E
+                Lat: {coords[0].toFixed(3)}°N · Lng: {coords[1].toFixed(3)}°E · Pass: {profile.satelliteConfig.lastPassDate}
               </span>
             </div>
           </div>
         )}
 
         {/* ========================================================================= */}
-        {/* OPTION 3: GEOLOGY STRATIGRAPHY MODE (Subsurface Strata & Manganese Reef) */}
+        {/* 3. INTELLIGENCE MODE (Decision Support, Zones, Drill Holes, Evidence)    */}
         {/* ========================================================================= */}
-        {visualMode === 'GEOLOGY' && (
-          <div className="w-full h-full relative p-3 flex flex-col justify-between select-none bg-[#0d1117]">
-            <div className="relative z-10 w-full h-44 flex flex-col justify-between py-1">
-              {/* Strata Layer 1: Weathered Laterite Soil */}
-              <div className="h-7 w-full rounded bg-gradient-to-r from-[#854d0e] via-[#a16207] to-[#854d0e] flex items-center justify-between px-3 text-[9.5px] font-bold text-white border border-[#ca8a04]/40 shadow-xs">
-                <span>0 – 8m: Lateritic Soil & Weathered Overburden</span>
-                <span className="text-[8.5px] font-mono opacity-80">Waste Stripping Zone</span>
-              </div>
+        {activeMode === 'INTELLIGENCE' && (
+          <div className="w-full h-full relative p-3 flex flex-col justify-between select-none">
+            {/* Background Grid */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
 
-              {/* Strata Layer 2: Quartz-Muscovite Schist */}
-              <div className="h-7 w-full rounded bg-gradient-to-r from-[#334155] via-[#475569] to-[#334155] flex items-center justify-between px-3 text-[9.5px] font-bold text-slate-200 border border-slate-500/30 shadow-xs">
-                <span>8 – 24m: Quartz-Muscovite Schist (Hanging Wall)</span>
-                <span className="text-[8.5px] font-mono opacity-80">Dip: 68° NW</span>
-              </div>
+            <svg viewBox="0 0 540 210" className="w-full h-full relative z-10">
+              {/* Structural Faults / Axes */}
+              {profile.structuralFeatures.map((feat, idx) => (
+                <g key={idx}>
+                  <path
+                    d={feat.trendLineD}
+                    fill="none"
+                    stroke="#EC4899"
+                    strokeWidth="1.8"
+                    strokeDasharray="4 3"
+                    opacity="0.8"
+                  />
+                  <text
+                    x="28"
+                    y={195 - idx * 20}
+                    fill="#F472B6"
+                    fontSize="8"
+                    fontFamily="monospace"
+                  >
+                    -- {feat.name} ({feat.strike} / {feat.dip})
+                  </text>
+                </g>
+              ))}
 
-              {/* Strata Layer 3: High Grade Manganese Ore Reef (HERO MINERAL LAYER) */}
-              <div className="h-9 w-full rounded bg-gradient-to-r from-[#581c87] via-[#7e22ce] to-[#581c87] flex items-center justify-between px-3 text-xs font-black text-white border-2 border-amber-400 shadow-md animate-pulse">
-                <div className="flex items-center gap-2">
-                  <span className="px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 font-black text-[9px]">
-                    ORE REEF
-                  </span>
-                  <span>24 – 42m: Pyrolusite & Braunsite Band (48.5% Mn)</span>
-                </div>
-                <span className="text-[10px] font-mono text-amber-300 font-extrabold">
-                  {mineProfile.type === 'Open Cast' ? 'Open-Cast Bench Target' : 'Underground Stope Level'}
-                </span>
-              </div>
+              {/* Prospectivity Zones (Interactive Polygons) */}
+              {profile.prospectivityZones.map((zone) => {
+                const isSelected = activeZone?.id === zone.id;
+                return (
+                  <g
+                    key={zone.id}
+                    className="cursor-pointer transition-all duration-200"
+                    onClick={() => {
+                      setSelectedZoneId(zone.id);
+                      setSelectedDrillHoleId(null);
+                      if (onSelectZone) onSelectZone(zone);
+                    }}
+                  >
+                    <path
+                      d={zone.polygonD}
+                      fill="#F59E0B"
+                      fillOpacity={isSelected ? 0.35 : 0.18}
+                      stroke={isSelected ? '#F59E0B' : '#D97706'}
+                      strokeWidth={isSelected ? '2.5' : '1.5'}
+                      strokeDasharray={isSelected ? undefined : '5 3'}
+                    />
+                    <text
+                      x="230"
+                      y={zone.id === profile.prospectivityZones[0].id ? 72 : 42}
+                      fill="#FDE68A"
+                      fontSize="9"
+                      fontWeight="bold"
+                    >
+                      ★ {zone.name} ({zone.scorePct}%)
+                    </text>
+                  </g>
+                );
+              })}
 
-              {/* Strata Layer 4: Gondite & Quartzite Basement */}
-              <div className="h-7 w-full rounded bg-gradient-to-r from-[#1e293b] via-[#0f172a] to-[#1e293b] flex items-center justify-between px-3 text-[9.5px] font-bold text-slate-400 border border-slate-700/50 shadow-xs">
-                <span>&gt;42m: Gondite & Manganiferous Quartzite Basement (Footwall)</span>
-                <span className="text-[8.5px] font-mono opacity-80">Sausar Group Formation</span>
-              </div>
-            </div>
+              {/* Drill Hole Pins (Interactive) */}
+              {profile.drillHoles.map((dh) => {
+                const isSelected = selectedDrillHoleId === dh.id;
+                return (
+                  <g
+                    key={dh.id}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setSelectedDrillHoleId(dh.id);
+                    }}
+                  >
+                    <circle
+                      cx={dh.x}
+                      cy={dh.y}
+                      r={isSelected ? 7 : 5}
+                      fill={dh.status === 'CONFIRMED_ORE' ? '#38BDF8' : '#F59E0B'}
+                      stroke="#FFFFFF"
+                      strokeWidth={isSelected ? '2.5' : '1.5'}
+                    />
+                    <rect
+                      x={dh.x + 8}
+                      y={dh.y - 10}
+                      width="60"
+                      height="16"
+                      rx="3"
+                      fill="rgba(15,23,42,0.9)"
+                      stroke={isSelected ? '#38BDF8' : 'rgba(255,255,255,0.2)'}
+                    />
+                    <text
+                      x={dh.x + 12}
+                      y={dh.y + 1}
+                      fill="#FFFFFF"
+                      fontSize="7.5"
+                      fontWeight="bold"
+                    >
+                      {dh.holeCode}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
 
-            {/* Bottom Geological Telemetry Bar */}
+            {/* Bottom Intelligence HUD Bar */}
             <div className="relative z-20 flex items-center justify-between px-3 py-1.5 rounded-lg bg-black/85 backdrop-blur-md text-[10px] font-mono text-slate-300 border border-white/10">
-              <span className="flex items-center gap-1.5 text-purple-400 font-bold">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
-                <span>SAUSAR GROUP • MANSAR STAGE STRATIGRAPHY</span>
+              <span className="flex items-center gap-1.5 text-amber-400 font-bold">
+                <Target className="w-3 h-3 text-amber-400" />
+                <span>
+                  {profile.prospectivityZones.length} PROSPECTIVITY ZONES · {profile.drillHoles.length} CONFIRMED DRILL INTERCEPTS
+                </span>
               </span>
-              <span className="text-amber-400 font-bold">STRIKE: N65°E · DIP: 68° NW</span>
+              <span className="text-slate-400">
+                FORMATION: <strong className="text-slate-200">{profile.geologicalFormation}</strong>
+              </span>
             </div>
           </div>
         )}
       </div>
+
+      {/* ========================================================================= */}
+      {/* EVIDENCE & DETAILS PANEL (Updates when Zone or Drillhole is selected)     */}
+      {/* ========================================================================= */}
+      {activeMode === 'INTELLIGENCE' && activeZone && (
+        <div
+          className={`p-3.5 rounded-xl border space-y-2.5 transition-all duration-300 animate-in fade-in ${
+            isDark ? 'bg-[#141820] border-amber-500/30' : 'bg-amber-500/5 border-amber-500/30 shadow-xs'
+          }`}
+        >
+          <div className="flex items-center justify-between flex-wrap gap-2 border-b border-white/10 pb-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-black text-[10px] uppercase">
+                ACTIVE TARGET
+              </span>
+              <h4 className={`text-xs font-black uppercase ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                {activeDrillHole ? `${activeDrillHole.holeCode} Drill Intercept` : activeZone.name}
+              </h4>
+            </div>
+
+            <div className="flex items-center gap-3 text-[11px] font-mono">
+              <span className="text-slate-400">
+                Score:{' '}
+                <strong className="text-amber-400 font-bold">
+                  {activeDrillHole ? `${activeDrillHole.avgGradePct}% Mn` : `${activeZone.scorePct}%`}
+                </strong>
+              </span>
+              <span className="text-slate-400">
+                Confidence:{' '}
+                <strong className="text-emerald-400 font-bold">
+                  {activeZone.confidencePct}%
+                </strong>
+              </span>
+              <span className="text-slate-400">
+                Est. Ore:{' '}
+                <strong className="text-blue-400 font-bold">
+                  {activeZone.estimatedTonnageKt} kt
+                </strong>
+              </span>
+            </div>
+          </div>
+
+          {/* Drillhole Detail if selected */}
+          {activeDrillHole ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+              <div className={`p-2 rounded border ${isDark ? 'bg-black/30 border-white/10' : 'bg-white border-slate-200'}`}>
+                <span className="text-[10px] text-slate-400 block">TOTAL DEPTH</span>
+                <span className="font-bold text-slate-200">{activeDrillHole.depthM} m</span>
+              </div>
+              <div className={`p-2 rounded border ${isDark ? 'bg-black/30 border-white/10' : 'bg-white border-slate-200'}`}>
+                <span className="text-[10px] text-slate-400 block">ORE INTERCEPT</span>
+                <span className="font-bold text-emerald-400">{activeDrillHole.interceptLengthM} m @ {activeDrillHole.avgGradePct}% Mn</span>
+              </div>
+              <div className={`p-2 rounded border ${isDark ? 'bg-black/30 border-white/10' : 'bg-white border-slate-200'}`}>
+                <span className="text-[10px] text-slate-400 block">MINERALIZATION</span>
+                <span className="font-bold text-amber-400">{activeDrillHole.mineralization}</span>
+              </div>
+            </div>
+          ) : (
+            /* Multi-Source Evidence Points */
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                <Info className="w-3 h-3 text-amber-400" />
+                <span>DECISION-SUPPORT EVIDENCE BASE</span>
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                {activeZone.evidence.map((ev, i) => (
+                  <div
+                    key={i}
+                    className={`flex items-start gap-1.5 text-[11px] p-1.5 rounded border ${
+                      isDark ? 'bg-black/20 border-white/5 text-slate-300' : 'bg-white border-slate-200 text-slate-700'
+                    }`}
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                    <span>{ev}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Action Recommendation */}
+          <div className="flex items-center justify-between text-[11px] pt-1 text-slate-400">
+            <span>
+              Recommendation: <strong className="text-amber-400">{activeZone.recommendedAction}</strong>
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
