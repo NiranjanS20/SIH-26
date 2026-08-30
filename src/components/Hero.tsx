@@ -6,8 +6,6 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
   const [videoLoaded, setVideoLoaded] = useState(false);
-  const [isVideoEnded, setIsVideoEnded] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -29,28 +27,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
     }
   };
 
-  const handleReplay = () => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = 0;
-      videoRef.current.play();
-      setIsVideoEnded(false);
-      setIsPlaying(true);
-    }
-  };
-
-  const togglePlayPause = () => {
-    if (videoRef.current) {
-      if (videoRef.current.paused) {
-        videoRef.current.play();
-        setIsPlaying(true);
-        setIsVideoEnded(false);
-      } else {
-        videoRef.current.pause();
-        setIsPlaying(false);
-      }
-    }
-  };
-
   return (
     <section id="hero" className="relative w-full min-h-screen h-screen flex items-center justify-center overflow-hidden bg-[#002452]">
       {/* Fallback & Poster Background Image */}
@@ -61,23 +37,23 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
         }}
       />
 
-      {/* Background Video - Plays once and pauses at the end (no loop) */}
+      {/* Background Video - Plays once and stops at the end without looping */}
       <video
         ref={videoRef}
         autoPlay
         muted
         playsInline
         onCanPlay={() => setVideoLoaded(true)}
-        onEnded={() => {
-          setIsVideoEnded(true);
-          setIsPlaying(false);
-        }}
         className={`absolute inset-0 w-full h-full object-cover z-0 transition-opacity duration-1000 ${
           videoLoaded ? 'opacity-100' : 'opacity-0'
         }`}
       >
         <source 
-          src="/assets/hero-bg.mp4" 
+          src="/ff31-6f36-40d6-8de9-cbcd69e6527b.mp4" 
+          type="video/mp4" 
+        />
+        <source 
+          src="/assets/ff31-6f36-40d6-8de9-cbcd69e6527b.mp4" 
           type="video/mp4" 
         />
       </video>
@@ -85,29 +61,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
       {/* Dark Navy Overlay (Stitch #002452 / 40%-80% opacity) */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#002452]/75 via-[#002452]/50 to-[#002452]/85 z-10 pointer-events-none" />
 
-      {/* Video Control Button (Bottom Right) */}
-      <div className="absolute bottom-6 right-6 z-20 flex items-center gap-2">
-        {isVideoEnded ? (
-          <button
-            onClick={handleReplay}
-            className="flex items-center gap-2 px-3 py-1.5 bg-black/40 hover:bg-black/70 backdrop-blur-md text-white/90 hover:text-white text-xs font-body rounded-full transition-all border border-white/20"
-            title="Replay Hero Video"
-          >
-            <span className="material-symbols-outlined text-sm">replay</span>
-            <span>Replay Video</span>
-          </button>
-        ) : (
-          <button
-            onClick={togglePlayPause}
-            className="flex items-center justify-center p-2 bg-black/40 hover:bg-black/70 backdrop-blur-md text-white/80 hover:text-white rounded-full transition-all border border-white/20"
-            title={isPlaying ? "Pause Video" : "Play Video"}
-          >
-            <span className="material-symbols-outlined text-sm">
-              {isPlaying ? 'pause' : 'play_arrow'}
-            </span>
-          </button>
-        )}
-      </div>
+
 
       {/* Hero Content */}
       <div className="relative z-20 text-center px-6 max-w-4xl mx-auto pt-20 md:pt-24 fade-in-section is-visible">

@@ -11,6 +11,7 @@ import { GlowCard } from './ui/spotlight-card';
 import FeatureCard from './ui/binaural-glow-feature-card';
 import { ThemeToggleSwitch } from './ui/ThemeToggleSwitch';
 import { CustomerView } from './CustomerView';
+import { ProspectivityView } from './ProspectivityView';
 import {
   getMineProductionProfile,
   MINE_PRODUCTION_PROFILES,
@@ -24,6 +25,7 @@ interface DongriBuzurgWorkspaceProps {
 
 export type OverviewTab =
   | 'overview'
+  | 'prospectivity'
   | 'production-forecast'
   | 'shortfall-diagnosis'
   | 'corrective-actions'
@@ -435,6 +437,7 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
               )}
               {[
                 { id: 'overview', label: 'Overview', icon: 'dashboard' },
+                { id: 'prospectivity', label: 'Prospectivity', icon: 'landscape' },
                 { id: 'production-forecast', label: 'Production & Forecast', icon: 'trending_up' },
                 { id: 'shortfall-diagnosis', label: 'Shortfall Diagnosis', icon: 'analytics' },
                 { id: 'corrective-actions', label: 'Corrective Actions', icon: 'checklist' },
@@ -910,7 +913,7 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   </div>
 
                   <button
-                    onClick={() => setActiveTab('production-forecast')}
+                    onClick={() => setActiveTab('prospectivity')}
                     className={`w-full py-2.5 rounded-lg border text-[#D97706] hover:text-[#B45309] text-xs font-extrabold uppercase tracking-wider transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${nestedBg}`}
                   >
                     <span>Open Prospectivity Map</span>
@@ -1040,7 +1043,20 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
           )}
 
           {/* ========================================================================= */}
-          {/* TAB 2: PRODUCTION & FORECAST TAB CONTENT */}
+          {/* TAB 2: PROSPECTIVITY TAB CONTENT (MODEL 1) */}
+          {/* ========================================================================= */}
+          {activeTab === 'prospectivity' && (
+            <div className="space-y-8 animate-in fade-in duration-300">
+              <ProspectivityView
+                isDark={isDark}
+                selectedMineName={mineProfile.mineName}
+                onSendToForecast={() => setActiveTab('production-forecast')}
+              />
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB 3: PRODUCTION & FORECAST TAB CONTENT */}
           {/* ========================================================================= */}
           {activeTab === 'production-forecast' && (
             <div className="space-y-8 animate-in fade-in duration-300">
