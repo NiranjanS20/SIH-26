@@ -33,7 +33,7 @@ import {
   type ExplorationTarget,
 } from '../data/reserveMappingData';
 import { type PortalRoute } from './Navbar';
-import { getNasaEarthdataConfig, NASA_GIBS_TILE_PROVIDERS } from '../services/nasaEarthdataService';
+import { getNasaEarthdataConfig } from '../services/nasaEarthdataService';
 import { fetchLiveMineWeather, type LiveWeatherData } from '../services/weatherService';
 
 // ── Satellite Analysis Layers ────────────────────────────────────────────────
@@ -301,31 +301,27 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
     setMapZoom(11.5);
   };
 
-  // Determine active tile URL (Mapbox/NASA GIBS if configured, otherwise Esri Satellite or Dark Matter)
+  // Determine active tile URL (Mapbox if configured in .env, otherwise high-res Esri Satellite or Dark Matter)
   const activeTileUrl = useMemo(() => {
     if (envMapboxToken && envMapboxToken.trim()) {
       return `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/256/{z}/{x}/{y}@2x?access_token=${envMapboxToken.trim()}`;
     }
-    if (activeSatelliteMode === 'THERMAL_LST' && nasaConfig.isValid) {
-      return NASA_GIBS_TILE_PROVIDERS.lstThermal.url;
-    }
+    // High-resolution satellite basemap is active for all satellite analysis modes
     if (
       activeSatelliteMode === 'TRUE_COLOR' ||
       activeSatelliteMode === 'NDVI_VEGETATION' ||
-      activeSatelliteMode === 'THERMAL_LST'
+      activeSatelliteMode === 'SOIL_MOISTURE' ||
+      activeSatelliteMode === 'THERMAL_LST' ||
+      activeSatelliteMode === 'MN_PROSPECTIVITY'
     ) {
       return TILE_PROVIDERS.satellite.url;
     }
     return themeMode === 'dark' ? TILE_PROVIDERS.dark.url : TILE_PROVIDERS.light.url;
-  }, [envMapboxToken, activeSatelliteMode, nasaConfig, themeMode]);
+  }, [envMapboxToken, activeSatelliteMode, themeMode]);
 
   const activeTileAttribution = envMapboxToken
     ? '&copy; <a href="https://www.mapbox.com/">Mapbox</a>'
-    : activeSatelliteMode === 'THERMAL_LST' && nasaConfig.isValid
-    ? NASA_GIBS_TILE_PROVIDERS.lstThermal.attribution
-    : activeSatelliteMode === 'TRUE_COLOR'
-    ? TILE_PROVIDERS.satellite.attribution
-    : TILE_PROVIDERS.dark.attribution;
+    : TILE_PROVIDERS.satellite.attribution;
 
   const isDark = themeMode === 'dark';
 
@@ -477,17 +473,15 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
         {/* Active Sensor & NASA Token Telemetry */}
         <div className={`hidden md:flex items-center gap-3 text-[10px] font-mono ${textMuted}`}>
           {nasaConfig.isValid && (
-            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
+            <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/40">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>NASA EOSDIS Verified ({nasaConfig.username})</span>
+              <span>NASA EOSDIS Verified</span>
             </span>
           )}
           <span>
             Sensor:{' '}
             <strong className={isDark ? 'text-slate-200' : 'text-slate-900'}>
-              {activeSatelliteMode === 'THERMAL_LST' && nasaConfig.isValid
-                ? 'NASA MODIS/ASTER TIR'
-                : SATELLITE_MODES.find((m) => m.id === activeSatelliteMode)?.sensor}
+              {SATELLITE_MODES.find((m) => m.id === activeSatelliteMode)?.sensor}
             </strong>
           </span>
           <span>•</span>
@@ -649,43 +643,100 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
             {/* ── SATELLITE RASTER / HEATMAP LAYER OVERLAYS ───────────────────── */}
             {activeSatelliteMode !== 'TRUE_COLOR' &&
               PROSPECTIVITY_HOTSPOTS_DATA.map((hs) => {
-                const ringColor =
-                  activeSatelliteMode === 'NDVI_VEGETATION'
-                    ? '#22c55e'
-                    : activeSatelliteMode === 'SOIL_MOISTURE'
-                    ? '#38bdf8'
-                    : activeSatelliteMode === 'THERMAL_LST'
-                    ? '#ef4444'
-                    : '#f59e0b';
+                // Multi-tiered colormap gradient configuration per mode
+                const isThermal = activeSatelliteMode === 'THERMAL_LST';
+                const isMoisture = activeSatelliteMode === 'SOIL_MOISTURE';
+                const isNdvi = activeSatelliteMode === 'NDVI_VEGETATION';
+
+                const outerColor = isThermal
+                  ? '#3b82f6'
+                  : isMoisture
+                  ? '#0284c7'
+                  : isNdvi
+                  ? '#15803d'
+                  : '#d97706';
+
+                const midColor = isThermal
+                  ? '#f59e0b'
+                  : isMoisture
+                  ? '#38bdf8'
+                  : isNdvi
+                  ? '#84cc16'
+                  : '#f59e0b';
+
+                const coreColor = isThermal
+                  ? '#ef4444'
+                  : isMoisture
+                  ? '#06b6d4'
+                  : isNdvi
+                  ? '#eab308'
+                  : '#ef4444';
 
                 return (
                   <React.Fragment key={hs.id}>
-                    {/* Outer Falloff Ring */}
+                    {/* Tier 1: Outer Ambient Radiant Halo */}
                     <Circle
                       center={hs.center}
-                      radius={hs.radiusKm * 800}
+                      radius={hs.radiusKm * 1200}
                       pathOptions={{
-                        color: ringColor,
-                        fillColor: ringColor,
-                        fillOpacity: 0.15 * layerOpacity,
+                        color: outerColor,
+                        fillColor: outerColor,
+                        fillOpacity: 0.18 * layerOpacity,
                         stroke: false,
                       }}
                     />
-                    {/* Core Anomaly Hotspot */}
+
+                    {/* Tier 2: Intermediate Radiance / Transition Zone */}
                     <Circle
                       center={hs.center}
-                      radius={hs.radiusKm * 350}
+                      radius={hs.radiusKm * 650}
                       pathOptions={{
-                        color: ringColor,
-                        fillColor: ringColor,
-                        fillOpacity: 0.45 * layerOpacity,
-                        weight: 1.5,
+                        color: midColor,
+                        fillColor: midColor,
+                        fillOpacity: 0.35 * layerOpacity,
+                        weight: 1,
+                        dashArray: isThermal ? '3 3' : undefined,
+                      }}
+                    />
+
+                    {/* Tier 3: Core Anomaly Hotspot Peak */}
+                    <Circle
+                      center={hs.center}
+                      radius={hs.radiusKm * 280}
+                      pathOptions={{
+                        color: coreColor,
+                        fillColor: coreColor,
+                        fillOpacity: 0.65 * layerOpacity,
+                        weight: 2,
                       }}
                     >
                       <Popup>
-                        <div className="p-2 text-xs">
-                          <span className="font-bold text-amber-400 block">{hs.beltName}</span>
-                          <span className="text-[10px] text-slate-300 block">{hs.dominantGrade}</span>
+                        <div className="p-2.5 text-xs min-w-[210px] space-y-1.5">
+                          <div className="flex justify-between items-center">
+                            <span className="font-bold text-amber-400 block">{hs.beltName}</span>
+                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-white font-bold">
+                              {isThermal
+                                ? 'ASTER LST'
+                                : isMoisture
+                                ? 'SAR C-BAND'
+                                : isNdvi
+                                ? 'SENTINEL-2'
+                                : 'AI PROSPECT'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-200">
+                            {isThermal
+                              ? 'Thermal Anomaly: +3.4°C (High Bedrock Inertia)'
+                              : isMoisture
+                              ? 'Dielectric Ratio: 0.31 (Bench moisture gradient)'
+                              : isNdvi
+                              ? 'NDVI Index: -0.14 (Bare Mineral Outcrop)'
+                              : `Dominant: ${hs.dominantGrade}`}
+                          </p>
+                          <div className="pt-1.5 border-t border-white/10 flex justify-between text-[10px] text-slate-400 font-mono">
+                            <span>Intensity:</span>
+                            <span className="text-emerald-400 font-bold">{Math.round(hs.intensity * 100)}% ({hs.level})</span>
+                          </div>
                         </div>
                       </Popup>
                     </Circle>
