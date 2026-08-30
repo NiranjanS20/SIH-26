@@ -3,6 +3,7 @@ import { type PortalRoute } from './Navbar';
 import { fetchLiveMineWeather, type LiveWeatherData } from '../services/weatherService';
 import { ProductionForecastEChart } from './ProductionForecastEChart';
 import { FeatureImportanceEChart } from './FeatureImportanceEChart';
+import { MineSiteVisualizer } from './MineSiteVisualizer';
 import {
   getMineProductionProfile,
   MINE_PRODUCTION_PROFILES,
@@ -60,7 +61,6 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
   const [activeTab, setActiveTab] = useState<OverviewTab>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [isMineDropdownOpen, setIsMineDropdownOpen] = useState<boolean>(false);
-  const [visualMode, setVisualMode] = useState<'CONTOUR' | 'SATELLITE' | 'GEOLOGY'>('CONTOUR');
 
   // Multi-Mine State (Defaults to Dongri Buzurg)
   const [selectedMineId, setSelectedMineId] = useState<string>('dongri-buzurg');
@@ -549,15 +549,15 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
               {/* UPPER TWO-COLUMN SECTION */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                 {/* MINE OVERVIEW / SITE VISUAL CARD (7 COLS) */}
-                <div className={`lg:col-span-7 p-6 rounded-xl border space-y-5 flex flex-col justify-between ${cardBg}`}>
+                <div className={`lg:col-span-7 p-6 rounded-xl border space-y-4 flex flex-col justify-between ${cardBg}`}>
                   <div className="space-y-3">
                     <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
                       <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
                         <span className="material-symbols-outlined text-[#0E7C7B] text-base">domain</span>
-                        FLAGSHIP MINE OVERVIEW
+                        {mineProfile.mineName.toUpperCase()} OVERVIEW
                       </h2>
-                      <span className={`text-[10px] font-mono uppercase ${textMuted}`}>
-                        LEASE ID: MOIL-DG-01
+                      <span className={`text-[10px] font-mono uppercase font-bold ${textMuted}`}>
+                        LEASE ID: MOIL-{mineProfile.shortCode}
                       </span>
                     </div>
 
@@ -566,58 +566,13 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                         DESCRIPTION & GEOLOGICAL STRATA
                       </span>
                       <p className={`text-sm leading-relaxed font-medium ${textSecondary}`}>
-                        “Dongri Buzurg is MOIL’s flagship open-cast manganese ore mine in Bhandara district, producing high-grade dioxide and ferromanganese ores.”
+                        “{mineProfile.mineName} is an active {mineProfile.type.toLowerCase()} manganese ore lease in {mineProfile.district} district, {mineProfile.state}, producing metallurgical and high-grade battery oxide ores.”
                       </p>
                     </div>
                   </div>
 
-                  {/* MEANINGFUL SITE VISUAL AREA */}
-                  <div className="space-y-2 pt-2">
-                    <div className="flex items-center justify-between">
-                      <span className={`text-[10px] font-bold uppercase tracking-wider ${textMuted}`}>
-                        SITE VISUAL & RASTER OVERLAY
-                      </span>
-                      <div className={`flex items-center gap-1.5 p-1 rounded-md border ${nestedBg}`}>
-                        {(['CONTOUR', 'SATELLITE', 'GEOLOGY'] as const).map((mode) => (
-                          <button
-                            key={mode}
-                            onClick={() => setVisualMode(mode)}
-                            className={`px-2.5 py-1 rounded text-[9px] font-bold uppercase transition-all cursor-pointer ${
-                              visualMode === mode ? 'bg-[#0E7C7B] text-white font-black' : `${textMuted} hover:${textPrimary}`
-                            }`}
-                          >
-                            {mode}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className={`w-full h-56 rounded-lg border relative overflow-hidden flex items-center justify-center shadow-inner ${
-                      isDark ? 'bg-[#12151B] border-white/15' : 'bg-slate-900 border-slate-700'
-                    }`}>
-                      <div className="absolute inset-0 bg-[repeating-linear-gradient(-45deg,rgba(255,255,255,0.03)_0px,rgba(255,255,255,0.03)_1px,transparent_1px,transparent_16px)] pointer-events-none" />
-                      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:24px_24px]" />
-
-                      <svg viewBox="0 0 500 220" className="w-full h-full relative z-10">
-                        <path d="M 30 110 Q 150 20 250 110 T 470 110" fill="none" stroke="#0E7C7B" strokeWidth="1.2" strokeDasharray="3,3" opacity="0.7" />
-                        <path d="M 50 125 Q 170 40 250 125 T 450 125" fill="none" stroke="#D97706" strokeWidth="1.5" opacity="0.8" />
-                        <path d="M 80 140 Q 190 60 250 140 T 420 140" fill="none" stroke="#60A5FA" strokeWidth="1.2" opacity="0.7" />
-
-                        <polygon points="110,75 390,80 360,165 140,160" fill="#D97706" fillOpacity="0.18" stroke="#D97706" strokeWidth="1.8" strokeDasharray="5,3" />
-
-                        <circle cx="210" cy="105" r="4.5" fill="#D97706" />
-                        <text x="222" y="109" fill="#FFFFFF" fontSize="10" fontWeight="bold">Pit Bench DB-01 (46.2% Mn)</text>
-
-                        <circle cx="310" cy="130" r="4.5" fill="#60A5FA" />
-                        <text x="322" y="134" fill="#FFFFFF" fontSize="10" fontWeight="bold">East Ridge DB-04 (+12.4kt)</text>
-                      </svg>
-
-                      <div className="absolute bottom-2 left-2 right-2 z-20 flex items-center justify-between px-3 py-1.5 rounded bg-black/85 backdrop-blur-md text-[10px] font-mono text-slate-300 border border-white/10">
-                        <span>MODE: {visualMode} RASTER STREAM</span>
-                        <span className="text-[#D97706] font-bold">BENCH ELEVATION: +280m MSL</span>
-                      </div>
-                    </div>
-                  </div>
+                  {/* 3 DISTINCT VISUAL & RASTER MODES (CONTOUR, SATELLITE GIS, GEOLOGY) */}
+                  <MineSiteVisualizer mineProfile={mineProfile} themeMode={themeMode} />
                 </div>
 
                 {/* CURRENT STATUS CARD (5 COLS) */}
