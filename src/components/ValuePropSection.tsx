@@ -135,8 +135,8 @@ export const ValuePropSection: React.FC = () => {
           <div className="lg:col-span-5 space-y-6">
             <GradientCard className="p-8">
               <div className="space-y-4 text-left">
-                <p className="font-body text-base md:text-lg leading-relaxed text-slate-200">
-                  <strong className="font-extrabold text-amber-400">MOIL Mine Intelligence</strong> brings together geological information, historical production and operational data with relevant environmental and spatial indicators to provide a clearer view of mine conditions. The platform is designed to help teams understand manganese-bearing areas, anticipate potential production constraints and support better-informed operational decisions.
+                <p className="font-body text-base md:text-lg leading-relaxed text-[#44474F]">
+                  <strong className="font-bold text-[#002452]">MOIL Mine Intelligence</strong> brings together geological information, historical production and operational data with relevant environmental and spatial indicators to provide a clearer view of mine conditions. The platform is designed to help teams understand manganese-bearing areas, anticipate potential production constraints and support better-informed operational decisions.
                 </p>
               </div>
 
