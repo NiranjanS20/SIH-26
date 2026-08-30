@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 
 interface HeroProps {
   onExploreClick?: () => void;
-  onReserveMapClick?: () => void;
 }
 
 export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
@@ -122,13 +121,13 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
           Smarter Mining. Better Decisions.
         </p>
 
-        {/* Action Buttons */}
-        <div className="flex items-center justify-center">
+        {/* Action Button */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             onClick={handleExplore}
-            className="group inline-flex items-center gap-3 px-8 py-3.5 border border-white/40 bg-white/10 backdrop-blur-md text-white font-body text-xs md:text-sm font-semibold uppercase tracking-widest hover:bg-white hover:text-[#002452] transition-all duration-300 shadow-lg hover:shadow-xl rounded-sm cursor-pointer"
+            className="group inline-flex items-center gap-3 px-8 py-4 border border-white/50 bg-white/10 backdrop-blur-md text-white font-body text-xs md:text-sm font-semibold uppercase tracking-widest hover:bg-white hover:text-[#002452] transition-all duration-300 shadow-lg hover:shadow-xl rounded-sm"
           >
-            <span>EXPLORE MINE</span>
+            <span>Explore Mine</span>
             <span className="material-symbols-outlined text-sm transition-transform duration-300 group-hover:translate-x-1">
               arrow_forward
             </span>
