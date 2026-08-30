@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { type PortalRoute } from './Navbar';
 import { fetchLiveMineWeather, type LiveWeatherData } from '../services/weatherService';
+import { ProductionForecastEChart } from './ProductionForecastEChart';
+import { FeatureImportanceEChart } from './FeatureImportanceEChart';
+import {
+  getMineProductionProfile,
+  MINE_PRODUCTION_PROFILES,
+} from '../data/mineProductionData';
 
 interface DongriBuzurgWorkspaceProps {
   onNavigate: (route: PortalRoute) => void;
@@ -56,6 +62,10 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
   const [isMineDropdownOpen, setIsMineDropdownOpen] = useState<boolean>(false);
   const [visualMode, setVisualMode] = useState<'CONTOUR' | 'SATELLITE' | 'GEOLOGY'>('CONTOUR');
 
+  // Multi-Mine State (Defaults to Dongri Buzurg)
+  const [selectedMineId, setSelectedMineId] = useState<string>('dongri-buzurg');
+  const mineProfile = getMineProductionProfile(selectedMineId);
+
   // Shortfall Diagnosis View Toggle State
   const [diagnosisViewMode, setDiagnosisViewMode] = useState<'SUMMARY' | 'CAUSE_ANALYSIS'>('SUMMARY');
 
@@ -63,10 +73,12 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
   const [liveWeather, setLiveWeather] = useState<LiveWeatherData | null>(null);
 
   useEffect(() => {
-    fetchLiveMineWeather(21.554, 79.702, 'Dongri Buzurg').then((data) => {
+    const lat = selectedMineId === 'balaghat' ? 21.870 : selectedMineId === 'tirodi' ? 21.680 : 21.554;
+    const lng = selectedMineId === 'balaghat' ? 80.185 : selectedMineId === 'tirodi' ? 79.720 : 79.702;
+    fetchLiveMineWeather(lat, lng, mineProfile.mineName).then((data) => {
       setLiveWeather(data);
     });
-  }, []);
+  }, [selectedMineId]);
 
   // Corrective Actions State & In-Place Expansion
   const [expandedActionId, setExpandedActionId] = useState<string | null>(null);
@@ -307,38 +319,44 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="font-headline font-extrabold uppercase tracking-wide">
-              Dongri Buzurg Opencast Mine ▾
+              {mineProfile.mineName} ▾
             </span>
           </button>
 
           {/* Mine Selector Dropdown Menu */}
           {isMineDropdownOpen && (
-            <div className={`absolute left-1/2 -translate-x-1/2 top-full mt-2 w-72 rounded-xl shadow-2xl z-50 p-2 space-y-1 border ${
+            <div className={`absolute left-1/2 -translate-x-1/2 top-full mt-2 w-80 rounded-xl shadow-2xl z-50 p-2 space-y-1 border ${
               isDark ? 'bg-[#20242D] border-white/15 text-white' : 'bg-white border-slate-200 text-slate-900'
             }`}>
               <div className="px-3 py-1 text-[10px] font-black uppercase text-[#D97706] tracking-wider border-b border-slate-200/20">
-                Select MOIL Mining Lease
+                Select Active MOIL Mining Lease
               </div>
-              <button
-                onClick={() => setIsMineDropdownOpen(false)}
-                className="w-full text-left px-3 py-1.5 rounded bg-[#D97706]/20 border border-[#D97706] text-xs font-bold flex items-center justify-between"
-              >
-                <span>Dongri Buzurg Opencast Mine</span>
-                <span className="text-[9px] text-[#D97706] font-black">ACTIVE</span>
-              </button>
-              {['Balaghat Underground Mine', 'Chikla Underground Mine', 'Kandri Mine'].map((m) => (
+              {Object.values(MINE_PRODUCTION_PROFILES).map((m) => (
                 <button
-                  key={m}
+                  key={m.id}
                   onClick={() => {
+                    setSelectedMineId(m.id);
                     setIsMineDropdownOpen(false);
-                    alert(`${m} telemetry onboarding is pending for Phase II.`);
                   }}
-                  className={`w-full text-left px-3 py-1.5 rounded text-xs font-medium flex items-center justify-between cursor-not-allowed ${
-                    isDark ? 'text-white/50 hover:bg-white/5' : 'text-slate-400 hover:bg-slate-100'
+                  className={`w-full text-left px-3 py-2 rounded text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
+                    selectedMineId === m.id
+                      ? 'bg-[#D97706]/20 border border-[#D97706] text-[#D97706]'
+                      : isDark
+                      ? 'text-slate-200 hover:bg-white/10'
+                      : 'text-slate-800 hover:bg-slate-100'
                   }`}
                 >
-                  <span>{m}</span>
-                  <span className="text-[8px] opacity-60">PHASE II 🔒</span>
+                  <div>
+                    <span className="block">{m.mineName}</span>
+                    <span className={`text-[10px] font-normal ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                      {m.district}, {m.state} • {m.type}
+                    </span>
+                  </div>
+                  {selectedMineId === m.id && (
+                    <span className="text-[9px] text-[#D97706] font-black px-1.5 py-0.5 rounded bg-[#D97706]/20">
+                      ACTIVE
+                    </span>
+                  )}
                 </button>
               ))}
               <div className="pt-1 border-t border-slate-200/20">
@@ -937,10 +955,12 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                       PRODUCTION & FORECAST
                     </h2>
                     <span className="px-3 py-1 rounded-full bg-[#D97706]/20 border border-[#D97706] text-[#D97706] text-[10px] font-black uppercase tracking-wider">
-                      POTENTIAL FUTURE SOURCE: Zone 14
+                      POTENTIAL FUTURE SOURCE: {mineProfile.potentialSourceZone}
                     </span>
                   </div>
-                  <p className={`text-xs font-medium ${textSecondary}`}>“Production performance and model-based output forecast for Dongri Buzurg.”</p>
+                  <p className={`text-xs font-medium ${textSecondary}`}>
+                    “Production performance and model-based output forecast for {mineProfile.mineName}.”
+                  </p>
                 </div>
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <button className={`px-3.5 py-2 rounded-lg border text-xs font-bold flex items-center gap-2 cursor-pointer ${nestedBg} ${textPrimary}`}>
@@ -951,7 +971,7 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                     Custom Range
                   </button>
                   <button
-                    onClick={() => alert('Executing Model Re-Forecast Simulation for Dongri Buzurg...')}
+                    onClick={() => alert(`Executing Model Re-Forecast Simulation for ${mineProfile.mineName}...`)}
                     className="px-4 py-2 rounded-lg bg-[#0E7C7B] hover:bg-[#0C6A69] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-md flex items-center gap-2 border border-[#0E7C7B]"
                   >
                     <span className="material-symbols-outlined text-sm">autorenew</span>
@@ -964,109 +984,56 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 <div className={`p-5 rounded-xl border space-y-2 ${cardBg}`}>
                   <span className={`text-[11px] font-bold uppercase tracking-wider block ${textMuted}`}>CURRENT OUTPUT</span>
-                  <span className={`font-headline font-black text-3xl block ${textPrimary}`}>4,100 t</span>
+                  <span className={`font-headline font-black text-3xl block ${textPrimary}`}>
+                    {mineProfile.currentOutputTons.toLocaleString()} t
+                  </span>
                   <span className={`text-xs font-semibold block ${textMuted}`}>Current month</span>
                 </div>
                 <div className={`p-5 rounded-xl border space-y-2 ${cardBg}`}>
                   <span className={`text-[11px] font-bold uppercase tracking-wider block ${textMuted}`}>PLANNED TARGET</span>
-                  <span className="font-headline font-black text-3xl text-blue-600 block">5,000 t</span>
+                  <span className="font-headline font-black text-3xl text-blue-600 block">
+                    {mineProfile.plannedTargetTons.toLocaleString()} t
+                  </span>
                   <span className={`text-xs font-semibold block ${textMuted}`}>Current month</span>
                 </div>
                 <div className={`p-5 rounded-xl border space-y-2 ${cardBg}`}>
                   <span className="text-[11px] font-bold text-[#0E7C7B] uppercase tracking-wider block">PREDICTED OUTPUT</span>
-                  <span className="font-headline font-black text-3xl text-[#0E7C7B] block">4,100 t</span>
+                  <span className="font-headline font-black text-3xl text-[#0E7C7B] block">
+                    {mineProfile.predictedOutputTons.toLocaleString()} t
+                  </span>
                   <span className="text-xs font-semibold text-[#0E7C7B] block">Model forecast</span>
                 </div>
                 <div className={`p-5 rounded-xl border space-y-2 ${isDark ? 'bg-[#20242D] border-[#D97706]/40' : 'bg-white border-[#D97706]/40 shadow-sm'}`}>
                   <span className="text-[11px] font-bold text-[#D97706] uppercase tracking-wider block">PROJECTED GAP</span>
-                  <span className="font-headline font-black text-3xl text-[#D97706] block">-900 t</span>
-                  <span className="text-xs font-bold text-[#D97706] block">18% below target</span>
+                  <span className="font-headline font-black text-3xl text-[#D97706] block">
+                    {mineProfile.projectedGapTons.toLocaleString()} t
+                  </span>
+                  <span className="text-xs font-bold text-[#D97706] block">
+                    {mineProfile.gapPct}% below target
+                  </span>
                 </div>
               </div>
 
-              {/* MAIN PRODUCTION VS TARGET CHART */}
+              {/* MAIN APACHE ECHARTS PRODUCTION VS TARGET CHART */}
               <div className={`p-6 rounded-xl border space-y-4 relative ${cardBg}`}>
                 <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 ${borderDivider}`}>
                   <div>
                     <h3 className={`font-headline font-black text-xl uppercase tracking-wide flex items-center gap-2 ${textPrimary}`}>
                       <span className="material-symbols-outlined text-[#0E7C7B]">analytics</span>
-                      PRODUCTION VS TARGET
+                      PRODUCTION VS TARGET (APACHE ECHARTS)
                     </h3>
                     <p className={`text-xs mt-0.5 ${textSecondary}`}>
-                      Historical actual tonnage vs planned allocation vs ML predicted output curve.
+                      Historical actual tonnage vs planned allocation vs ML predicted output curve with 95% confidence interval.
                     </p>
                   </div>
-
-                  <div className={`flex items-center gap-4 text-xs font-bold flex-wrap ${textSecondary}`}>
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-3 h-1 bg-emerald-500 rounded-full" /> Actual Production
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-3 h-1 bg-blue-500 stroke-dashed rounded-full" /> Planned Target
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-3 h-1 bg-[#0E7C7B] rounded-full" /> Predicted Forecast
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-3 h-3 bg-blue-500/10 border border-blue-500/30 rounded-xs" /> Monsoon Period
-                    </span>
-                  </div>
                 </div>
 
-                <div className="w-full h-80 relative">
-                  <svg viewBox="0 0 800 280" className="w-full h-full">
-                    <line x1="60" y1="40" x2="770" y2="40" stroke={isDark ? '#334155' : '#E2E8F0'} strokeWidth="0.5" strokeDasharray="3,3" />
-                    <line x1="60" y1="95" x2="770" y2="95" stroke={isDark ? '#334155' : '#E2E8F0'} strokeWidth="0.5" strokeDasharray="3,3" />
-                    <line x1="60" y1="150" x2="770" y2="150" stroke={isDark ? '#334155' : '#E2E8F0'} strokeWidth="0.5" strokeDasharray="3,3" />
-                    <line x1="60" y1="205" x2="770" y2="205" stroke={isDark ? '#334155' : '#E2E8F0'} strokeWidth="0.5" strokeDasharray="3,3" />
-                    <line x1="60" y1="240" x2="770" y2="240" stroke={isDark ? '#475569' : '#94A3B8'} strokeWidth="1" />
-
-                    <text x="50" y="44" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">6,000t</text>
-                    <text x="50" y="99" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">5,000t</text>
-                    <text x="50" y="154" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">4,000t</text>
-                    <text x="50" y="209" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">3,000t</text>
-                    <text x="50" y="244" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">0t</text>
-
-                    <rect x="240" y="30" width="310" height="210" fill="#3B82F6" fillOpacity="0.08" stroke="#3B82F6" strokeWidth="0.5" strokeDasharray="4,4" />
-                    <text x="395" y="48" fill="#2563EB" fontSize="10" fontWeight="black" textAnchor="middle" letterSpacing="1">
-                      MONSOON PERIOD (IMD PRECIPITATION BAND)
-                    </text>
-
-                    <line x1="550" y1="30" x2="550" y2="240" stroke="#0E7C7B" strokeWidth="1.5" strokeDasharray="4,2" />
-                    <text x="555" y="65" fill="#0E7C7B" fontSize="9" fontWeight="extrabold">MODEL FORECAST BOUNDARY →</text>
-
-                    <polyline fill="none" stroke="#10B981" strokeWidth="3.5" points="100,105 210,85 320,135 430,165 540,150" />
-                    <polyline fill="none" stroke="#2563EB" strokeWidth="2.5" strokeDasharray="6,4" points="100,95 210,95 320,95 430,95 540,95 650,95 750,95" />
-                    <polyline fill="none" stroke="#0E7C7B" strokeWidth="3.5" strokeDasharray="4,4" points="540,150 650,150 750,140" />
-
-                    {[
-                      { x: 100, label: 'Apr', actual: 4800, target: 5000, forecast: null },
-                      { x: 210, label: 'May', actual: 5100, target: 5000, forecast: null },
-                      { x: 320, label: 'Jun', actual: 4300, target: 5000, forecast: null },
-                      { x: 430, label: 'Jul', actual: 3800, target: 5000, forecast: null },
-                      { x: 540, label: 'Aug (Current)', actual: 4100, target: 5000, forecast: 4100 },
-                      { x: 650, label: 'Sep (Forecast)', actual: null, target: 5000, forecast: 4100 },
-                      { x: 750, label: 'Oct (Forecast)', actual: null, target: 5000, forecast: 4250 },
-                    ].map((pt) => {
-                      const yActual = pt.actual ? 240 - (pt.actual / 6000) * 200 : null;
-                      const yTarget = 240 - (pt.target / 6000) * 200;
-                      const yForecast = pt.forecast ? 240 - (pt.forecast / 6000) * 200 : null;
-
-                      return (
-                        <g key={pt.label}>
-                          {yActual && <circle cx={pt.x} cy={yActual} r="5" fill="#10B981" stroke={isDark ? '#12151B' : '#FFFFFF'} strokeWidth="2" />}
-                          <circle cx={pt.x} cy={yTarget} r="4" fill="#2563EB" />
-                          {yForecast && pt.actual === null && (
-                            <circle cx={pt.x} cy={yForecast} r="5" fill="#0E7C7B" stroke={isDark ? '#12151B' : '#FFFFFF'} strokeWidth="2" />
-                          )}
-                          <text x={pt.x} y="258" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="middle">
-                            {pt.label}
-                          </text>
-                        </g>
-                      );
-                    })}
-                  </svg>
-                </div>
+                {/* Apache ECharts Instance */}
+                <ProductionForecastEChart
+                  data={mineProfile.monthlyTrend}
+                  mineName={mineProfile.mineName}
+                  themeMode={themeMode}
+                />
               </div>
 
               {/* SHORTFALL WARNING BANNER */}
@@ -1075,10 +1042,11 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   <span className="material-symbols-outlined text-[#D97706] text-2xl">warning</span>
                   <div>
                     <span className="font-headline font-black text-[#D97706] text-sm uppercase tracking-wider block">
-                      ⚠️ SHORTFALL DETECTED
+                      ⚠️ SHORTFALL DETECTED • {mineProfile.mineName}
                     </span>
                     <p className={`text-xs font-medium mt-0.5 ${textSecondary}`}>
-                      Predicted production is below the current target. Projected gap: <strong className="text-[#D97706]">900 t</strong> (18% deficit).
+                      Predicted production is below the allocation target. Projected gap:{' '}
+                      <strong className="text-[#D97706]">{Math.abs(mineProfile.projectedGapTons).toLocaleString()} t</strong> ({mineProfile.gapPct}% deficit).
                     </p>
                   </div>
                 </div>
@@ -1091,40 +1059,60 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                 </button>
               </div>
 
-              {/* ENVIRONMENTAL & OPERATIONAL FACTORS */}
-              <div className={`p-6 rounded-xl border space-y-4 ${cardBg}`}>
-                <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
-                  <h3 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
-                    <span className="material-symbols-outlined text-[#0E7C7B] text-base">tune</span>
-                    ENVIRONMENTAL & OPERATIONAL FACTORS
-                  </h3>
-                  <span className={`text-[10px] font-mono uppercase ${textMuted}`}>MODEL FEATURE FEEDS</span>
+              {/* EXPLAINABLE AI (XAI) FEATURE IMPORTANCE & ENVIRONMENTAL FACTORS GRID */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Explainable AI ECharts Horizontal Bar */}
+                <div className={`lg:col-span-7 p-6 rounded-xl border space-y-3 ${cardBg}`}>
+                  <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
+                    <h3 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
+                      <span className="material-symbols-outlined text-[#8B5CF6] text-base">psychology</span>
+                      EXPLAINABLE AI (XAI) • FEATURE IMPORTANCE
+                    </h3>
+                    <span className={`text-[10px] font-mono uppercase ${textMuted}`}>
+                      ATTRIBUTION WEIGHTS
+                    </span>
+                  </div>
+                  <FeatureImportanceEChart
+                    features={mineProfile.featureImportance}
+                    themeMode={themeMode}
+                  />
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                  <div className={`p-3.5 rounded-lg border space-y-1 ${nestedBg}`}>
-                    <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>RAINFALL</span>
-                    <span className="font-headline font-black text-xl text-blue-500 block">70%</span>
+                {/* ENVIRONMENTAL & OPERATIONAL FACTORS */}
+                <div className={`lg:col-span-5 p-6 rounded-xl border space-y-3 ${cardBg}`}>
+                  <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
+                    <h3 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
+                      <span className="material-symbols-outlined text-[#0E7C7B] text-base">tune</span>
+                      TELEMETRY FEEDS
+                    </h3>
+                    <span className={`text-[10px] font-mono uppercase ${textMuted}`}>LIVE SENSOR STREAM</span>
                   </div>
-                  <div className={`p-3.5 rounded-lg border space-y-1 ${nestedBg}`}>
-                    <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>NDVI</span>
-                    <span className="font-headline font-black text-xl text-emerald-500 block">0.42</span>
-                  </div>
-                  <div className={`p-3.5 rounded-lg border space-y-1 ${nestedBg}`}>
-                    <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>SOIL MOISTURE</span>
-                    <span className="font-headline font-black text-xl text-amber-500 block">38%</span>
-                  </div>
-                  <div className={`p-3.5 rounded-lg border space-y-1 ${nestedBg}`}>
-                    <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>TEMPERATURE</span>
-                    <span className={`font-headline font-black text-xl block ${textPrimary}`}>31°C</span>
-                  </div>
-                  <div className={`p-3.5 rounded-lg border space-y-1 ${nestedBg}`}>
-                    <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>EQUIPMENT AVAILABILITY</span>
-                    <span className="font-headline font-black text-xl text-emerald-500 block">80%</span>
-                  </div>
-                  <div className={`p-3.5 rounded-lg border space-y-1 ${nestedBg}`}>
-                    <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>BLASTING DELAY</span>
-                    <span className="font-headline font-black text-xl text-[#D97706] block">2 days</span>
+
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <div className={`p-3 rounded-lg border space-y-1 ${nestedBg}`}>
+                      <span className={`text-[9.5px] font-bold uppercase block ${textMuted}`}>RAINFALL</span>
+                      <span className="font-headline font-black text-lg text-blue-500 block">
+                        {mineProfile.environmentalFactors.rainfallPct}% ({mineProfile.environmentalFactors.rainfallMm} mm)
+                      </span>
+                    </div>
+                    <div className={`p-3 rounded-lg border space-y-1 ${nestedBg}`}>
+                      <span className={`text-[9.5px] font-bold uppercase block ${textMuted}`}>NDVI VEGETATION</span>
+                      <span className="font-headline font-black text-lg text-emerald-500 block">
+                        {mineProfile.environmentalFactors.ndvi}
+                      </span>
+                    </div>
+                    <div className={`p-3 rounded-lg border space-y-1 ${nestedBg}`}>
+                      <span className={`text-[9.5px] font-bold uppercase block ${textMuted}`}>SOIL MOISTURE</span>
+                      <span className="font-headline font-black text-lg text-amber-500 block">
+                        {mineProfile.environmentalFactors.soilMoisturePct}%
+                      </span>
+                    </div>
+                    <div className={`p-3 rounded-lg border space-y-1 ${nestedBg}`}>
+                      <span className={`text-[9.5px] font-bold uppercase block ${textMuted}`}>FLEET UPTIME</span>
+                      <span className="font-headline font-black text-lg text-emerald-500 block">
+                        {mineProfile.environmentalFactors.equipmentAvailabilityPct}%
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

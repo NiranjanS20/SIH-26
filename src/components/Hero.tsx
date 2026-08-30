@@ -5,7 +5,7 @@ interface HeroProps {
   onReserveMapClick?: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onExploreClick, onReserveMapClick }) => {
+export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [isVideoEnded, setIsVideoEnded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -123,22 +123,15 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick, onReserveMapClick })
         </p>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button
-            onClick={() => onReserveMapClick ? onReserveMapClick() : handleExplore()}
-            className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-body text-xs md:text-sm font-bold uppercase tracking-widest transition-all duration-300 shadow-xl hover:shadow-2xl rounded-sm cursor-pointer"
-          >
-            <span>🗺️ Reserve Mapping GIS</span>
-            <span className="material-symbols-outlined text-sm transition-transform duration-300 group-hover:translate-x-1">
-              arrow_forward
-            </span>
-          </button>
-
+        <div className="flex items-center justify-center">
           <button
             onClick={handleExplore}
-            className="group inline-flex items-center gap-3 px-8 py-4 border border-white/50 bg-white/10 backdrop-blur-md text-white font-body text-xs md:text-sm font-semibold uppercase tracking-widest hover:bg-white hover:text-[#002452] transition-all duration-300 shadow-lg hover:shadow-xl rounded-sm cursor-pointer"
+            className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-body text-xs md:text-sm font-extrabold uppercase tracking-widest transition-all duration-300 shadow-xl hover:shadow-2xl rounded-sm cursor-pointer"
           >
-            <span>Explore Mines</span>
+            <span>🗺️ Explore Mines & Operational Footprint</span>
+            <span className="material-symbols-outlined text-base transition-transform duration-300 group-hover:translate-x-1">
+              arrow_forward
+            </span>
           </button>
         </div>
       </div>

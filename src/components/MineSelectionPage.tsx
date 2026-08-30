@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MOIL_MINES, type MineItem } from '../data/minesData';
-import { IndiaMap } from './IndiaMap';
+import { OperationalFootprintMap } from './OperationalFootprintMap';
 import { type PortalRoute } from './Navbar';
 
 interface MineSelectionPageProps {
@@ -302,15 +302,19 @@ export const MineSelectionPage: React.FC<MineSelectionPageProps> = ({
               </span>
             </div>
 
-            {/* Interactive SVG India Map */}
-            <IndiaMap
+            {/* Interactive Leaflet Geospatial Map of India */}
+            <OperationalFootprintMap
               selectedState={activeStateFilter}
               selectedFilter={selectedFilter}
               hoveredMineId={hoveredMineId}
-              onSelectMine={handleSelectMine}
+              onSelectMine={(geoMine) => {
+                const match = MOIL_MINES.find((m) => m.id === geoMine.id);
+                if (match) handleSelectMine(match);
+              }}
               onHoverMine={(id) => setHoveredMineId(id)}
-              onSelectState={(st) => setSelectedState(st)}
+              onSelectState={(st) => setSelectedState(st.toUpperCase())}
               themeMode={themeMode}
+              onLaunchWorkspace={() => onNavigate('dongri-buzurg-workspace')}
             />
           </div>
 
