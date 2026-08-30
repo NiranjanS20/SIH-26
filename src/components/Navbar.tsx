@@ -7,7 +7,7 @@ interface NavbarProps {
   onNavigate?: (route: PortalRoute) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentRoute, onNavigate }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -95,23 +95,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, onNavigate }) => {
           </span>
         </div>
 
-        {/* Right: Quick Geospatial Map & Mines Navigation */}
+        {/* Right: Mines & Telemetry Portal Navigation */}
         <div className="flex items-center gap-2.5">
           <button
-            onClick={() => onNavigate && onNavigate('reserve-mapping')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-md ${
-              currentRoute === 'reserve-mapping'
-                ? 'bg-amber-400 text-slate-950 ring-2 ring-amber-300'
-                : 'bg-amber-500 hover:bg-amber-400 text-slate-950 hover:shadow-lg'
-            }`}
-          >
-            <span>🗺️</span>
-            <span>Reserve Mapping</span>
-          </button>
-
-          <button
             onClick={() => onNavigate && onNavigate('mine-selection')}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-white/15 hover:bg-white/25 text-white border border-white/30 transition-all shadow-md cursor-pointer"
           >
             <span>Mines & Telemetry</span>
           </button>

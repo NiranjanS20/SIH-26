@@ -282,24 +282,36 @@ export const MineSelectionPage: React.FC<MineSelectionPageProps> = ({
           {/* LEFT COLUMN: Large Interactive Map of India (7 Cols on desktop) */}
           <div className="lg:col-span-7 space-y-3">
             <div
-              className={`flex items-center justify-between p-3 rounded-lg border ${
+              className={`flex items-center justify-between p-3 rounded-lg border flex-wrap gap-2 ${
                 isDark ? 'bg-[#242830] border-white/10' : 'bg-[#F1F5F9] border-[#CBD5E1]'
               }`}
             >
-              <h2
-                className={`font-headline text-base font-extrabold uppercase tracking-wide flex items-center gap-2 ${
-                  isDark ? 'text-white' : 'text-[#002452]'
-                }`}
+              <div className="flex items-center gap-3">
+                <h2
+                  className={`font-headline text-base font-extrabold uppercase tracking-wide flex items-center gap-2 ${
+                    isDark ? 'text-white' : 'text-[#002452]'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[#D97706] text-xl">map</span>
+                  Operational Footprint & Location Map
+                </h2>
+                <span className={`text-xs font-bold hidden sm:inline ${isDark ? 'text-[#CBD5E1]' : 'text-[#44474F]'}`}>
+                  State Focus:{' '}
+                  <strong className={isDark ? 'text-[#D97706]' : 'text-[#002452]'}>
+                    {selectedState}
+                  </strong>
+                </span>
+              </div>
+
+              {/* Dedicated Button for Full View of National Reserve Mapping */}
+              <button
+                onClick={() => onNavigate('reserve-mapping')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#D97706] hover:bg-[#B45309] text-white font-bold text-xs shadow-md transition-all cursor-pointer shrink-0 border border-[#D97706]"
+                title="Open Full-Screen Space-Tech GIS Platform"
               >
-                <span className="material-symbols-outlined text-[#D97706] text-xl">map</span>
-                Operational Footprint & Location Map
-              </h2>
-              <span className={`text-xs font-bold ${isDark ? 'text-[#CBD5E1]' : 'text-[#44474F]'}`}>
-                State Focus:{' '}
-                <strong className={isDark ? 'text-[#D97706]' : 'text-[#002452]'}>
-                  {selectedState}
-                </strong>
-              </span>
+                <span>🗺️</span>
+                <span>National Reserve Mapping (Full View) ↗</span>
+              </button>
             </div>
 
             {/* Interactive Leaflet Geospatial Map of India */}
