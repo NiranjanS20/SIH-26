@@ -1,0 +1,47 @@
+{
+    "model1_clf": {
+        "metric_name": "F1",
+        "metric_value": 0.011428571428571429,
+        "last_updated": "2026-08-30T22:32:59.540859"
+    },
+    "history": [
+        {
+            "timestamp": "2026-08-30T22:32:59.540859",
+            "model_name": "model1_clf",
+            "metric_name": "F1",
+            "before": null,
+            "after": 0.011428571428571429,
+            "improved": true
+        },
+        {
+            "timestamp": "2026-08-30T22:33:18.406848",
+            "model_name": "model1_reg",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 0.05495207230167633,
+            "improved": true
+        },
+        {
+            "timestamp": "2026-08-30T22:33:25.608078",
+            "model_name": "model2_xgb",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 48.12190700678097,
+            "improved": true
+        }
+    ],
+    "model1_unfc_check": {
+        "predicted_tonnage": 92696090.52179737,
+        "reserve_plausibility_ratio": 24.65321556430781
+    },
+    "model1_reg": {
+        "metric_name": "RMSE",
+        "metric_value": 0.05495207230167633,
+        "last_updated": "2026-08-30T22:33:18.406848"
+    },
+    "model2_xgb": {
+        "metric_name": "RMSE",
+        "metric_value": 48.12190700678097,
+        "last_updated": "2026-08-30T22:33:25.608078"
+    }
+}

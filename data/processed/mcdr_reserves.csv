@@ -1,0 +1,9 @@
+as_of_date,unfc_code,tonnage,source_report,source_table_ref
+01/04/2016,"(aggregate, not UNFC-split)",4022653,A,"Report A, Reserves"
+01/04/2018,111,3473539,B,"Report B, UNFC table"
+01/04/2018,122,290938,B,"Report B, UNFC table"
+01/04/2018,211,519531,B,"Report B, UNFC table"
+01/04/2018,221,1648107,B,"Report B, UNFC table"
+01/04/2018,222,2253539,B,"Report B, UNFC table"
+01/04/2018,332,2267133,B,"Report B, UNFC table"
+01/04/2018,333,122063,B,"Report B, UNFC table"

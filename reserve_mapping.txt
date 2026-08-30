@@ -1,0 +1,891 @@
+import { useState, useCallback, useRef } from 'react';
+import {
+  Layers, ZoomIn, ZoomOut, Crosshair, Eye, EyeOff, Info,
+  ChevronRight, ChevronDown, Target, AlertCircle, CheckCircle2
+} from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+
+// ── Layer definitions ──────────────────────────────────────────────────────────
+
+interface GISLayer {
+  id: string;
+  label: string;
+  group: string;
+  enabled: boolean;
+  opacity: number;
+  color: string;
+  description: string;
+}
+
+const INITIAL_LAYERS: GISLayer[] = [
+  // Surface
+  { id: 'sentinel2',  label: 'Sentinel-2',          group: 'Surface',    enabled: false, opacity: 85, color: '#8bc34a', description: 'True-colour composite at 10m res. Reference base layer.' },
+  { id: 'ndvi',       label: 'NDVI',                group: 'Surface',    enabled: false, opacity: 80, color: '#2e7d32', description: 'Normalised Difference Vegetation Index. Low values over bare/disturbed soil.' },
+  { id: 'soilmoist',  label: 'Soil Moisture',       group: 'Surface',    enabled: false, opacity: 75, color: '#1565c0', description: 'Soil moisture from SAR backscatter. High values increase haul-road risk.' },
+  // Geology
+  { id: 'aster',      label: 'ASTER Indicators',    group: 'Geology',    enabled: true,  opacity: 80, color: '#ff6f00', description: 'ASTER thermal IR bands sensitive to iron-oxide and clay minerals associated with Mn.' },
+  { id: 'geomap',     label: 'Geological Units',    group: 'Geology',    enabled: true,  opacity: 60, color: '#7b1fa2', description: 'Digitised GSI geological map. Lithological contacts and rock formations.' },
+  { id: 'lineament',  label: 'Lineaments',          group: 'Geology',    enabled: true,  opacity: 90, color: '#f9a825', description: 'Structural lineaments from DEM + SAR. Mn mineralisation often N-S fault controlled.' },
+  // Prediction
+  { id: 'prospec',    label: 'Mn Prospectivity',    group: 'Prediction', enabled: true,  opacity: 70, color: '#e53935', description: 'XGBoost prospectivity model. Combines spectral, structural, terrain, geochemical inputs. Model prediction — not confirmed reserve.' },
+  // Validation
+  { id: 'occurrence', label: 'Mineral Occurrences', group: 'Validation', enabled: true,  opacity: 100, color: '#e91e63', description: 'Known Mn occurrences from GSI national mineral inventory. Validation dataset.' },
+  { id: 'drillhole',  label: 'Drilling Points',     group: 'Validation', enabled: true,  opacity: 100, color: '#00bcd4', description: 'Drill hole collars with assay status. Completed holes are ground-truth.' },
+];
+
+const LAYER_GROUPS = ['Surface', 'Geology', 'Prediction', 'Validation'];
+
+// ── Exploration Targets ───────────────────────────────────────────────────────
+
+interface ExplorationTarget {
+  id: string;
+  rank: number;
+  label: string;
+  score: number;
+  prospectivity: number;
+  confidence: number;
+  uncertainty: 'low' | 'medium' | 'high';
+  type: 'high' | 'medium' | 'low';
+  color: string;
+  cx: number;
+  cy: number;
+  r: number;
+  reasons: { label: string; strength: number; tag: string }[];
+  validation: { label: string; ok: boolean }[];
+  recommendation: string;
+  recommendedStep: string;
+  drillStatus: string;
+}
+
+const EXPLORATION_TARGETS: ExplorationTarget[] = [
+  {
+    id: 'Z1', rank: 1, label: 'Alpha-North', score: 94, prospectivity: 0.94, confidence: 0.91, uncertainty: 'low',
+    type: 'high', color: '#c62828', cx: 0.60, cy: 0.35, r: 0.10,
+    reasons: [
+      { label: 'Strong ASTER spectral anomaly',         strength: 0.92, tag: 'Spectral' },
+      { label: 'N-S lineament proximity < 200m',        strength: 0.88, tag: 'Structural' },
+      { label: 'Favourable Gondite geological unit',     strength: 0.85, tag: 'Geology' },
+      { label: 'Confirmed drill results (48% Mn grade)', strength: 0.96, tag: 'Validation' },
+    ],
+    validation: [
+      { label: 'GSI occurrence overlap',    ok: true },
+      { label: 'Drill hole confirmation',   ok: true },
+      { label: 'Geochemical sampling',      ok: true },
+      { label: 'Geophysical survey',        ok: true },
+    ],
+    recommendation: 'Prioritise for expanded drilling programme',
+    recommendedStep: 'Field Investigation',
+    drillStatus: '3 holes — 2 completed, 1 in-progress',
+  },
+  {
+    id: 'Z2', rank: 2, label: 'Beta-Central', score: 87, prospectivity: 0.87, confidence: 0.81, uncertainty: 'low',
+    type: 'high', color: '#e64a19', cx: 0.33, cy: 0.58, r: 0.085,
+    reasons: [
+      { label: 'Elevated soil Mn geochemistry',  strength: 0.84, tag: 'Geochemistry' },
+      { label: 'SAR moisture anomaly',            strength: 0.82, tag: 'Spectral' },
+      { label: 'Active mining confirms extension',strength: 0.91, tag: 'Validation' },
+    ],
+    validation: [
+      { label: 'GSI occurrence overlap',   ok: true },
+      { label: 'Drill hole confirmation',  ok: true },
+      { label: 'Geochemical sampling',     ok: true },
+      { label: 'Geophysical survey',       ok: false },
+    ],
+    recommendation: 'Continue active extraction. Schedule targeted deep drilling.',
+    recommendedStep: 'Expansion Drilling',
+    drillStatus: '2 holes completed',
+  },
+  {
+    id: 'Z3', rank: 3, label: 'Gamma-East', score: 74, prospectivity: 0.68, confidence: 0.70, uncertainty: 'medium',
+    type: 'medium', color: '#f57c00', cx: 0.76, cy: 0.54, r: 0.085,
+    reasons: [
+      { label: 'Moderate NDVI suppression',     strength: 0.71, tag: 'Spectral' },
+      { label: 'Lineament intersection zone',   strength: 0.68, tag: 'Structural' },
+      { label: '1 in-progress drill hole',      strength: 0.62, tag: 'Validation' },
+    ],
+    validation: [
+      { label: 'GSI occurrence overlap',   ok: false },
+      { label: 'Drill hole confirmation',  ok: false },
+      { label: 'Geochemical sampling',     ok: true },
+      { label: 'Geophysical survey',       ok: false },
+    ],
+    recommendation: 'Await in-progress drill results before committing resources.',
+    recommendedStep: 'Requires Additional Data',
+    drillStatus: '1 in-progress, 1 planned',
+  },
+  {
+    id: 'Z4', rank: 4, label: 'Delta-South', score: 61, prospectivity: 0.52, confidence: 0.58, uncertainty: 'high',
+    type: 'medium', color: '#f9a825', cx: 0.46, cy: 0.75, r: 0.07,
+    reasons: [
+      { label: 'Weak spectral ratio anomaly',   strength: 0.51, tag: 'Spectral' },
+      { label: 'Suitable terrain gradient',     strength: 0.58, tag: 'Terrain' },
+      { label: 'No drill confirmation yet',     strength: 0.40, tag: 'Validation' },
+    ],
+    validation: [
+      { label: 'GSI occurrence overlap',   ok: false },
+      { label: 'Drill hole confirmation',  ok: false },
+      { label: 'Geochemical sampling',     ok: false },
+      { label: 'Geophysical survey',       ok: false },
+    ],
+    recommendation: 'Low-priority prospect. Requires initial field survey.',
+    recommendedStep: 'Initial Survey',
+    drillStatus: '1 planned',
+  },
+];
+
+const OCCURRENCES = [
+  { x: 0.62, y: 0.30, validated: true },
+  { x: 0.73, y: 0.27, validated: true },
+  { x: 0.34, y: 0.54, validated: true },
+  { x: 0.47, y: 0.72, validated: false },
+];
+
+const LINEAMENTS = [
+  [[0.12, 0.18], [0.52, 0.65]],
+  [[0.28, 0.08], [0.78, 0.58]],
+  [[0.04, 0.55], [0.42, 0.30]],
+  [[0.58, 0.78], [0.92, 0.38]],
+];
+
+const DRILL_HOLES = [
+  { x: 0.61, y: 0.33, status: 'completed', grade: 48.2 },
+  { x: 0.65, y: 0.38, status: 'completed', grade: 45.8 },
+  { x: 0.57, y: 0.40, status: 'in-progress', grade: null },
+  { x: 0.32, y: 0.56, status: 'completed', grade: 41.3 },
+  { x: 0.77, y: 0.52, status: 'in-progress', grade: null },
+];
+
+// ── Raster helpers ─────────────────────────────────────────────────────────────
+
+function hexToRgb(hex: string): [number, number, number] {
+  const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return r ? [parseInt(r[1], 16), parseInt(r[2], 16), parseInt(r[3], 16)] : [0, 0, 0];
+}
+
+const RAMPS: Record<string, string[]> = {
+  prospec:   ['#0d1b2a', '#1a3a5c', '#ff8f00', '#e53935', '#b71c1c'],
+  aster:     ['#1a237e', '#3949ab', '#fdd835', '#ef6c00', '#b71c1c'],
+  ndvi:      ['#8b4513', '#d2b48c', '#90ee90', '#228b22', '#004d00'],
+  soilmoist: ['#f4a460', '#deb887', '#6495ed', '#1e90ff', '#000080'],
+  sentinel2: ['#1b2838', '#3d5a4c', '#c8a96a', '#8a7240', '#f0c040'],
+};
+
+function rampColor(pct: number, ramp: string[]): string {
+  const n = ramp.length;
+  const i = Math.min(n - 2, Math.floor(pct * (n - 1)));
+  const t = pct * (n - 1) - i;
+  const c1 = hexToRgb(ramp[i]), c2 = hexToRgb(ramp[i + 1]);
+  return `rgb(${Math.round(c1[0] + t * (c2[0] - c1[0]))},${Math.round(c1[1] + t * (c2[1] - c1[1]))},${Math.round(c1[2] + t * (c2[2] - c1[2]))})`;
+}
+
+function generateRaster(layerId: string, cols = 26, rows = 18): number[][] {
+  const grid: number[][] = [];
+  for (let r = 0; r < rows; r++) {
+    const row: number[] = [];
+    for (let c = 0; c < cols; c++) {
+      const cx = c / cols, cy = r / rows;
+      const isZ1 = Math.sqrt((cx - 0.60) ** 2 + (cy - 0.35) ** 2) < 0.11;
+      const isZ2 = Math.sqrt((cx - 0.33) ** 2 + (cy - 0.58) ** 2) < 0.09;
+      const noise = (Math.random() - 0.5) * 0.22;
+      let v = 0.15 + noise * 0.3;
+      if (layerId === 'prospec') v = isZ1 ? 0.84 + noise * 0.1 : isZ2 ? 0.73 + noise * 0.12 : 0.18 + noise * 0.28;
+      else if (layerId === 'aster') v = isZ1 ? 0.77 + noise * 0.12 : isZ2 ? 0.63 + noise * 0.14 : 0.32 + noise * 0.33;
+      else if (layerId === 'ndvi') v = isZ1 ? 0.09 + noise * 0.18 : 0.55 + noise * 0.2;
+      else if (layerId === 'soilmoist') v = cy * 0.5 + noise * 0.2 + (isZ2 ? 0.2 : 0);
+      else v = 0.36 + noise * 0.38;
+      row.push(Math.max(0, Math.min(1, v)));
+    }
+    grid.push(row);
+  }
+  return grid;
+}
+
+const SPECTRAL_DATA = [
+  { band: 'B2', v: 0.062 }, { band: 'B3', v: 0.085 },
+  { band: 'B4', v: 0.140 }, { band: 'B5', v: 0.180 },
+  { band: 'B7', v: 0.280 }, { band: 'B8', v: 0.310 },
+  { band: 'B11', v: 0.195 }, { band: 'B12', v: 0.240 },
+];
+
+// ── Right panel tabs ───────────────────────────────────────────────────────────
+
+type RightTab = 'zone' | 'targets' | 'spectral';
+
+// ── Component ─────────────────────────────────────────────────────────────────
+
+export default function ReserveMapping() {
+  const [layers, setLayers]           = useState<GISLayer[]>(INITIAL_LAYERS);
+  const [selectedTarget, setSelectedTarget] = useState<ExplorationTarget>(EXPLORATION_TARGETS[0]);
+  const [selectedLoc, setSelectedLoc]       = useState<{ x: number; y: number }>({ x: 0.61, y: 0.34 });
+  const [hoveredZone, setHoveredZone]       = useState<string | null>(null);
+  const [layerPanelOpen, setLayerPanelOpen] = useState(true);
+  const [zoomLevel, setZoomLevel]           = useState(1);
+  const [rightTab, setRightTab]             = useState<RightTab>('zone');
+  const [expandedGroup, setExpandedGroup]   = useState<string | null>('Geology');
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  const toggleLayer = (id: string) =>
+    setLayers(ls => ls.map(l => l.id === id ? { ...l, enabled: !l.enabled } : l));
+
+  const setOpacity = (id: string, v: number) =>
+    setLayers(ls => ls.map(l => l.id === id ? { ...l, opacity: v } : l));
+
+  const primaryRasterLayer = layers.find(l => l.enabled && l.id in RAMPS) ?? null;
+  const rasterData = primaryRasterLayer ? generateRaster(primaryRasterLayer.id) : null;
+
+  const COLS = 26, ROWS = 18, VW = 560, VH = 380;
+  const CW = VW / COLS, CH = VH / ROWS;
+
+  const handleSvgClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    setSelectedLoc({ x, y });
+    const hit = EXPLORATION_TARGETS.find(z =>
+      Math.sqrt((z.cx - x) ** 2 + (z.cy - y) ** 2) < z.r + 0.03
+    );
+    if (hit) {
+      setSelectedTarget(hit);
+      setRightTab('zone');
+    }
+  }, []);
+
+  const prospLayer  = layers.find(l => l.id === 'prospec')?.enabled;
+  const lineLayer   = layers.find(l => l.id === 'lineament')?.enabled;
+  const occLayer    = layers.find(l => l.id === 'occurrence')?.enabled;
+  const drillLayer  = layers.find(l => l.id === 'drillhole')?.enabled;
+
+  const locLat = (21.87 - selectedLoc.y * 0.07).toFixed(5);
+  const locLng = (80.155 + selectedLoc.x * 0.08).toFixed(5);
+
+  const t = selectedTarget;
+  const uncertaintyColor = t.uncertainty === 'low'
+    ? 'hsl(var(--green-light))' : t.uncertainty === 'medium'
+    ? 'hsl(var(--amber-light))' : 'hsl(var(--red-light))';
+
+  return (
+    <div className="flex h-[calc(100vh-2.75rem)] overflow-hidden" style={{ background: 'hsl(var(--map-bg))' }}>
+
+      {/* ── LEFT: Layer panel ─────────────────────────────── */}
+      <div
+        className="shrink-0 flex flex-col overflow-hidden transition-panel"
+        style={{
+          width: layerPanelOpen ? '200px' : '36px',
+          background: 'hsl(var(--nav-bg) / 0.96)',
+          borderRight: '1px solid hsl(var(--nav-border))',
+        }}
+      >
+        {/* Header */}
+        <div className="flex items-center h-10 px-2.5 shrink-0"
+          style={{ borderBottom: '1px solid hsl(var(--nav-border))' }}>
+          {layerPanelOpen && (
+            <div className="flex items-center gap-2 flex-1">
+              <Layers className="w-3.5 h-3.5 shrink-0" style={{ color: 'hsl(var(--taupe))' }} />
+              <span className="panel-title text-[12px]">Layers</span>
+            </div>
+          )}
+          <button onClick={() => setLayerPanelOpen(v => !v)} className="btn-ghost p-1 ml-auto">
+            <ChevronRight
+              className="w-4 h-4 transition-transform"
+              style={{ transform: layerPanelOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+            />
+          </button>
+        </div>
+
+        {layerPanelOpen && (
+          <div className="flex-1 overflow-y-auto">
+            {LAYER_GROUPS.map(group => {
+              const groupLayers = layers.filter(l => l.group === group);
+              const isOpen = expandedGroup === group;
+              return (
+                <div key={group}>
+                  <button
+                    className="w-full flex items-center justify-between px-3 py-2.5 transition-colors"
+                    style={{ borderBottom: '1px solid hsl(var(--nav-border) / 0.5)' }}
+                    onClick={() => setExpandedGroup(isOpen ? null : group)}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'hsl(var(--surface-raised))')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <span className="section-label">{group}</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[9px]" style={{ color: 'hsl(var(--text-muted))' }}>
+                        {groupLayers.filter(l => l.enabled).length}/{groupLayers.length}
+                      </span>
+                      <ChevronDown className="w-3 h-3 transition-transform" style={{
+                        color: 'hsl(var(--text-muted))',
+                        transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
+                      }} />
+                    </div>
+                  </button>
+                  {isOpen && groupLayers.map(layer => (
+                    <div key={layer.id} className="px-2 py-0.5">
+                      <div
+                        className={`layer-toggle ${layer.enabled ? 'layer-toggle-active' : ''}`}
+                        onClick={() => toggleLayer(layer.id)}
+                      >
+                        <div className="w-2.5 h-2.5 rounded-sm shrink-0"
+                          style={{ background: layer.color, opacity: layer.enabled ? 1 : 0.35 }} />
+                        <span className="flex-1 text-[11px] leading-tight truncate">{layer.label}</span>
+                        {layer.enabled
+                          ? <Eye className="w-3 h-3 shrink-0 opacity-55" />
+                          : <EyeOff className="w-3 h-3 shrink-0 opacity-25" />}
+                      </div>
+                      {layer.enabled && (
+                        <div className="flex items-center gap-2 px-1.5 pb-1">
+                          <input
+                            type="range" min={20} max={100} step={5} value={layer.opacity}
+                            onChange={e => setOpacity(layer.id, Number(e.target.value))}
+                            onClick={e => e.stopPropagation()}
+                            className="flex-1 h-1"
+                            style={{ background: `linear-gradient(to right, hsl(var(--amber)) ${layer.opacity}%, hsl(var(--surface-select)) ${layer.opacity}%)` }}
+                          />
+                          <span className="text-[9px] w-5 tabular-nums" style={{ color: 'hsl(var(--text-muted))' }}>
+                            {layer.opacity}%
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+
+            {/* Data sources */}
+            <div className="px-3 py-2 border-t" style={{ borderColor: 'hsl(var(--nav-border) / 0.5)' }}>
+              <div className="section-label mb-2">Data Sources</div>
+              {[
+                ['Sentinel-2', true, 'Aug 22'],
+                ['Sentinel-1', true, 'Aug 21'],
+                ['ASTER',      true, 'Aug 20'],
+                ['INSAT',      false,'Aug 18'],
+                ['SRTM DEM',   true, 'Static'],
+              ].map(([label, ok, date]) => (
+                <div key={String(label)} className="flex items-center gap-1.5 py-1">
+                  <div className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ background: ok ? 'hsl(var(--green-light))' : 'hsl(var(--amber-light))' }} />
+                  <span className="flex-1 text-[10px]" style={{ color: 'hsl(var(--text-secondary))' }}>{label}</span>
+                  <span className="text-[9px] font-mono" style={{ color: 'hsl(var(--text-muted))' }}>{date}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── CENTRE: Map ──────────────────────────────────────── */}
+      <div className="flex-1 relative overflow-hidden flex flex-col min-w-0">
+
+        {/* Map toolbar */}
+        <div
+          className="flex items-center gap-3 px-4 py-2 shrink-0"
+          style={{
+            background: 'hsl(var(--nav-bg) / 0.92)',
+            borderBottom: '1px solid hsl(var(--nav-border))',
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          <div className="flex-1 min-w-0">
+            <span className="panel-title text-[13px]">Reserve Mapping</span>
+            <span className="text-[11px] ml-3" style={{ color: 'hsl(var(--text-muted))' }}>
+              Balaghat Alpha Mine · Model predictions — not confirmed reserves
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setZoomLevel(z => Math.min(2.5, z + 0.25))} className="btn-ghost p-1.5">
+              <ZoomIn className="w-3.5 h-3.5" />
+            </button>
+            <span className="text-[11px] tabular-nums w-9 text-center" style={{ color: 'hsl(var(--text-muted))' }}>
+              {Math.round(zoomLevel * 100)}%
+            </span>
+            <button onClick={() => setZoomLevel(z => Math.max(0.5, z - 0.25))} className="btn-ghost p-1.5">
+              <ZoomOut className="w-3.5 h-3.5" />
+            </button>
+            <button onClick={() => setZoomLevel(1)} className="btn-ghost p-1.5 text-[11px]">1:1</button>
+          </div>
+          <button className="btn-ghost p-1.5"><Crosshair className="w-3.5 h-3.5" /></button>
+          <span className="demo-badge">SIMULATED DATA</span>
+        </div>
+
+        {/* SVG map — fills remaining space */}
+        <div className="flex-1 relative overflow-hidden">
+          <svg
+            ref={svgRef}
+            viewBox={`0 0 ${VW} ${VH}`}
+            className="w-full h-full cursor-crosshair"
+            preserveAspectRatio="xMidYMid meet"
+            onClick={handleSvgClick}
+            style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center', transition: 'transform 0.22s' }}
+          >
+            {/* BG */}
+            <rect width={VW} height={VH} fill="hsl(210, 20%, 8%)" />
+
+            {/* Raster */}
+            {rasterData && (
+              <g opacity={primaryRasterLayer!.opacity / 100}>
+                {rasterData.map((row, r) =>
+                  row.map((v, c) => (
+                    <rect key={`${r}-${c}`}
+                      x={c * CW} y={r * CH} width={CW + 0.5} height={CH + 0.5}
+                      fill={rampColor(v, RAMPS[primaryRasterLayer!.id] ?? RAMPS.prospec)}
+                    />
+                  ))
+                )}
+              </g>
+            )}
+
+            {/* Grid */}
+            {Array.from({ length: 10 }, (_, i) => (
+              <line key={`h${i}`} x1={0} y1={VH * i / 9} x2={VW} y2={VH * i / 9}
+                stroke="rgba(255,255,255,0.035)" strokeWidth={0.5} />
+            ))}
+            {Array.from({ length: 14 }, (_, i) => (
+              <line key={`v${i}`} x1={VW * i / 13} y1={0} x2={VW * i / 13} y2={VH}
+                stroke="rgba(255,255,255,0.035)" strokeWidth={0.5} />
+            ))}
+
+            {/* Mine boundary */}
+            <rect x={VW * 0.18} y={VH * 0.15} width={VW * 0.64} height={VH * 0.70}
+              rx={4} fill="none" stroke="hsl(var(--amber))" strokeWidth={1} strokeDasharray="8 3" opacity={0.45} />
+            <text x={VW * 0.18 + 6} y={VH * 0.15 + 13} fontSize={9} fill="hsl(var(--amber))" opacity={0.55} fontFamily="Inter">
+              Balaghat Alpha — Mine Boundary
+            </text>
+
+            {/* Lineaments */}
+            {lineLayer && LINEAMENTS.map(([a, b], i) => (
+              <line key={`lm${i}`}
+                x1={a[0] * VW} y1={a[1] * VH} x2={b[0] * VW} y2={b[1] * VH}
+                stroke="#f9a825" strokeWidth={0.9} strokeDasharray="5 3" opacity={0.5} />
+            ))}
+
+            {/* Prospectivity / exploration zones */}
+            {prospLayer && EXPLORATION_TARGETS.map(z => {
+              const cx = z.cx * VW, cy = z.cy * VH, r = z.r * Math.min(VW, VH);
+              const isH  = hoveredZone === z.id;
+              const isSel = selectedTarget?.id === z.id;
+              return (
+                <g key={z.id}
+                  onMouseEnter={() => setHoveredZone(z.id)}
+                  onMouseLeave={() => setHoveredZone(null)}
+                  onClick={e => {
+                    e.stopPropagation();
+                    setSelectedTarget(z);
+                    setSelectedLoc({ x: z.cx, y: z.cy });
+                    setRightTab('zone');
+                  }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <circle cx={cx} cy={cy} r={r}
+                    fill={z.color} fillOpacity={isH || isSel ? 0.22 : 0.07}
+                    stroke={z.color} strokeWidth={isSel ? 2 : isH ? 1.5 : 0.8}
+                    strokeOpacity={0.8}
+                  />
+                  {/* Rank badge */}
+                  <circle cx={cx} cy={cy - r - 8} r={7}
+                    fill={isSel ? z.color : 'hsl(210 22% 12% / 0.9)'}
+                    stroke={z.color} strokeWidth={0.8} opacity={0.9} />
+                  <text x={cx} y={cy - r - 4.5} textAnchor="middle"
+                    fontSize={7} fill={isSel ? 'white' : z.color} fontFamily="Inter" fontWeight={700}>
+                    #{z.rank}
+                  </text>
+                  <circle cx={cx} cy={cy} r={4} fill={z.color} opacity={0.9} />
+                  {(isH || isSel) && (
+                    <text x={cx} y={cy - r - 20} textAnchor="middle"
+                      fontSize={9.5} fill={z.color} fontFamily="Inter" fontWeight={600}>
+                      {z.label} · {Math.round(z.prospectivity * 100)}% · Score {z.score}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+
+            {/* Mineral occurrences */}
+            {occLayer && OCCURRENCES.map((o, i) => (
+              <polygon key={i}
+                points={`${o.x * VW},${o.y * VH - 6} ${o.x * VW - 4},${o.y * VH + 3} ${o.x * VW + 4},${o.y * VH + 3}`}
+                fill={o.validated ? '#e91e63' : '#ff8a80'} opacity={0.85} />
+            ))}
+
+            {/* Drill holes */}
+            {drillLayer && DRILL_HOLES.map((dh, i) => (
+              <g key={i}>
+                <circle cx={dh.x * VW} cy={dh.y * VH} r={5}
+                  fill="none"
+                  stroke={dh.status === 'completed' ? '#00bcd4' : '#ffeb3b'}
+                  strokeWidth={1.5} opacity={0.8} />
+                <circle cx={dh.x * VW} cy={dh.y * VH} r={2.5}
+                  fill={dh.status === 'completed' ? '#00bcd4' : '#ffeb3b'} opacity={0.9} />
+              </g>
+            ))}
+
+            {/* Selected crosshair */}
+            {(() => {
+              const sx = selectedLoc.x * VW, sy = selectedLoc.y * VH;
+              return (
+                <g>
+                  <line x1={sx - 12} y1={sy} x2={sx + 12} y2={sy} stroke="white" strokeWidth={0.8} opacity={0.5} />
+                  <line x1={sx} y1={sy - 12} x2={sx} y2={sy + 12} stroke="white" strokeWidth={0.8} opacity={0.5} />
+                  <circle cx={sx} cy={sy} r={5} fill="none" stroke="white" strokeWidth={0.7} opacity={0.5} />
+                </g>
+              );
+            })()}
+
+            {/* Compass */}
+            <g transform={`translate(${VW - 26}, 26)`}>
+              <circle cx={0} cy={0} r={16} fill="hsl(210 22% 9% / 0.9)" stroke="hsl(210 18% 18%)" strokeWidth={0.8} />
+              <polygon points="0,-10 2.5,2 0,6 -2.5,2" fill="hsl(var(--amber))" opacity={0.9} />
+              <polygon points="0,10 2.5,-2 0,-6 -2.5,-2" fill="hsl(210 10% 38%)" opacity={0.7} />
+              <text x={0} y={-4} textAnchor="middle" fontSize={7} fill="hsl(var(--amber))" fontFamily="Inter" fontWeight={700}>N</text>
+            </g>
+
+            {/* Scale */}
+            <g transform={`translate(${VW * 0.53}, ${VH - 13})`}>
+              <line x1={0} y1={0} x2={55} y2={0} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} />
+              <line x1={0} y1={-3} x2={0} y2={3} stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
+              <line x1={55} y1={-3} x2={55} y2={3} stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
+              <text x={27} y={-5} textAnchor="middle" fontSize={8} fill="rgba(255,255,255,0.4)">~1 km</text>
+            </g>
+
+            {/* Coordinates */}
+            <g>
+              <rect x={6} y={VH - 17} width={165} height={13} rx={2} fill="hsl(210 22% 9% / 0.85)" />
+              <text x={10} y={VH - 7} fontSize={8} fill="hsl(30 8% 60%)" fontFamily="JetBrains Mono, monospace">
+                {locLat}°N · {locLng}°E
+              </text>
+            </g>
+
+            {/* Prospectivity legend */}
+            {prospLayer && (
+              <g transform={`translate(8, ${VH - 66})`}>
+                <rect x={0} y={0} width={118} height={58} rx={2}
+                  fill="hsl(210 22% 9% / 0.9)" stroke="hsl(210 18% 18%)" strokeWidth={0.7} />
+                <text x={8} y={13} fontSize={7.5} fill="hsl(30 5% 44%)" fontFamily="Inter" fontWeight={600} textAnchor="start">
+                  Mn PROSPECTIVITY
+                </text>
+                {[
+                  { y: 24, label: 'High (>75%)',     color: '#c62828' },
+                  { y: 36, label: 'Medium (50–75%)', color: '#f57c00' },
+                  { y: 48, label: 'Low (<50%)',       color: '#78909c' },
+                ].map(item => (
+                  <g key={item.label}>
+                    <circle cx={14} cy={item.y} r={4} fill={item.color} opacity={0.85} />
+                    <text x={24} y={item.y + 3} fontSize={7.5} fill="hsl(30 8% 60%)" fontFamily="Inter">
+                      {item.label}
+                    </text>
+                  </g>
+                ))}
+              </g>
+            )}
+
+            {/* Drill hole legend */}
+            {drillLayer && (
+              <g transform={`translate(130, ${VH - 42})`}>
+                <rect x={0} y={0} width={104} height={34} rx={2}
+                  fill="hsl(210 22% 9% / 0.9)" stroke="hsl(210 18% 18%)" strokeWidth={0.7} />
+                <circle cx={14} cy={12} r={4} fill="none" stroke="#00bcd4" strokeWidth={1.2} opacity={0.8} />
+                <circle cx={14} cy={12} r={2} fill="#00bcd4" opacity={0.8} />
+                <text x={24} y={15} fontSize={7.5} fill="hsl(30 8% 60%)" fontFamily="Inter">Completed</text>
+                <circle cx={14} cy={26} r={4} fill="none" stroke="#ffeb3b" strokeWidth={1.2} opacity={0.8} />
+                <circle cx={14} cy={26} r={2} fill="#ffeb3b" opacity={0.8} />
+                <text x={24} y={29} fontSize={7.5} fill="hsl(30 8% 60%)" fontFamily="Inter">In-progress</text>
+              </g>
+            )}
+          </svg>
+
+          {/* Raster ramp legend */}
+          {primaryRasterLayer && RAMPS[primaryRasterLayer.id] && (
+            <div
+              className="absolute bottom-14 right-3 rounded-sm px-3 py-2.5 animate-fade-in"
+              style={{
+                background: 'hsl(210 22% 9% / 0.9)',
+                border: '1px solid hsl(210 18% 18%)',
+              }}
+            >
+              <div className="section-label mb-1.5">{primaryRasterLayer.label}</div>
+              <div className="w-28 h-2 rounded-sm" style={{
+                background: `linear-gradient(to right, ${RAMPS[primaryRasterLayer.id].join(', ')})`,
+              }} />
+              <div className="flex justify-between mt-0.5">
+                <span className="text-[9px] font-mono" style={{ color: 'hsl(var(--text-muted))' }}>Low</span>
+                <span className="text-[9px] font-mono" style={{ color: 'hsl(var(--text-muted))' }}>High</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── RIGHT: Analysis panel ─────────────────────────────── */}
+      <div
+        className="w-[280px] shrink-0 flex flex-col overflow-hidden"
+        style={{
+          background: 'hsl(var(--nav-bg) / 0.96)',
+          borderLeft: '1px solid hsl(var(--nav-border))',
+        }}
+      >
+        {/* Tabs */}
+        <div className="flex shrink-0" style={{ borderBottom: '1px solid hsl(var(--nav-border))' }}>
+          {[
+            { id: 'zone'     as RightTab, label: 'Zone Detail' },
+            { id: 'targets'  as RightTab, label: 'Targets' },
+            { id: 'spectral' as RightTab, label: 'Spectral' },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setRightTab(tab.id)}
+              className="flex-1 py-2.5 text-[11px] font-medium transition-colors"
+              style={{
+                color: rightTab === tab.id ? 'hsl(var(--text-strong))' : 'hsl(var(--text-muted))',
+                borderBottom: rightTab === tab.id ? '2px solid hsl(var(--amber))' : '2px solid transparent',
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+
+          {/* ── Zone Detail ── */}
+          {rightTab === 'zone' && (
+            <div className="p-4 space-y-4">
+              {/* Zone header */}
+              <div>
+                <div className="section-label mb-2">Exploration Target #{t.rank}</div>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <h2 className="text-[15px] font-bold" style={{ color: 'hsl(var(--text-strong))' }}>{t.label}</h2>
+                  <span className={t.type === 'high' ? 'prospec-high' : t.type === 'medium' ? 'prospec-medium' : 'prospec-low'}>
+                    {t.type}
+                  </span>
+                </div>
+
+                {/* Score + prospectivity */}
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div className="rounded-sm p-3 text-center"
+                    style={{ background: 'hsl(var(--surface-raised))', border: '1px solid hsl(var(--border))' }}>
+                    <div className="section-label mb-1">Priority Score</div>
+                    <div className="text-[26px] font-bold tabular-nums"
+                      style={{ color: t.type === 'high' ? 'hsl(var(--red-light))' : 'hsl(var(--amber-light))', letterSpacing: '-0.02em' }}>
+                      {t.score}
+                    </div>
+                    <div className="text-[10px]" style={{ color: 'hsl(var(--text-muted))' }}>/100</div>
+                  </div>
+                  <div className="rounded-sm p-3 text-center"
+                    style={{ background: 'hsl(var(--surface-raised))', border: '1px solid hsl(var(--border))' }}>
+                    <div className="section-label mb-1">Confidence</div>
+                    <div className="text-[26px] font-bold tabular-nums"
+                      style={{ color: 'hsl(var(--text-strong))', letterSpacing: '-0.02em' }}>
+                      {Math.round(t.confidence * 100)}%
+                    </div>
+                    <div className="text-[10px]" style={{ color: uncertaintyColor }}>
+                      {t.uncertainty} uncertainty
+                    </div>
+                  </div>
+                </div>
+
+                {/* Prospectivity bar */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[12px]" style={{ color: 'hsl(var(--text-secondary))' }}>Model Prospectivity</span>
+                    <span className="text-[15px] font-bold tabular-nums"
+                      style={{ color: t.type === 'high' ? 'hsl(var(--red-light))' : 'hsl(var(--amber-light))' }}>
+                      {Math.round(t.prospectivity * 100)}%
+                    </span>
+                  </div>
+                  <div className="progress-track" style={{ height: '5px' }}>
+                    <div className="progress-fill" style={{
+                      width: `${t.prospectivity * 100}%`,
+                      background: t.type === 'high' ? 'hsl(var(--red))' : 'hsl(var(--amber))',
+                    }} />
+                  </div>
+                  <div className="text-[10px]" style={{ color: 'hsl(var(--text-muted))' }}>
+                    XGBoost v1.7 · {t.drillStatus}
+                  </div>
+                </div>
+              </div>
+
+              {/* Why this prediction */}
+              <div>
+                <div className="section-label mb-2">Why This Prediction?</div>
+                {t.reasons.map((r, i) => (
+                  <div key={i} className="factor-row">
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-sm shrink-0 font-semibold"
+                      style={{ background: 'hsl(var(--surface-select))', color: 'hsl(var(--taupe))' }}>
+                      {r.tag}
+                    </span>
+                    <span className="flex-1 text-[11px]" style={{ color: 'hsl(var(--text-secondary))' }}>{r.label}</span>
+                    <div className="w-10 shrink-0">
+                      <div className="h-1 rounded-sm" style={{ background: 'hsl(var(--surface-select))' }}>
+                        <div className="h-full rounded-sm" style={{
+                          width: `${r.strength * 100}%`,
+                          background: 'hsl(var(--amber))',
+                        }} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Validation */}
+              <div>
+                <div className="section-label mb-2">Validation Status</div>
+                {t.validation.map(v => (
+                  <div key={v.label} className="flex items-center gap-2.5 py-1.5 factor-row">
+                    <div className="w-4 h-4 rounded-sm flex items-center justify-center shrink-0"
+                      style={{ background: v.ok ? 'hsl(var(--green-dim))' : 'hsl(var(--surface-select))' }}>
+                      {v.ok
+                        ? <CheckCircle2 className="w-3 h-3" style={{ color: 'hsl(var(--green-light))' }} />
+                        : <span style={{ fontSize: 9, color: 'hsl(var(--text-muted))' }}>—</span>}
+                    </div>
+                    <span className="text-[11px]" style={{ color: v.ok ? 'hsl(var(--text-secondary))' : 'hsl(var(--text-muted))' }}>
+                      {v.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Recommendation */}
+              <div
+                className="rounded-sm p-3"
+                style={{ background: 'hsl(var(--surface-raised))', border: '1px solid hsl(var(--border))' }}
+              >
+                <div className="section-label mb-1.5">Recommended Next Step</div>
+                <div className="text-[12px] font-semibold mb-1" style={{ color: 'hsl(var(--amber-light))' }}>
+                  {t.recommendedStep}
+                </div>
+                <p className="text-[11px] leading-relaxed" style={{ color: 'hsl(var(--text-secondary))' }}>
+                  {t.recommendation}
+                </p>
+              </div>
+
+              {/* Disclaimer */}
+              <div className="rounded-sm p-3" style={{ background: 'hsl(var(--surface-raised))', border: '1px solid hsl(var(--border))' }}>
+                <div className="flex items-start gap-1.5">
+                  <Info className="w-3 h-3 shrink-0 mt-0.5" style={{ color: 'hsl(var(--taupe))' }} />
+                  <p className="text-[10px] leading-relaxed" style={{ color: 'hsl(var(--text-muted))' }}>
+                    Probabilistic exploration target. Not a confirmed Mn reserve. Drilling confirmation required before resource classification.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Exploration Targets list ── */}
+          {rightTab === 'targets' && (
+            <div className="p-4 space-y-3">
+              <div>
+                <div className="section-label">Exploration Target Ranking</div>
+                <p className="text-[11px] mt-1 leading-relaxed" style={{ color: 'hsl(var(--text-muted))' }}>
+                  Ranked by combined priority score. Click to view evidence and explanation.
+                </p>
+              </div>
+
+              {EXPLORATION_TARGETS.map(tgt => (
+                <div
+                  key={tgt.id}
+                  className={`target-row ${selectedTarget?.id === tgt.id ? 'target-row-active' : ''}`}
+                  onClick={() => { setSelectedTarget(tgt); setSelectedLoc({ x: tgt.cx, y: tgt.cy }); setRightTab('zone'); }}
+                >
+                  <div
+                    className="w-6 h-6 rounded-sm flex items-center justify-center shrink-0 text-[11px] font-bold"
+                    style={{ background: tgt.type === 'high' ? tgt.color : 'hsl(var(--surface-select))', color: tgt.type === 'high' ? 'white' : 'hsl(var(--text-muted))' }}
+                  >
+                    {tgt.rank}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-semibold" style={{ color: 'hsl(var(--text-primary))' }}>{tgt.label}</div>
+                    <div className="flex items-center gap-2 mt-0.5 text-[11px]" style={{ color: 'hsl(var(--text-muted))' }}>
+                      <span>{Math.round(tgt.prospectivity * 100)}% prosp.</span>
+                      <span style={{ color: tgt.uncertainty === 'low' ? 'hsl(var(--green-light))' : tgt.uncertainty === 'medium' ? 'hsl(var(--amber-light))' : 'hsl(var(--red-light))' }}>
+                        {tgt.uncertainty} uncert.
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className="text-[18px] font-bold tabular-nums"
+                      style={{ color: tgt.type === 'high' ? 'hsl(var(--red-light))' : tgt.type === 'medium' ? 'hsl(var(--amber-light))' : 'hsl(var(--text-muted))' }}>
+                      {tgt.score}
+                    </div>
+                    <div className="text-[9px]" style={{ color: 'hsl(var(--text-muted))' }}>/100</div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="rounded-sm p-3" style={{ background: 'hsl(var(--surface-raised))', border: '1px solid hsl(var(--amber-dim))' }}>
+                <div className="section-label mb-1.5">Workflow</div>
+                {[
+                  'Satellite + Geological Evidence',
+                  'Prospectivity Prediction',
+                  'Explainability Review',
+                  'Target Ranking',
+                  'Field / Drilling Priority',
+                ].map((step, i) => (
+                  <div key={step} className="flex items-center gap-2 py-1">
+                    <div className="w-4 h-4 rounded-sm flex items-center justify-center shrink-0 text-[9px] font-bold"
+                      style={{ background: 'hsl(var(--amber-dim) / 0.3)', color: 'hsl(var(--amber-light))' }}>
+                      {i + 1}
+                    </div>
+                    <span className="text-[11px]" style={{ color: 'hsl(var(--text-secondary))' }}>{step}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Spectral ── */}
+          {rightTab === 'spectral' && (
+            <div className="p-4 space-y-4">
+              <div>
+                <div className="section-label mb-1">Spectral Profile</div>
+                <div className="text-[11px]" style={{ color: 'hsl(var(--text-muted))' }}>
+                  Selected point · Sentinel-2 L2A
+                </div>
+              </div>
+              <ResponsiveContainer width="100%" height={140}>
+                <LineChart data={SPECTRAL_DATA} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="band" tick={{ fontSize: 8 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 8 }} axisLine={false} tickLine={false} domain={[0, 0.4]} />
+                  <Tooltip
+                    contentStyle={{ background: 'hsl(var(--nav-bg))', border: '1px solid hsl(var(--border))', borderRadius: 3, fontSize: 11 }}
+                    formatter={(v: number) => [(v as number).toFixed(3), 'Reflectance']}
+                  />
+                  <Line type="monotone" dataKey="v" stroke="hsl(var(--amber-light))" strokeWidth={1.5}
+                    dot={{ r: 3, fill: 'hsl(var(--amber-light))' }} name="Reflectance" />
+                </LineChart>
+              </ResponsiveContainer>
+
+              <div>
+                <div className="section-label mb-2">Spectral Indices</div>
+                {[
+                  { name: 'NDVI',       val: '−0.12', note: 'Bare/disturbed soil' },
+                  { name: 'BSI',        val: '0.38',  note: 'Elevated bare soil' },
+                  { name: 'FeMg Ratio', val: '1.24',  note: 'Fe/Mg anomaly' },
+                  { name: 'Clay Index', val: '0.64',  note: 'Weathered laterite' },
+                ].map(idx => (
+                  <div key={idx.name} className="factor-row">
+                    <span className="text-[11px] font-mono w-18 shrink-0" style={{ color: 'hsl(var(--amber-light))' }}>{idx.name}</span>
+                    <span className="text-[12px] w-10 tabular-nums shrink-0" style={{ color: 'hsl(var(--text-primary))' }}>{idx.val}</span>
+                    <span className="text-[10px]" style={{ color: 'hsl(var(--text-muted))' }}>{idx.note}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-sm p-3" style={{ background: 'hsl(var(--surface-raised))', border: '1px solid hsl(var(--border))' }}>
+                <div className="section-label mb-1.5">Acquisition</div>
+                {[
+                  ['Sensor', 'Sentinel-2 MSI'],
+                  ['Resolution', '10 – 20 m'],
+                  ['Date', '2026-08-22'],
+                  ['CRS', 'WGS84 / UTM 44N'],
+                ].map(([k, v]) => (
+                  <div key={k} className="flex justify-between py-1 text-[11px]">
+                    <span style={{ color: 'hsl(var(--text-muted))' }}>{k}</span>
+                    <span style={{ color: 'hsl(var(--text-secondary))' }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

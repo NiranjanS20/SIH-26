@@ -1,32 +1,58 @@
-# React + TypeScript + Vite
+# Dongri Buzurg AI Prospectivity & Forecasting Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+An AI-driven manganese prospectivity and production-forecasting system built for MOIL's Dongri Buzurg opencast mine (Bhandara district, Maharashtra) - Smart India Hackathon (SIH 2026).
 
-Currently, two official plugins are available:
+## Architecture
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+This project is structured as a monolithic repository containing both the frontend dashboard and the machine learning backend:
+- **Frontend (`/src`)**: React + TypeScript + Vite. Dynamic dashboard utilizing Tailwind CSS for the user interface.
+- **Backend (`/backend`)**: FastAPI (Python) serving machine learning inferences (Random Forest, XGBoost), handling role-based access control (RBAC), and maintaining hash-chained audit logs.
+- **Data & Models (`/data/processed` & `/models`)**: Trained artifacts and extracted ground-truth CSVs that the backend loads directly into memory on startup.
 
-## React Compiler
+## Quick Start Guide
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. Backend Setup
+The backend runs on Python 3.10+ and uses FastAPI.
 
-## Expanding the Oxlint configuration
+```bash
+# Navigate to the root directory
+cd SIH_26009
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+# (Optional but recommended) Create a virtual environment
+python -m venv venv
+venv\Scripts\activate  # On Windows
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+# Install the backend dependencies
+pip install -r backend/requirements.txt
+
+# Start the FastAPI server (Runs on port 8000)
+uvicorn backend.app.main:app --reload
 ```
+*API Documentation available at: `http://localhost:8000/docs`*
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### 2. Frontend Setup
+The frontend runs on Node.js and uses Vite.
+
+```bash
+# Open a new terminal instance and navigate to the root directory
+cd SIH_26009
+
+# Install Node dependencies
+npm install
+
+# Start the React development server (Runs on port 5173)
+npm run dev
+```
+*Dashboard available at: `http://localhost:5173`*
+
+## Key Features
+1. **Prospectivity Scoring**: Spatial predictions for high-yield manganese zones.
+2. **Production Forecasting**: Live XGBoost what-if simulation based on equipment availability, blasting delays, and weather conditions.
+3. **Shortfall Diagnosis**: Automated gap analysis identifying potential risks in the mining cycle.
+4. **Corrective Actions**: Rule-based remediation engine for mitigating operational delays.
+
+## Development & Testing
+To run the automated backend test suite:
+```bash
+pytest backend/tests/test_routes.py
+```

@@ -7,10 +7,15 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Node / Vite
+node_modules/
+dist/
 *.local
+
+# Environment variables
+.env
+.env.*
+!.env.example
 
 # Local context documentation
 CONTEXT.md
@@ -28,3 +33,27 @@ CONTEXT.md
 *.njsproj
 *.sln
 *.sw?
+
+# --- Python & FastAPI Backend ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+venv/
+env/
+.venv/
+backend/reports/audit_chain.log
+
+# --- Data & Models ---
+# Ignore raw spatial/raster files since they are too large for git
+*.tif
+*.gpkg
+data/mine data/
+data/new data/
+data/satellite data and more/
+
+# We explicitly ALLOW tracking processed datasets and trained models 
+# to ensure the backend can spin up seamlessly in new environments.
+!models/
+!data/processed/

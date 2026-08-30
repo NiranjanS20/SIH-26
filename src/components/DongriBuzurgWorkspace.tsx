@@ -180,14 +180,29 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
   const [simRainfall, setSimRainfall] = useState<number>(70);
   const [simNdvi, setSimNdvi] = useState<number>(0.42);
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
+  const [simulatedOutput, setSimulatedOutput] = useState<number>(4100);
 
   const isDark = themeMode === 'dark';
+  const simulatedGain = Math.round(simulatedOutput - 4100);
 
-  // Calculate simulated output dynamically based on inputs
-  const simulatedGain = Math.round(
-    (simEquipment - 80) * 25 - (simBlastingDelay - 2) * 120 - (simRainfall - 70) * 10
-  );
-  const simulatedOutput = 4100 + Math.max(-400, Math.min(900, simulatedGain));
+  // Calculate simulated output dynamically based on inputs using real backend API
+  React.useEffect(() => {
+    let active = true;
+    const runSim = async () => {
+      setIsSimulating(true);
+      try {
+        const { simulateWhatIf } = await import('../apiClient');
+        const res = await simulateWhatIf(simEquipment, simBlastingDelay, simRainfall);
+        if (active) setSimulatedOutput(res.simulated_daily_production_te);
+      } catch (e) {
+        console.error("Simulation failed:", e);
+      } finally {
+        if (active) setIsSimulating(false);
+      }
+    };
+    const timer = setTimeout(runSim, 500); // debounce
+    return () => { active = false; clearTimeout(timer); };
+  }, [simEquipment, simBlastingDelay, simRainfall]);
 
   // Toggle Action Status
   const handleToggleActionStatus = (id: string) => {
