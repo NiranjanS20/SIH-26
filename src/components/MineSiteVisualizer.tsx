@@ -21,6 +21,10 @@ import {
   Activity,
   Maximize2,
   Minimize2,
+  Leaf,
+  Droplets,
+  Thermometer,
+  Radio,
 } from 'lucide-react';
 
 export type IntelligenceMode = 'TERRAIN' | 'SATELLITE';
@@ -501,17 +505,34 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
               <div className="pointer-events-auto flex items-center gap-1 p-1 rounded-lg bg-black/80 backdrop-blur-md border border-white/15 shadow-lg overflow-x-auto max-w-[90%]">
                 {profile.satelliteConfig.availableLayers.map((layer) => {
                   const isSelected = selectedSatelliteLayerId === layer.id;
+                  const renderSatelliteLayerIcon = () => {
+                    switch (layer.id) {
+                      case 'TRUE_COLOR':
+                        return <Satellite className="w-3 h-3 shrink-0" />;
+                      case 'NDVI':
+                        return <Leaf className="w-3 h-3 shrink-0" />;
+                      case 'SOIL_MOISTURE':
+                        return <Droplets className="w-3 h-3 shrink-0" />;
+                      case 'THERMAL_LST':
+                        return <Thermometer className="w-3 h-3 shrink-0" />;
+                      case 'SAR_SUBSIDENCE':
+                        return <Radio className="w-3 h-3 shrink-0" />;
+                      default:
+                        return <Satellite className="w-3 h-3 shrink-0" />;
+                    }
+                  };
+
                   return (
                     <button
                       key={layer.id}
                       onClick={() => setSelectedSatelliteLayerId(layer.id)}
-                      className={`px-2 py-1 rounded text-[9.5px] font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+                      className={`px-2 py-1 rounded text-[9.5px] font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                         isSelected
                           ? 'bg-blue-600 text-white font-extrabold shadow-md'
                           : 'text-slate-300 hover:text-white hover:bg-white/10'
                       }`}
                     >
-                      <span>{layer.icon}</span>
+                      {renderSatelliteLayerIcon()}
                       <span>{layer.label}</span>
                     </button>
                   );
