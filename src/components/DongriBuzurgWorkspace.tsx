@@ -207,7 +207,6 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
   }, []);
 
   const isDark = themeMode === 'dark';
-  const simulatedGain = Math.round(simulatedOutput - 4100);
 
   // Calculate simulated output dynamically based on inputs using real backend API
   React.useEffect(() => {

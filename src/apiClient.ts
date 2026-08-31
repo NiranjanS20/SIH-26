@@ -10,7 +10,7 @@ export async function getDemoToken(): Promise<string> {
     }
     const data = await response.json();
     cachedToken = data.access_token;
-    return cachedToken;
+    return cachedToken as string;
 }
 
 export async function fetchWorkspaceData(mineId: string) {
