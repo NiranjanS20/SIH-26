@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 
 from app.core.config import settings
@@ -60,6 +61,10 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Setup SlowAPI Rate Limiting
 setup_rate_limiting(app)
+
+import os
+from app.core.config import settings
+app.mount("/static", StaticFiles(directory=settings.DATA_DIR), name="static")
 
 # Global Exception Handler
 @app.exception_handler(Exception)

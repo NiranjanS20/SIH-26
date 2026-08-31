@@ -5,6 +5,7 @@ from app.core.config import settings
 class DataRegistry:
     def __init__(self):
         self.mcdr_ground_truth = None
+        self.mcdr_reserves = None
         self.shortfall_data = None
         self.shap_summary = None
         self.corrective_actions = None
@@ -13,6 +14,7 @@ class DataRegistry:
     def verify_artifacts(self):
         required_csvs = [
             "mcdr_ground_truth.csv",
+            "mcdr_reserves.csv",
             "shortfall_data.csv",
             "shap_summary_model2.csv",
             "corrective_actions.csv"
@@ -27,6 +29,7 @@ class DataRegistry:
     def load_data(self):
         print("Loading CSV datasets into memory...")
         self.mcdr_ground_truth = pd.read_csv(os.path.join(settings.DATA_DIR, "mcdr_ground_truth.csv"))
+        self.mcdr_reserves = pd.read_csv(os.path.join(settings.DATA_DIR, "mcdr_reserves.csv"))
         self.shortfall_data = pd.read_csv(os.path.join(settings.DATA_DIR, "shortfall_data.csv"))
         self.shap_summary = pd.read_csv(os.path.join(settings.DATA_DIR, "shap_summary_model2.csv"))
         self.corrective_actions = pd.read_csv(os.path.join(settings.DATA_DIR, "corrective_actions.csv"))

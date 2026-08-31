@@ -24,10 +24,12 @@ def precompute_workspace_data():
     # Example: Grab the latest actual production from MCDR if available, else fallback
     actual_prod = 38600.0
     target_prod = 45000.0
+    
     if mcdr_df is not None and not mcdr_df.empty:
-        # Just an example extraction, typically we'd map this properly
-        # We know we ratio-scaled to 252,580 for FY15-16, let's just use realistic numbers for the demo response.
-        actual_prod = float(mcdr_df.iloc[0]['rom_actual_production_te']) if 'rom_actual_production_te' in mcdr_df.columns else 38600.0
+        # Use the maximum year available in the real MCDR ground truth
+        latest_row = mcdr_df.iloc[-1]
+        actual_prod = float(latest_row['rom_actual_te']) if 'rom_actual_te' in latest_row and pd.notnull(latest_row['rom_actual_te']) else 303383.0
+        target_prod = float(latest_row['rom_proposed_te']) if 'rom_proposed_te' in latest_row and pd.notnull(latest_row['rom_proposed_te']) else 350000.0
 
     expected_gap = -3200.0
     if shortfall_df is not None and not shortfall_df.empty and 'expected_gap' in shortfall_df.columns:
@@ -61,6 +63,16 @@ def precompute_workspace_data():
         if 'recommended_equipment_availability' in corrective_df.columns:
             val = corrective_df.iloc[0]['recommended_equipment_availability']
             rec_equipment = f"{val:.0f}%" if pd.notnull(val) else rec_equipment
+            
+    # Extract UNFC Reserves
+    reserves_df = data_registry.mcdr_reserves
+    proved_111 = 3473539.0
+    probable_122 = 290938.0
+    if reserves_df is not None and not reserves_df.empty:
+        r111 = reserves_df[reserves_df['unfc_code'] == '111']
+        if not r111.empty: proved_111 = float(r111.iloc[0]['tonnage'])
+        r122 = reserves_df[reserves_df['unfc_code'] == '122']
+        if not r122.empty: probable_122 = float(r122.iloc[0]['tonnage'])
             
     workspace_data = {
         "mineInfo": {
@@ -108,10 +120,10 @@ def precompute_workspace_data():
             "riskLevel": "MEDIUM"
         },
         "accessibleOre": {
-            "geologicalPotential": 82.0,
-            "accessiblePotential": 61.0,
-            "operationallyRecoverable": 44.0,
-            "estimatedVolumeTons": 142000.0
+            "geologicalPotential": proved_111 + probable_122,
+            "accessiblePotential": proved_111,
+            "operationallyRecoverable": proved_111 * 0.8,
+            "estimatedVolumeTons": proved_111
         },
         "gisZones": [
             {
