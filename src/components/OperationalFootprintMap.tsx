@@ -22,7 +22,17 @@ import {
   type MineGeoLocation,
 } from '../data/reserveMappingData';
 import { type SatelliteMode, SATELLITE_MODES } from './ReserveMappingPage';
-import { Layers, ZoomIn, ZoomOut, Target } from 'lucide-react';
+import {
+  Layers,
+  ZoomIn,
+  ZoomOut,
+  Target,
+  Satellite,
+  Sparkles,
+  Leaf,
+  Droplets,
+  Thermometer,
+} from 'lucide-react';
 
 interface OperationalFootprintMapProps {
   selectedState: string;
@@ -156,17 +166,32 @@ export const OperationalFootprintMap: React.FC<OperationalFootprintMapProps> = (
           </div>
           {SATELLITE_MODES.map((mode) => {
             const isActive = activeLayer === mode.id;
+            const renderLayerIcon = () => {
+              switch (mode.id) {
+                case 'TRUE_COLOR':
+                  return <Satellite className="w-3 h-3 shrink-0" />;
+                case 'MN_PROSPECTIVITY':
+                  return <Sparkles className="w-3 h-3 shrink-0" />;
+                case 'NDVI_VEGETATION':
+                  return <Leaf className="w-3 h-3 shrink-0" />;
+                case 'SOIL_MOISTURE':
+                  return <Droplets className="w-3 h-3 shrink-0" />;
+                case 'THERMAL_LST':
+                  return <Thermometer className="w-3 h-3 shrink-0" />;
+              }
+            };
+
             return (
               <button
                 key={mode.id}
                 onClick={() => setActiveLayer(mode.id)}
-                className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                   isActive
                     ? 'bg-amber-500 text-slate-950 shadow-md ring-1 ring-amber-300 font-extrabold'
                     : 'text-slate-300 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <span>{mode.icon}</span>
+                {renderLayerIcon()}
                 <span>{mode.shortName}</span>
               </button>
             );
