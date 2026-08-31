@@ -18,6 +18,10 @@ import {
   MapPin,
   ArrowLeft,
   Compass,
+  Sparkles,
+  Leaf,
+  Droplets,
+  Thermometer,
 } from 'lucide-react';
 import {
   MANGANESE_MINES_DATA,
@@ -47,7 +51,6 @@ export const SATELLITE_MODES: Array<{
   id: SatelliteMode;
   name: string;
   shortName: string;
-  icon: string;
   description: string;
   sensor: string;
   colormap: string;
@@ -56,7 +59,6 @@ export const SATELLITE_MODES: Array<{
     id: 'TRUE_COLOR',
     name: 'True-Color Satellite',
     shortName: 'Satellite',
-    icon: '🛰️',
     description: 'High-resolution optical surface imagery from Sentinel-2 MSI (10m ground resolution).',
     sensor: 'Sentinel-2B (B4-B3-B2)',
     colormap: 'Natural Surface RGB',
@@ -65,7 +67,6 @@ export const SATELLITE_MODES: Array<{
     id: 'MN_PROSPECTIVITY',
     name: 'Manganese Prospectivity',
     shortName: 'Mn AI Heatmap',
-    icon: '⛏️',
     description: 'AI spatial prior model combining ASTER thermal IR, SWIR absorption, and structural geology.',
     sensor: 'Space-ML Ensemble Model',
     colormap: 'Red (High) → Amber → Green (Low)',
@@ -74,7 +75,6 @@ export const SATELLITE_MODES: Array<{
     id: 'NDVI_VEGETATION',
     name: 'Vegetation Index (NDVI)',
     shortName: 'NDVI Index',
-    icon: '🌿',
     description: 'Identifies vegetative suppression over open-cast pits and exposed mineralized bedrock.',
     sensor: 'Sentinel-2 (NIR/Red Ratio)',
     colormap: 'Brown (Bare Mineral) → Green (Dense)',
@@ -83,7 +83,6 @@ export const SATELLITE_MODES: Array<{
     id: 'SOIL_MOISTURE',
     name: 'Soil Moisture (SAR)',
     shortName: 'Moisture',
-    icon: '💧',
     description: 'Dielectric backscatter proxy detecting water accumulation and haul road trafficability.',
     sensor: 'Sentinel-1 SAR C-Band (VV/VH)',
     colormap: 'Amber (Dry Rock) → Cyan (Moist Sump)',
@@ -92,7 +91,6 @@ export const SATELLITE_MODES: Array<{
     id: 'THERMAL_LST',
     name: 'Land Surface Temp (LST)',
     shortName: 'Thermal LST',
-    icon: '🌡️',
     description: 'Thermal inertia contrast detecting dense sub-surface manganese and iron formation reefs.',
     sensor: 'Landsat-9 TIRS / ASTER TIR',
     colormap: 'Blue (Cool) → Crimson (Thermal Anomaly)',
@@ -441,6 +439,21 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
           <div className="flex items-center gap-1.5">
             {SATELLITE_MODES.map((mode) => {
               const isActive = activeSatelliteMode === mode.id;
+              const renderLayerIcon = () => {
+                switch (mode.id) {
+                  case 'TRUE_COLOR':
+                    return <Satellite className="w-3.5 h-3.5 shrink-0" />;
+                  case 'MN_PROSPECTIVITY':
+                    return <Sparkles className="w-3.5 h-3.5 shrink-0" />;
+                  case 'NDVI_VEGETATION':
+                    return <Leaf className="w-3.5 h-3.5 shrink-0" />;
+                  case 'SOIL_MOISTURE':
+                    return <Droplets className="w-3.5 h-3.5 shrink-0" />;
+                  case 'THERMAL_LST':
+                    return <Thermometer className="w-3.5 h-3.5 shrink-0" />;
+                }
+              };
+
               return (
                 <button
                   key={mode.id}
@@ -454,7 +467,7 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
                   }`}
                   title={mode.description}
                 >
-                  <span>{mode.icon}</span>
+                  {renderLayerIcon()}
                   <span>{mode.shortName}</span>
                 </button>
               );
