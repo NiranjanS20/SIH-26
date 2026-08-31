@@ -182,6 +182,30 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
   const [simulatedOutput, setSimulatedOutput] = useState<number>(4100);
 
+  const [workspaceData, setWorkspaceData] = useState<any>(null);
+  const [loadingWorkspace, setLoadingWorkspace] = useState(true);
+
+  React.useEffect(() => {
+    let active = true;
+    const load = async () => {
+      try {
+        const { fetchWorkspaceData } = await import('../apiClient');
+        const data = await fetchWorkspaceData('dongri-buzurg');
+        if (active) {
+          setWorkspaceData(data);
+          setSimulatedOutput(data.production.forecast);
+          setLoadingWorkspace(false);
+          // Set rainfall default based on data or to 0
+          setSimRainfall(0);
+        }
+      } catch (e) {
+        console.error("Failed to load workspace data:", e);
+      }
+    };
+    load();
+    return () => { active = false; };
+  }, []);
+
   const isDark = themeMode === 'dark';
   const simulatedGain = Math.round(simulatedOutput - 4100);
 
@@ -258,6 +282,17 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
   const textSecondary = isDark ? 'text-slate-300' : 'text-slate-600';
   const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
   const borderDivider = isDark ? 'border-white/10' : 'border-slate-200';
+
+  if (loadingWorkspace || !workspaceData) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-[#12151B] text-white' : 'bg-[#F4F6F9] text-slate-900'}`}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="font-bold text-sm tracking-widest uppercase">Loading MCDR Pipeline Data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -525,7 +560,7 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   CURRENT ANNUAL OUTPUT
                 </span>
                 <span className="font-headline font-black text-3xl sm:text-4xl text-white block mt-0.5">
-                  550,000
+                  {workspaceData.production.actual.toLocaleString()}
                 </span>
                 <span className="text-xs font-extrabold text-[#FEA619] block uppercase tracking-wider">
                   Tonnes
@@ -614,6 +649,29 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   </div>
                 </div>
 
+                {/* PROSPECTIVITY HEATMAP CARD (NEW) */}
+                <div className={`lg:col-span-12 p-6 rounded-xl border flex flex-col justify-between space-y-5 ${cardBg}`}>
+                  <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
+                    <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
+                      <span className="material-symbols-outlined text-[#D97706] text-base">map</span>
+                      PROSPECTIVITY HEATMAP (REAL-TIME ML OUTPUT)
+                    </h2>
+                    <span className="text-[10px] font-mono text-[#D97706] font-bold uppercase">
+                      GENERATED FROM SATELLITE TIER DATA
+                    </span>
+                  </div>
+                  <div className="flex justify-center bg-black/20 rounded-lg p-2 border border-white/5">
+                    <img 
+                      src="http://127.0.0.1:8000/static/prospectivity_heatmap.png" 
+                      alt="Prospectivity Heatmap" 
+                      className="max-h-[500px] w-auto object-contain rounded border border-white/10 shadow-lg"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  </div>
+                </div>
+
                 {/* CURRENT STATUS CARD (5 COLS) */}
                 <div className={`lg:col-span-5 p-6 rounded-xl border flex flex-col justify-between space-y-5 ${cardBg}`}>
                   <div className="space-y-4">
@@ -682,14 +740,14 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                       <span className={`text-[11px] font-bold uppercase tracking-wider ${textMuted}`}>CURRENT PRODUCTION</span>
                       <span className="material-symbols-outlined text-base text-[#0E7C7B]">trending_up</span>
                     </div>
-                    <span className={`font-headline font-black text-3xl block ${textPrimary}`}>4,100 t</span>
+                    <span className={`font-headline font-black text-3xl block ${textPrimary}`}>{workspaceData.production.forecast.toLocaleString()} t</span>
                     <div className="space-y-1.5">
                       <div className="flex justify-between text-xs font-bold">
-                        <span className="text-emerald-500">82% of target</span>
-                        <span className={`font-mono ${textMuted}`}>4,100 / 5,000 t</span>
+                        <span className="text-emerald-500">{((workspaceData.production.forecast / workspaceData.production.target) * 100).toFixed(0)}% of target</span>
+                        <span className={`font-mono ${textMuted}`}>{workspaceData.production.forecast.toLocaleString()} / {workspaceData.production.target.toLocaleString()} t</span>
                       </div>
                       <div className={`w-full h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-[#14171C]' : 'bg-slate-200'}`}>
-                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: '82%' }} />
+                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(workspaceData.production.forecast / workspaceData.production.target) * 100}%` }} />
                       </div>
                     </div>
                   </div>
@@ -699,7 +757,7 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                       <span className={`text-[11px] font-bold uppercase tracking-wider ${textMuted}`}>TARGET</span>
                       <span className="material-symbols-outlined text-base text-blue-500">flag</span>
                     </div>
-                    <span className="font-headline font-black text-3xl text-blue-600 block">5,000 t</span>
+                    <span className="font-headline font-black text-3xl text-blue-600 block">{workspaceData.production.target.toLocaleString()} t</span>
                     <span className={`text-xs font-bold block ${textMuted}`}>Current month allocation</span>
                   </div>
 
@@ -970,18 +1028,18 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                 </div>
                 <div className={`p-5 rounded-xl border space-y-2 ${cardBg}`}>
                   <span className={`text-[11px] font-bold uppercase tracking-wider block ${textMuted}`}>PLANNED TARGET</span>
-                  <span className="font-headline font-black text-3xl text-blue-600 block">5,000 t</span>
+                  <span className="font-headline font-black text-3xl text-blue-600 block">{workspaceData.production.target.toLocaleString()} t</span>
                   <span className={`text-xs font-semibold block ${textMuted}`}>Current month</span>
                 </div>
                 <div className={`p-5 rounded-xl border space-y-2 ${cardBg}`}>
                   <span className="text-[11px] font-bold text-[#0E7C7B] uppercase tracking-wider block">PREDICTED OUTPUT</span>
-                  <span className="font-headline font-black text-3xl text-[#0E7C7B] block">4,100 t</span>
+                  <span className="font-headline font-black text-3xl text-[#0E7C7B] block">{workspaceData.production.forecast.toLocaleString()} t</span>
                   <span className="text-xs font-semibold text-[#0E7C7B] block">Model forecast</span>
                 </div>
                 <div className={`p-5 rounded-xl border space-y-2 ${isDark ? 'bg-[#20242D] border-[#D97706]/40' : 'bg-white border-[#D97706]/40 shadow-sm'}`}>
                   <span className="text-[11px] font-bold text-[#D97706] uppercase tracking-wider block">PROJECTED GAP</span>
-                  <span className="font-headline font-black text-3xl text-[#D97706] block">-900 t</span>
-                  <span className="text-xs font-bold text-[#D97706] block">18% below target</span>
+                  <span className="font-headline font-black text-3xl text-[#D97706] block">{workspaceData.production.gap > 0 ? '+' : ''}{workspaceData.production.gap.toLocaleString()} t</span>
+                  <span className="text-xs font-bold text-[#D97706] block">{Math.abs((workspaceData.production.gap / workspaceData.production.target) * 100).toFixed(0)}% below target</span>
                 </div>
               </div>
 
@@ -1022,50 +1080,83 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                     <line x1="60" y1="205" x2="770" y2="205" stroke={isDark ? '#334155' : '#E2E8F0'} strokeWidth="0.5" strokeDasharray="3,3" />
                     <line x1="60" y1="240" x2="770" y2="240" stroke={isDark ? '#475569' : '#94A3B8'} strokeWidth="1" />
 
-                    <text x="50" y="44" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">6,000t</text>
-                    <text x="50" y="99" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">5,000t</text>
-                    <text x="50" y="154" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">4,000t</text>
-                    <text x="50" y="209" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">3,000t</text>
-                    <text x="50" y="244" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">0t</text>
-
-                    <rect x="240" y="30" width="310" height="210" fill="#3B82F6" fillOpacity="0.08" stroke="#3B82F6" strokeWidth="0.5" strokeDasharray="4,4" />
-                    <text x="395" y="48" fill="#2563EB" fontSize="10" fontWeight="black" textAnchor="middle" letterSpacing="1">
-                      MONSOON PERIOD (IMD PRECIPITATION BAND)
-                    </text>
-
-                    <line x1="550" y1="30" x2="550" y2="240" stroke="#0E7C7B" strokeWidth="1.5" strokeDasharray="4,2" />
-                    <text x="555" y="65" fill="#0E7C7B" fontSize="9" fontWeight="extrabold">MODEL FORECAST BOUNDARY →</text>
-
-                    <polyline fill="none" stroke="#10B981" strokeWidth="3.5" points="100,105 210,85 320,135 430,165 540,150" />
-                    <polyline fill="none" stroke="#2563EB" strokeWidth="2.5" strokeDasharray="6,4" points="100,95 210,95 320,95 430,95 540,95 650,95 750,95" />
-                    <polyline fill="none" stroke="#0E7C7B" strokeWidth="3.5" strokeDasharray="4,4" points="540,150 650,150 750,140" />
-
-                    {[
-                      { x: 100, label: 'Apr', actual: 4800, target: 5000, forecast: null },
-                      { x: 210, label: 'May', actual: 5100, target: 5000, forecast: null },
-                      { x: 320, label: 'Jun', actual: 4300, target: 5000, forecast: null },
-                      { x: 430, label: 'Jul', actual: 3800, target: 5000, forecast: null },
-                      { x: 540, label: 'Aug (Current)', actual: 4100, target: 5000, forecast: 4100 },
-                      { x: 650, label: 'Sep (Forecast)', actual: null, target: 5000, forecast: 4100 },
-                      { x: 750, label: 'Oct (Forecast)', actual: null, target: 5000, forecast: 4250 },
-                    ].map((pt) => {
-                      const yActual = pt.actual ? 240 - (pt.actual / 6000) * 200 : null;
-                      const yTarget = 240 - (pt.target / 6000) * 200;
-                      const yForecast = pt.forecast ? 240 - (pt.forecast / 6000) * 200 : null;
+                    {(() => {
+                      // Dynamic scaling logic
+                      const maxVal = Math.max(
+                        workspaceData.production.target,
+                        workspaceData.production.actual,
+                        workspaceData.production.forecast
+                      ) * 1.2;
+                      
+                      const formatY = (val: number) => {
+                         if (val > 100000) return `${(val/100000).toFixed(1)}L`;
+                         if (val > 1000) return `${(val/1000).toFixed(0)}k`;
+                         return val;
+                      };
 
                       return (
-                        <g key={pt.label}>
-                          {yActual && <circle cx={pt.x} cy={yActual} r="5" fill="#10B981" stroke={isDark ? '#12151B' : '#FFFFFF'} strokeWidth="2" />}
-                          <circle cx={pt.x} cy={yTarget} r="4" fill="#2563EB" />
-                          {yForecast && pt.actual === null && (
-                            <circle cx={pt.x} cy={yForecast} r="5" fill="#0E7C7B" stroke={isDark ? '#12151B' : '#FFFFFF'} strokeWidth="2" />
-                          )}
-                          <text x={pt.x} y="258" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="middle">
-                            {pt.label}
+                        <>
+                          <text x="50" y="44" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">{formatY(maxVal)}</text>
+                          <text x="50" y="99" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">{formatY(maxVal * 0.75)}</text>
+                          <text x="50" y="154" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">{formatY(maxVal * 0.5)}</text>
+                          <text x="50" y="209" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">{formatY(maxVal * 0.25)}</text>
+                          <text x="50" y="244" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="end">0</text>
+
+                          <rect x="240" y="30" width="310" height="210" fill="#3B82F6" fillOpacity="0.08" stroke="#3B82F6" strokeWidth="0.5" strokeDasharray="4,4" />
+                          <text x="395" y="48" fill="#2563EB" fontSize="10" fontWeight="black" textAnchor="middle" letterSpacing="1">
+                            MONSOON PERIOD (IMD PRECIPITATION BAND)
                           </text>
-                        </g>
+
+                          <line x1="550" y1="30" x2="550" y2="240" stroke="#0E7C7B" strokeWidth="1.5" strokeDasharray="4,2" />
+                          <text x="555" y="65" fill="#0E7C7B" fontSize="9" fontWeight="extrabold">MODEL FORECAST BOUNDARY →</text>
+
+                          {(() => {
+                            const pts = [
+                              { x: 100, label: 'Q1', actual: workspaceData.production.actual * 0.85, target: workspaceData.production.target, forecast: null },
+                              { x: 210, label: 'Q2', actual: workspaceData.production.actual * 0.95, target: workspaceData.production.target, forecast: null },
+                              { x: 320, label: 'Q3', actual: workspaceData.production.actual * 0.9, target: workspaceData.production.target, forecast: null },
+                              { x: 430, label: 'Q4', actual: workspaceData.production.actual * 0.98, target: workspaceData.production.target, forecast: null },
+                              { x: 540, label: 'Current', actual: workspaceData.production.actual, target: workspaceData.production.target, forecast: workspaceData.production.forecast },
+                              { x: 650, label: 'Proj +1', actual: null, target: workspaceData.production.target, forecast: workspaceData.production.forecast * 1.05 },
+                              { x: 750, label: 'Proj +2', actual: null, target: workspaceData.production.target, forecast: workspaceData.production.forecast * 1.1 },
+                            ];
+
+                            const getY = (val: number) => 240 - (val / maxVal) * 200;
+                            
+                            const actualLine = pts.filter(p => p.actual !== null).map(p => `${p.x},${getY(p.actual!)}`).join(' ');
+                            const targetLine = pts.map(p => `${p.x},${getY(p.target)}`).join(' ');
+                            const forecastLine = pts.filter(p => p.forecast !== null).map(p => `${p.x},${getY(p.forecast!)}`).join(' ');
+
+                            return (
+                              <>
+                                <polyline fill="none" stroke="#10B981" strokeWidth="3.5" points={actualLine} />
+                                <polyline fill="none" stroke="#2563EB" strokeWidth="2.5" strokeDasharray="6,4" points={targetLine} />
+                                <polyline fill="none" stroke="#0E7C7B" strokeWidth="3.5" strokeDasharray="4,4" points={forecastLine} />
+
+                                {pts.map((pt) => {
+                                  const yActual = pt.actual ? getY(pt.actual) : null;
+                                  const yTarget = getY(pt.target);
+                                  const yForecast = pt.forecast ? getY(pt.forecast) : null;
+
+                                  return (
+                                    <g key={pt.label}>
+                                      {yActual && <circle cx={pt.x} cy={yActual} r="5" fill="#10B981" stroke={isDark ? '#12151B' : '#FFFFFF'} strokeWidth="2" />}
+                                      <circle cx={pt.x} cy={yTarget} r="4" fill="#2563EB" />
+                                      {yForecast && pt.actual === null && (
+                                        <circle cx={pt.x} cy={yForecast} r="5" fill="#0E7C7B" stroke={isDark ? '#12151B' : '#FFFFFF'} strokeWidth="2" />
+                                      )}
+                                      <text x={pt.x} y="258" fill={isDark ? '#94A3B8' : '#64748B'} fontSize="10" fontWeight="bold" textAnchor="middle">
+                                        {pt.label}
+                                      </text>
+                                    </g>
+                                  );
+                                })}
+                              </>
+                            );
+                          })()}
+                        </>
                       );
-                    })}
+                    })()}
                   </svg>
                 </div>
               </div>
@@ -1076,10 +1167,10 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   <span className="material-symbols-outlined text-[#D97706] text-2xl">warning</span>
                   <div>
                     <span className="font-headline font-black text-[#D97706] text-sm uppercase tracking-wider block">
-                      ⚠️ SHORTFALL DETECTED
+                      {workspaceData.production.gap < 0 ? '⚠️ SHORTFALL DETECTED' : '✅ SURPLUS PROJECTED'}
                     </span>
                     <p className={`text-xs font-medium mt-0.5 ${textSecondary}`}>
-                      Predicted production is below the current target. Projected gap: <strong className="text-[#D97706]">900 t</strong> (18% deficit).
+                      Predicted production is {workspaceData.production.gap < 0 ? 'below' : 'above'} the current target. Projected gap: <strong className={workspaceData.production.gap < 0 ? 'text-[#D97706]' : 'text-emerald-500'}>{Math.abs(workspaceData.production.gap).toLocaleString()} t</strong> ({Math.abs((workspaceData.production.gap / workspaceData.production.target) * 100).toFixed(0)}% {workspaceData.production.gap < 0 ? 'deficit' : 'surplus'}).
                     </p>
                   </div>
                 </div>
@@ -1143,7 +1234,7 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   <div className={`p-4 rounded-xl border text-right shrink-0 ${nestedBg}`}>
                     <span className="text-[10px] font-black text-[#0E7C7B] uppercase tracking-wider block">SIMULATED OUTPUT</span>
                     <span className={`font-headline font-black text-2xl block ${textPrimary}`}>{simulatedOutput.toLocaleString()} t</span>
-                    <span className="text-xs font-extrabold text-emerald-500 block">{simulatedGain >= 0 ? `+${simulatedGain}` : simulatedGain} t vs current forecast</span>
+                    <span className="text-xs font-extrabold text-emerald-500 block">{Math.round(simulatedOutput - workspaceData.production.forecast) >= 0 ? `+${Math.round(simulatedOutput - workspaceData.production.forecast)}` : Math.round(simulatedOutput - workspaceData.production.forecast)} t vs current forecast</span>
                   </div>
                 </div>
 
