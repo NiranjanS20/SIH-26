@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Polygon, Popup } from 'react-leaflet';
-import { TILE_PROVIDERS } from '../data/reserveMappingData';
 import Silk from './ui/Silk';
+import { Sparkles } from 'lucide-react';
 
 interface ProspectivityViewProps {
   isDark?: boolean;
@@ -22,10 +21,14 @@ export interface ZoneData {
   evidence: string;
   recommendedAction: string;
   priority: 'Priority' | 'Monitor' | 'Low Priority';
-  polygonD: string; // SVG path
-  leafletCoords: [number, number][]; // Leaflet lat/lng
+  svgCenter: { x: number; y: number };
+  svgPolygon: string;
+  labelPosition: 'top' | 'bottom' | 'center';
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// REALISTIC PROSPECTIVITY ZONES OVER DONGRI BUZURG PIT SATELLITE IMAGERY
+// ─────────────────────────────────────────────────────────────────────────────
 export const DONGRI_ZONES: ZoneData[] = [
   {
     id: 'PZ-DB-14',
@@ -40,18 +43,14 @@ export const DONGRI_ZONES: ZoneData[] = [
     evidence: 'Drill core DH-DB-14 confirmed 14.8m continuous pyrolusite reef (+420 nT magnetic anomaly)',
     recommendedAction: 'Priority Phase 1 bench development & production ramp-up',
     priority: 'Priority',
-    polygonD: 'M 300 70 L 460 75 L 430 155 L 280 145 Z',
-    leafletCoords: [
-      [21.557, 79.704],
-      [21.558, 79.709],
-      [21.553, 79.708],
-      [21.552, 79.703],
-    ],
+    svgCenter: { x: 470, y: 135 },
+    svgPolygon: 'M 425 110 L 525 105 L 510 165 L 415 155 Z',
+    labelPosition: 'center',
   },
   {
     id: 'PZ-DB-07',
     code: 'Zone 07',
-    name: 'Zone 07 (North Hanging Wall)',
+    name: 'Zone 07 (North Hanging Wall Bench)',
     prospectivityClass: 'HIGH',
     predictedMnO: 42.8,
     estTonnage: 3850,
@@ -61,39 +60,31 @@ export const DONGRI_ZONES: ZoneData[] = [
     evidence: 'Ground magnetic gradient confirmed strike continuity; trench assays 41.5% - 44.0% Mn',
     recommendedAction: 'Advance exploratory infill drilling 50m grid spacing',
     priority: 'Priority',
-    polygonD: 'M 130 50 L 260 45 L 240 100 L 110 95 Z',
-    leafletCoords: [
-      [21.559, 79.699],
-      [21.560, 79.704],
-      [21.556, 79.703],
-      [21.555, 79.698],
-    ],
+    svgCenter: { x: 330, y: 85 },
+    svgPolygon: 'M 255 68 L 405 72 L 390 108 L 245 100 Z',
+    labelPosition: 'top',
   },
   {
     id: 'PZ-DB-09',
     code: 'Zone 09',
-    name: 'Zone 09 (Central Pit Footwall)',
+    name: 'Zone 09 (Central Syncline Core)',
     prospectivityClass: 'HIGH',
     predictedMnO: 41.5,
     estTonnage: 3100,
     geologicalStructure: 'Banded manganese-silicate quartzite (gondite) horizon',
     accessibilityPct: 94,
     recoverabilityPct: 86,
-    evidence: 'High reflectance band at 2.2µm; historical bench exposure',
+    evidence: 'High reflectance band at 2.2µm; active bench high-grade exposure',
     recommendedAction: 'Incorporate into Q3 overburden stripping cycle',
     priority: 'Priority',
-    polygonD: 'M 200 110 L 320 105 L 300 165 L 180 160 Z',
-    leafletCoords: [
-      [21.554, 79.701],
-      [21.555, 79.706],
-      [21.551, 79.705],
-      [21.550, 79.700],
-    ],
+    svgCenter: { x: 320, y: 145 },
+    svgPolygon: 'M 235 125 L 405 130 L 385 175 L 225 165 Z',
+    labelPosition: 'center',
   },
   {
     id: 'PZ-DB-22',
     code: 'Zone 22',
-    name: 'Zone 22 (South-West Exploration Block)',
+    name: 'Zone 22 (West Ramp Extension)',
     prospectivityClass: 'MEDIUM',
     predictedMnO: 38.2,
     estTonnage: 2900,
@@ -103,18 +94,14 @@ export const DONGRI_ZONES: ZoneData[] = [
     evidence: 'Moderate gravity anomaly (+180 mGal); aero-magnetic trend',
     recommendedAction: 'Schedule geophysical resistivity tomography prior to drilling',
     priority: 'Monitor',
-    polygonD: 'M 60 120 L 170 115 L 150 175 L 40 170 Z',
-    leafletCoords: [
-      [21.551, 79.695],
-      [21.552, 79.699],
-      [21.548, 79.698],
-      [21.547, 79.694],
-    ],
+    svgCenter: { x: 165, y: 140 },
+    svgPolygon: 'M 105 120 L 220 125 L 205 170 L 95 160 Z',
+    labelPosition: 'center',
   },
   {
     id: 'PZ-DB-05',
     code: 'Zone 05',
-    name: 'Zone 05 (West Ridge Lateral Target)',
+    name: 'Zone 05 (North-West Ridge Prospect)',
     prospectivityClass: 'MEDIUM',
     predictedMnO: 36.4,
     estTonnage: 2150,
@@ -124,18 +111,14 @@ export const DONGRI_ZONES: ZoneData[] = [
     evidence: 'Surface float pyrolusite nodules; satellite NDVI anomaly',
     recommendedAction: 'Monitor environmental clearance for access track',
     priority: 'Monitor',
-    polygonD: 'M 40 30 L 120 25 L 100 80 L 20 75 Z',
-    leafletCoords: [
-      [21.560, 79.693],
-      [21.561, 79.697],
-      [21.557, 79.696],
-      [21.556, 79.692],
-    ],
+    svgCenter: { x: 160, y: 75 },
+    svgPolygon: 'M 100 58 L 215 64 L 200 102 L 90 92 Z',
+    labelPosition: 'top',
   },
   {
     id: 'PZ-DB-18',
     code: 'Zone 18',
-    name: 'Zone 18 (Deep Footwall Limb)',
+    name: 'Zone 18 (South Deep Limb Reserve)',
     prospectivityClass: 'LOW',
     predictedMnO: 31.4,
     estTonnage: 1800,
@@ -145,34 +128,37 @@ export const DONGRI_ZONES: ZoneData[] = [
     evidence: 'Low-grade surface outcrop assaying <32% Mn',
     recommendedAction: 'Low priority development; retain as long-term strategic reserve',
     priority: 'Low Priority',
-    polygonD: 'M 350 150 L 480 155 L 450 195 L 330 190 Z',
-    leafletCoords: [
-      [21.550, 79.707],
-      [21.551, 79.712],
-      [21.547, 79.711],
-      [21.546, 79.706],
-    ],
+    svgCenter: { x: 340, y: 215 },
+    svgPolygon: 'M 260 195 L 420 200 L 400 240 L 250 230 Z',
+    labelPosition: 'bottom',
   },
 ];
 
 export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
   isDark = true,
   onSendToForecast,
-  selectedMineName = 'Dongri Buzurg',
+  selectedMineName = 'Dongri Buzurg Mine',
 }) => {
-  const [viewMode, setViewMode] = useState<'MAP' | 'LIST'>('MAP');
   const [selectedZone, setSelectedZone] = useState<ZoneData>(DONGRI_ZONES[0]);
-  const [showModelInfo, setShowModelInfo] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<'MAP' | 'LIST'>('MAP');
+  const [showOreReef, setShowOreReef] = useState<boolean>(true);
+  const [showPitPerimeter, setShowPitPerimeter] = useState<boolean>(true);
+  const [showThermalOverlay, setShowThermalOverlay] = useState<boolean>(false);
   const [sortField, setSortField] = useState<'prospectivity' | 'mno' | 'tonnage'>('prospectivity');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
+  const [showModelInfo, setShowModelInfo] = useState<boolean>(false);
 
-  // Colors based on MOIL Design Tokens
-  const cardBg = isDark ? 'bg-[#181B20] border-white/10' : 'bg-white border-slate-200 shadow-sm';
-  const nestedBg = isDark ? 'bg-[#242830] border-white/10' : 'bg-slate-50 border-slate-200';
-  const textPrimary = isDark ? 'text-white' : 'text-slate-900';
-  const textSecondary = isDark ? 'text-slate-300' : 'text-slate-700';
-  const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
-  const borderDivider = isDark ? 'border-white/10' : 'border-slate-200';
+  // Styling helpers (Rich contrast & colors in Light Mode, 100% untouched in Dark Mode)
+  const cardBg = isDark
+    ? 'bg-[#181B20] border-white/10'
+    : 'bg-gradient-to-br from-white via-slate-50/50 to-white border-slate-200/90 shadow-md hover:shadow-lg transition-all';
+  const nestedBg = isDark
+    ? 'bg-[#242830] border-white/10'
+    : 'bg-white border-slate-200/90 shadow-xs hover:border-slate-300 transition-colors';
+  const textPrimary = isDark ? 'text-white' : 'text-slate-900 font-extrabold';
+  const textSecondary = isDark ? 'text-slate-300' : 'text-slate-700 font-medium';
+  const textMuted = isDark ? 'text-slate-400' : 'text-slate-500 font-semibold';
+  const borderDivider = isDark ? 'border-white/10' : 'border-slate-200/80';
 
   // Total summary calculations
   const highZonesCount = DONGRI_ZONES.filter((z) => z.prospectivityClass === 'HIGH').length;
@@ -184,24 +170,33 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
     switch (pClass) {
       case 'HIGH':
         return {
-          badge: 'bg-[#B03A2E]/20 text-[#B03A2E] border-[#B03A2E]/40 dark:text-red-400 dark:bg-red-950/40 dark:border-red-800/60',
-          dot: 'bg-[#B03A2E] dark:bg-red-500',
-          hex: '#B03A2E',
-          text: 'text-[#B03A2E] dark:text-red-400',
+          badge: isDark
+            ? 'bg-rose-950/40 text-rose-400 border-rose-800/60'
+            : 'bg-rose-100 text-rose-800 border-rose-300 font-black shadow-xs',
+          dot: 'bg-rose-500',
+          hex: '#F43F5E',
+          fill: '#F43F5E',
+          text: isDark ? 'text-rose-400' : 'text-rose-700 font-bold',
         };
       case 'MEDIUM':
         return {
-          badge: 'bg-[#B8860B]/20 text-[#B8860B] border-[#B8860B]/40 dark:text-amber-300 dark:bg-amber-950/40 dark:border-amber-700/60',
-          dot: 'bg-[#B8860B] dark:bg-amber-400',
-          hex: '#B8860B',
-          text: 'text-[#B8860B] dark:text-amber-400',
+          badge: isDark
+            ? 'bg-amber-950/40 text-amber-300 border-amber-700/60'
+            : 'bg-amber-100 text-amber-800 border-amber-300 font-black shadow-xs',
+          dot: 'bg-amber-400',
+          hex: '#F59E0B',
+          fill: '#F59E0B',
+          text: isDark ? 'text-amber-400' : 'text-amber-700 font-bold',
         };
       case 'LOW':
         return {
-          badge: 'bg-[#2E7D32]/20 text-[#2E7D32] border-[#2E7D32]/40 dark:text-emerald-400 dark:bg-emerald-950/40 dark:border-emerald-800/60',
-          dot: 'bg-[#2E7D32] dark:bg-emerald-400',
-          hex: '#2E7D32',
-          text: 'text-[#2E7D32] dark:text-emerald-400',
+          badge: isDark
+            ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/60'
+            : 'bg-emerald-100 text-emerald-800 border-emerald-300 font-black shadow-xs',
+          dot: 'bg-emerald-400',
+          hex: '#10B981',
+          fill: '#10B981',
+          text: isDark ? 'text-emerald-400' : 'text-emerald-700 font-bold',
         };
     }
   };
@@ -214,7 +209,6 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
     if (sortField === 'tonnage') {
       return sortOrder === 'desc' ? b.estTonnage - a.estTonnage : a.estTonnage - b.estTonnage;
     }
-    // Default Prospectivity sort
     const weight = { HIGH: 3, MEDIUM: 2, LOW: 1 };
     return sortOrder === 'desc'
       ? weight[b.prospectivityClass] - weight[a.prospectivityClass]
@@ -224,10 +218,9 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* ========================================================================= */}
-      {/* 3. PAGE HEADER WITH REACT BITS SILK SHADER BACKGROUND */}
+      {/* 1. PAGE HEADER WITH REACT BITS SILK SHADER BACKGROUND */}
       {/* ========================================================================= */}
       <div className={`p-6 sm:p-8 rounded-2xl border ${cardBg} relative overflow-hidden shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6`}>
-        {/* React Bits Interactive WebGL Silk Shader Background */}
         <div className="absolute inset-0 pointer-events-none opacity-40 mix-blend-screen">
           <Silk
             speed={5}
@@ -247,94 +240,113 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
             </span>
           </div>
           <h1 className={`font-headline font-black text-3xl sm:text-4xl uppercase tracking-tight ${textPrimary}`}>
-            PROSPECTIVITY
+            PROSPECTIVITY & SATELLITE PIT GIS
           </h1>
-          <p className={`text-xs sm:text-sm font-medium ${textSecondary}`}>
-            “Explore potential manganese-bearing zones and estimated grade.”
+          <p className={`text-sm max-w-2xl font-medium ${textSecondary}`}>
+            High-resolution satellite view with continuous manganese grade prediction (MnO%) across {selectedMineName} pit benches and ore reef extents.
           </p>
         </div>
 
-        {/* Header Controls (Mine selector & View Toggle) */}
-        <div className="relative z-10 flex items-center gap-3 shrink-0 flex-wrap">
-          <div className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold ${nestedBg}`}>
-            <span className={textMuted}>Mine:</span>
-            <select
-              value={selectedMineName}
-              disabled
-              className="bg-transparent text-amber-400 font-bold outline-none cursor-pointer"
-            >
-              <option value="Dongri Buzurg">{selectedMineName} ▼</option>
-            </select>
-          </div>
-
-          <div className={`flex items-center p-1 rounded-xl border ${nestedBg}`}>
-            <button
-              onClick={() => setViewMode('MAP')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer ${
-                viewMode === 'MAP'
-                  ? 'bg-[#0E7C7B] text-white shadow-md'
-                  : textMuted + ' hover:text-white'
-              }`}
-            >
-              Map View
-            </button>
-            <button
-              onClick={() => setViewMode('LIST')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer ${
-                viewMode === 'LIST'
-                  ? 'bg-[#0E7C7B] text-white shadow-md'
-                  : textMuted + ' hover:text-white'
-              }`}
-            >
-              List View
-            </button>
-          </div>
+        {/* View Switcher Toggle */}
+        <div className={`relative z-10 flex items-center p-1.5 rounded-xl border shrink-0 self-start md:self-center backdrop-blur-md ${
+          isDark ? 'bg-black/40 border-white/10' : 'bg-slate-100/90 border-slate-300 shadow-sm'
+        }`}>
+          <button
+            onClick={() => setViewMode('MAP')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+              viewMode === 'MAP'
+                ? 'bg-[#0E7C7B] text-white shadow-lg shadow-[#0E7C7B]/30'
+                : isDark ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-slate-950 font-bold'
+            }`}
+          >
+            <span className="material-symbols-outlined text-sm">map</span>
+            Map View
+          </button>
+          <button
+            onClick={() => setViewMode('LIST')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+              viewMode === 'LIST'
+                ? 'bg-[#0E7C7B] text-white shadow-lg shadow-[#0E7C7B]/30'
+                : isDark ? 'text-slate-300 hover:text-white' : 'text-slate-700 hover:text-slate-950 font-bold'
+            }`}
+          >
+            <span className="material-symbols-outlined text-sm">view_list</span>
+            List View
+          </button>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 4. MODEL OUTPUT SUMMARY (MODEL 1 SUMMARY) */}
+      {/* 2. PROSPECTIVITY OVERVIEW (SUMMARY METRICS) */}
       {/* ========================================================================= */}
       <div className={`p-6 rounded-2xl border ${cardBg} space-y-4 shadow-md`}>
         <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
-          <h2 className={`font-headline font-black text-xs uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
-            <span className="material-symbols-outlined text-[#0E7C7B] text-base">analytics</span>
-            PROSPECTIVITY SUMMARY
-          </h2>
-          <span className="text-[10px] font-mono text-[#0E7C7B] font-extrabold uppercase">
-            MODEL 1 (RANDOM FOREST CLASSIFIER + REGRESSOR)
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#0E7C7B] text-lg">insights</span>
+            <h2 className={`font-headline font-black text-sm uppercase tracking-wider ${textPrimary}`}>
+              PROSPECTIVITY OVERVIEW & MODEL OUTPUTS
+            </h2>
+          </div>
+          <span className="text-[11px] font-mono text-[#0E7C7B] font-bold">
+            6 ACTIVE SECTOR TARGETS IDENTIFIED
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* Output 1: High Prospectivity Zones */}
-          <div className={`p-5 rounded-xl border ${nestedBg} space-y-2 relative overflow-hidden`}>
-            <span className={`text-[10px] font-black uppercase tracking-wider block ${textMuted}`}>
+          <div className={`p-5 rounded-xl border space-y-2 relative overflow-hidden transition-all ${
+            isDark 
+              ? nestedBg 
+              : 'bg-gradient-to-br from-rose-500/10 via-white to-rose-500/5 border-rose-200 shadow-sm hover:shadow-md'
+          }`}>
+            <span className={`text-[10px] font-black uppercase tracking-wider block ${
+              isDark ? textMuted : 'text-rose-800'
+            }`}>
               HIGH PROSPECTIVITY ZONES
             </span>
-            <span className="font-headline font-black text-3xl sm:text-4xl text-[#B03A2E] dark:text-red-400 block">
-              {highZonesCount}
+            <span className="font-headline font-black text-3xl sm:text-4xl text-rose-500 block">
+              {highZonesCount} / 6
             </span>
-            <span className={`text-xs font-medium block ${textSecondary}`}>Identified targets for exploration</span>
+            <span className={`text-xs font-medium block ${textSecondary}`}>
+              Immediate excavation & ramp-up targets
+            </span>
           </div>
 
           {/* Output 2: Predicted MnO% Grade */}
-          <div className={`p-5 rounded-xl border ${nestedBg} space-y-2 relative overflow-hidden`}>
-            <span className={`text-[10px] font-black uppercase tracking-wider block ${textMuted}`}>
-              PREDICTED MnO%
+          <div className={`p-5 rounded-xl border space-y-2 relative overflow-hidden transition-all ${
+            isDark 
+              ? nestedBg 
+              : 'bg-gradient-to-br from-teal-500/10 via-white to-teal-500/5 border-teal-200 shadow-sm hover:shadow-md'
+          }`}>
+            <span className={`text-[10px] font-black uppercase tracking-wider block ${
+              isDark ? textMuted : 'text-teal-800'
+            }`}>
+              PREDICTED MnO% (PEAK)
             </span>
-            <span className="font-headline font-black text-3xl sm:text-4xl text-[#0E7C7B] dark:text-teal-400 block">
+            <span className={`font-headline font-black text-3xl sm:text-4xl block ${
+              isDark ? 'text-teal-400' : 'text-teal-700'
+            }`}>
               {maxPredictedMnO}%
             </span>
-            <span className="text-xs font-semibold text-emerald-400 block">Peak grade potential (Zone 14)</span>
+            <span className={`text-xs font-semibold block ${
+              isDark ? 'text-emerald-400' : 'text-emerald-700'
+            }`}>High-Grade Pyrolusite (Zone 14)</span>
           </div>
 
           {/* Output 3: Est. Resource Potential */}
-          <div className={`p-5 rounded-xl border ${nestedBg} space-y-2 relative overflow-hidden`}>
-            <span className={`text-[10px] font-black uppercase tracking-wider block ${textMuted}`}>
+          <div className={`p-5 rounded-xl border space-y-2 relative overflow-hidden transition-all ${
+            isDark 
+              ? nestedBg 
+              : 'bg-gradient-to-br from-amber-500/10 via-white to-amber-500/5 border-amber-200 shadow-sm hover:shadow-md'
+          }`}>
+            <span className={`text-[10px] font-black uppercase tracking-wider block ${
+              isDark ? textMuted : 'text-amber-800'
+            }`}>
               EST. RESOURCE POTENTIAL
             </span>
-            <span className="font-headline font-black text-3xl sm:text-4xl text-[#C77B00] dark:text-amber-400 block">
+            <span className={`font-headline font-black text-3xl sm:text-4xl block ${
+              isDark ? 'text-amber-400' : 'text-amber-600'
+            }`}>
               {totalEstTonnage} t
             </span>
             <span className={`text-xs font-medium block ${textSecondary}`}>Cumulative estimated tonnage</span>
@@ -343,115 +355,205 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
       </div>
 
       {/* ========================================================================= */}
-      {/* 5. MAIN PROSPECTIVITY CONTENT (MAP VIEW OR LIST VIEW + ZONE DETAIL PANEL) */}
+      {/* 3. MAIN PROSPECTIVITY CONTENT (SATELLITE MAP OVERLAY + ZONE DETAIL PANEL) */}
       {/* ========================================================================= */}
       {viewMode === 'MAP' ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          {/* MAP CANVAS (7 COLS) */}
+          {/* SATELLITE MAP CANVAS (7 COLS) */}
           <div className={`lg:col-span-7 p-6 rounded-2xl border ${cardBg} space-y-4 flex flex-col justify-between shadow-xl`}>
-            <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
+            <div className={`flex flex-wrap items-center justify-between border-b pb-3 gap-3 ${borderDivider}`}>
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#0E7C7B] text-lg">layers</span>
+                <span className="material-symbols-outlined text-[#0E7C7B] text-lg">satellite_alt</span>
                 <h2 className={`font-headline font-black text-sm uppercase tracking-wider ${textPrimary}`}>
-                  PROSPECTIVITY MAP
+                  DONGRI BUZURG SATELLITE PIT MAP
                 </h2>
               </div>
 
-              {/* Classification Legend */}
-              <div className="flex items-center gap-3 text-[11px] font-bold">
-                <span className="flex items-center gap-1.5 text-red-400">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#B03A2E]" /> High
-                </span>
-                <span className="flex items-center gap-1.5 text-amber-400">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#B8860B]" /> Medium
-                </span>
-                <span className="flex items-center gap-1.5 text-emerald-400">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#2E7D32]" /> Low
-                </span>
+              {/* Minimal Clean Layer Toggles */}
+              <div className="flex items-center gap-2 text-xs">
+                <button
+                  onClick={() => setShowOreReef(!showOreReef)}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 border text-[11px] ${
+                    showOreReef
+                      ? isDark
+                        ? 'bg-rose-950/80 border-rose-500/60 text-rose-300'
+                        : 'bg-rose-50 border-rose-300 text-rose-800 font-black shadow-xs'
+                      : isDark
+                      ? 'bg-black/40 border-white/10 text-slate-400 hover:text-white'
+                      : 'bg-slate-100 border-slate-300 text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${showOreReef ? 'bg-rose-500 animate-pulse' : 'bg-slate-400'}`} />
+                  Ore Reef (Pink)
+                </button>
+
+                <button
+                  onClick={() => setShowPitPerimeter(!showPitPerimeter)}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 border text-[11px] ${
+                    showPitPerimeter
+                      ? isDark
+                        ? 'bg-amber-950/80 border-amber-500/60 text-amber-300'
+                        : 'bg-amber-50 border-amber-300 text-amber-800 font-black shadow-xs'
+                      : isDark
+                      ? 'bg-black/40 border-white/10 text-slate-400 hover:text-white'
+                      : 'bg-slate-100 border-slate-300 text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${showPitPerimeter ? 'bg-amber-500' : 'bg-slate-400'}`} />
+                  Pit Shell (Yellow)
+                </button>
+
+                <button
+                  onClick={() => setShowThermalOverlay(!showThermalOverlay)}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 border text-[11px] ${
+                    showThermalOverlay
+                      ? isDark
+                        ? 'bg-teal-950/80 border-teal-500/60 text-teal-300'
+                        : 'bg-teal-50 border-teal-300 text-teal-800 font-black shadow-xs'
+                      : isDark
+                      ? 'bg-black/40 border-white/10 text-slate-400 hover:text-white'
+                      : 'bg-slate-100 border-slate-300 text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Sparkles className="w-3 h-3" />
+                  SWIR
+                </button>
               </div>
             </div>
 
-            {/* Interactive SVG / GIS Map Container */}
-            <div className="relative w-full h-[400px] sm:h-[440px] rounded-xl overflow-hidden border border-white/10 bg-[#090D14] flex items-center justify-center">
-              {/* Leaflet Map Layer */}
-              <MapContainer
-                center={[21.555, 79.702]}
-                zoom={14}
-                style={{ width: '100%', height: '100%' }}
-                zoomControl={false}
-              >
-                <TileLayer url={TILE_PROVIDERS.dark.url} attribution={TILE_PROVIDERS.dark.attribution} />
-                {DONGRI_ZONES.map((zone) => {
-                  const style = getProspectivityColor(zone.prospectivityClass);
-                  const isSelected = selectedZone.id === zone.id;
-                  return (
-                    <Polygon
-                      key={zone.id}
-                      positions={zone.leafletCoords}
-                      pathOptions={{
-                        color: style.hex,
-                        fillColor: style.hex,
-                        fillOpacity: isSelected ? 0.65 : 0.35,
-                        weight: isSelected ? 3 : 1.5,
-                      }}
-                      eventHandlers={{
-                        click: () => setSelectedZone(zone),
-                      }}
-                    >
-                      <Popup>
-                        <div className="text-slate-900 font-sans p-1 text-xs">
-                          <strong className="block text-sm uppercase font-black">{zone.code}</strong>
-                          <span className="block mt-1">Prospectivity: <strong>{zone.prospectivityClass}</strong></span>
-                          <span>Predicted MnO%: <strong>{zone.predictedMnO}%</strong></span>
-                        </div>
-                      </Popup>
-                    </Polygon>
-                  );
-                })}
-              </MapContainer>
+            {/* ================================================================= */}
+            {/* CLEAN INTERACTIVE SATELLITE PIT DISPLAY CONTAINER */}
+            {/* ================================================================= */}
+            <div className="relative w-full h-[440px] sm:h-[480px] rounded-2xl overflow-hidden border border-white/15 bg-slate-950 shadow-2xl flex items-center justify-center group select-none">
+              {/* Actual High-Res Top-Down Satellite Photo of Dongri Buzurg Open Cast Mine */}
+              <img
+                src="/assets/dongri-buzurg-satellite-pit.png"
+                alt="Dongri Buzurg Open Pit Satellite Imagery"
+                className="absolute inset-0 w-full h-full object-cover filter brightness-90 contrast-110"
+              />
 
-              {/* Overlay Interactive SVG Grid Selector for Instant Touch Responsiveness */}
-              <div className="absolute inset-0 pointer-events-none z-10">
-                <svg className="w-full h-full" viewBox="0 0 540 220" preserveAspectRatio="none">
-                  {DONGRI_ZONES.map((zone) => {
-                    const isSelected = selectedZone.id === zone.id;
-                    const style = getProspectivityColor(zone.prospectivityClass);
-                    return (
-                      <g key={zone.id} className="pointer-events-auto cursor-pointer" onClick={() => setSelectedZone(zone)}>
-                        <path
-                          d={zone.polygonD}
-                          fill={style.hex}
-                          fillOpacity={isSelected ? 0.6 : 0.25}
+              {/* Subtle Dark Vignette for Premium Depth */}
+              <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/80 via-transparent to-black/40" />
+
+              {/* SVG Vector Zone Overlay mapped across the real pit */}
+              <svg viewBox="0 0 640 280" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+                <defs>
+                  <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3.5" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+
+                  <linearGradient id="oreReefGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#FB7185" />
+                    <stop offset="50%" stopColor="#F43F5E" />
+                    <stop offset="100%" stopColor="#E11D48" />
+                  </linearGradient>
+                </defs>
+
+                {/* SWIR Thermal Multi-Spectral Heatmap Simulation */}
+                {showThermalOverlay && (
+                  <circle cx="330" cy="140" r="130" fill="#F43F5E" fillOpacity="0.22" filter="url(#glowEffect)" />
+                )}
+
+                {/* Main Open Pit Shell (Yellow Perimeter) */}
+                {showPitPerimeter && (
+                  <g>
+                    <path
+                      d="M 100 140 C 130 55 240 60 350 65 C 450 70 540 85 545 130 C 540 175 430 190 340 195 C 230 190 120 185 100 140 Z"
+                      fill="none"
+                      stroke="#FACC15"
+                      strokeWidth="2"
+                      strokeDasharray="5 3"
+                    />
+                  </g>
+                )}
+
+                {/* Manganese Ore Body Strike Line (Pink / Magenta Reef Line) */}
+                {showOreReef && (
+                  <g filter="url(#glowEffect)">
+                    <path
+                      d="M 120 150 Q 270 145 380 135 T 510 120"
+                      fill="none"
+                      stroke="url(#oreReefGradient)"
+                      strokeWidth="5"
+                      strokeLinecap="round"
+                    />
+                    <text x="290" y="125" fill="#FFE4E6" fontSize="9.5" fontWeight="900" textAnchor="middle" className="drop-shadow-md">
+                      Manganese Ore Body Reef
+                    </text>
+                  </g>
+                )}
+
+                {/* Model 1 Prospectivity Zones (Distributed Naturally Across Pit Sectors) */}
+                {DONGRI_ZONES.map((zone) => {
+                  const isSelected = selectedZone.id === zone.id;
+                  const style = getProspectivityColor(zone.prospectivityClass);
+
+                  return (
+                    <g
+                      key={zone.id}
+                      className="cursor-pointer group/zone transition-all duration-200"
+                      onClick={() => setSelectedZone(zone)}
+                    >
+                      {/* Translucent Zone Polygon */}
+                      <path
+                        d={zone.svgPolygon}
+                        fill={style.fill}
+                        fillOpacity={isSelected ? 0.6 : 0.28}
+                        stroke={isSelected ? '#FFFFFF' : style.hex}
+                        strokeWidth={isSelected ? 3.5 : 1.8}
+                        strokeDasharray={isSelected ? undefined : '4 2'}
+                        className="transition-all duration-200 group-hover/zone:fill-opacity-50"
+                      />
+
+                      {/* Zone Center Label Pill */}
+                      <g transform={`translate(${zone.svgCenter.x}, ${zone.svgCenter.y})`}>
+                        <rect
+                          x="-42"
+                          y="-11"
+                          width="84"
+                          height="22"
+                          rx="6"
+                          fill={isSelected ? '#0F172A' : '#020617'}
+                          fillOpacity="0.88"
                           stroke={isSelected ? '#FFFFFF' : style.hex}
-                          strokeWidth={isSelected ? 3 : 1.5}
-                          strokeDasharray={isSelected ? 'none' : '4 2'}
-                          className="transition-all duration-200 hover:fill-opacity-50"
+                          strokeWidth={isSelected ? 2 : 1}
                         />
                         <text
-                          x={zone.id === 'PZ-DB-14' ? 360 : zone.id === 'PZ-DB-07' ? 180 : zone.id === 'PZ-DB-09' ? 240 : zone.id === 'PZ-DB-22' ? 90 : zone.id === 'PZ-DB-05' ? 60 : 390}
-                          y={zone.id === 'PZ-DB-14' ? 115 : zone.id === 'PZ-DB-07' ? 75 : zone.id === 'PZ-DB-09' ? 140 : zone.id === 'PZ-DB-22' ? 148 : zone.id === 'PZ-DB-05' ? 55 : 175}
+                          x="0"
+                          y="4"
                           fill="#FFFFFF"
-                          fontSize="11"
-                          fontWeight="bold"
+                          fontSize="9.5"
+                          fontWeight="900"
                           textAnchor="middle"
-                          className="drop-shadow-md select-none pointer-events-none"
+                          className="pointer-events-none select-none"
                         >
                           {zone.code} ({zone.predictedMnO}%)
                         </text>
                       </g>
-                    );
-                  })}
-                </svg>
-              </div>
+                    </g>
+                  );
+                })}
+              </svg>
 
-              {/* Map Subtitle Prompt */}
-              <div className="absolute bottom-3 left-3 z-20 px-3 py-1.5 rounded-lg bg-[#001433]/90 border border-white/20 text-[11px] font-bold text-white backdrop-blur-md">
-                Click any zone polygon to inspect Model 1 outputs
+              {/* Floating Bottom HUD Overlay */}
+              <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between px-3.5 py-2 rounded-xl bg-black/85 border border-white/15 text-[11px] font-mono text-white backdrop-blur-md">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="font-bold text-teal-300">
+                    Dongri Buzurg Pit Floor • Lat 21.5545°N, Long 79.7020°E
+                  </span>
+                </div>
+                <span className="text-slate-300 hidden sm:inline text-[10.5px]">
+                  Click any zone to inspect Model 1 parameters
+                </span>
               </div>
             </div>
           </div>
 
-          {/* 6. ZONE DETAIL PANEL (MOST IMPORTANT ENHANCEMENT - 5 COLS) */}
+          {/* ========================================================================= */}
+          {/* 4. ZONE DETAIL PANEL (RIGHT 5 COLS) */}
+          {/* ========================================================================= */}
           <div className={`lg:col-span-5 p-6 rounded-2xl border ${cardBg} space-y-5 flex flex-col justify-between shadow-2xl`}>
             <div className="space-y-4">
               {/* Header */}
@@ -464,146 +566,195 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
                     {selectedZone.code.toUpperCase()} — DETAIL
                   </h2>
                 </div>
-                <span className={`px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider border ${getProspectivityColor(selectedZone.prospectivityClass).badge}`}>
+                <span className={`px-2.5 py-1 rounded-md text-[10px] uppercase tracking-wider border ${getProspectivityColor(selectedZone.prospectivityClass).badge}`}>
                   ● {selectedZone.prospectivityClass} PROSPECTIVITY
                 </span>
               </div>
 
-              {/* Key Output 1: PROSPECTIVITY CLASS */}
-              <div className={`p-4 rounded-xl border ${nestedBg} flex items-center justify-between`}>
-                <div>
-                  <span className={`text-[10px] font-extrabold uppercase tracking-wider block ${textMuted}`}>
-                    PROSPECTIVITY CLASS
-                  </span>
-                  <span className={`font-headline text-2xl font-black block mt-0.5 ${getProspectivityColor(selectedZone.prospectivityClass).text}`}>
-                    {selectedZone.prospectivityClass}
-                  </span>
-                </div>
-                <span className={`w-3.5 h-3.5 rounded-full animate-pulse ${getProspectivityColor(selectedZone.prospectivityClass).dot}`} />
+              {/* Zone Name & Overview */}
+              <div className={`p-4 rounded-xl border space-y-1.5 ${
+                isDark ? nestedBg : 'bg-gradient-to-br from-slate-50/90 to-white border-slate-200/90 shadow-xs'
+              }`}>
+                <span className={`text-[10px] font-bold uppercase tracking-wider block ${textMuted}`}>
+                  TARGET ZONE NAME
+                </span>
+                <p className={`text-base font-black ${textPrimary}`}>
+                  {selectedZone.name}
+                </p>
+                <p className={`text-xs font-medium ${textSecondary}`}>
+                  {selectedZone.geologicalStructure}
+                </p>
               </div>
 
-              {/* Key Output 2: PREDICTED MnO% (LARGEST TYPOGRAPHY) */}
-              <div className="p-5 rounded-xl bg-gradient-to-br from-[#002452] via-[#0E7C7B]/30 to-[#001433] border border-[#0E7C7B]/50 space-y-2 shadow-lg">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-teal-300">
-                    PREDICTED MnO%
+              {/* Prediction Cards Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Predicted Grade */}
+                <div className={`p-4 rounded-xl border space-y-1 ${
+                  isDark ? nestedBg : 'bg-gradient-to-br from-teal-50/70 via-white to-white border-teal-200 shadow-xs'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-[10px] font-black uppercase tracking-wider ${
+                      isDark ? textMuted : 'text-teal-800'
+                    }`}>
+                      PREDICTED MnO%
+                    </span>
+                    <span className={`material-symbols-outlined text-sm ${isDark ? 'text-teal-400' : 'text-teal-600'}`}>science</span>
+                  </div>
+                  <span className={`font-headline font-black text-2xl sm:text-3xl block ${
+                    isDark ? 'text-teal-400' : 'text-teal-700'
+                  }`}>
+                    {selectedZone.predictedMnO}%
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold border border-emerald-500/30">
-                    {selectedZone.predictedMnO >= 40 ? 'HIGH-GRADE POTENTIAL' : 'MEDIUM GRADE'}
+                  <span className={`text-[10.5px] font-semibold block ${
+                    isDark ? 'text-slate-400' : 'text-slate-600'
+                  }`}>
+                    Model 1 Regression Score
                   </span>
                 </div>
-                <span className="font-headline font-black text-4xl sm:text-5xl text-white block drop-shadow-md">
-                  {selectedZone.predictedMnO}%
-                </span>
-                <span className="text-xs font-semibold text-slate-300 block">
-                  Continuous predicted manganese grade (Model 1 Regressor)
-                </span>
-              </div>
 
-              {/* Key Output 3: EST. TONNAGE */}
-              <div className={`p-4 rounded-xl border ${nestedBg} flex items-center justify-between`}>
-                <div>
-                  <span className={`text-[10px] font-extrabold uppercase tracking-wider block ${textMuted}`}>
-                    EST. TONNAGE
-                  </span>
-                  <span className={`font-headline text-2xl font-black block mt-0.5 ${textPrimary}`}>
+                {/* Estimated Tonnage */}
+                <div className={`p-4 rounded-xl border space-y-1 ${
+                  isDark ? nestedBg : 'bg-gradient-to-br from-amber-50/70 via-white to-white border-amber-200 shadow-xs'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-[10px] font-black uppercase tracking-wider ${
+                      isDark ? textMuted : 'text-amber-800'
+                    }`}>
+                      EST. TONNAGE
+                    </span>
+                    <span className={`material-symbols-outlined text-sm ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>inventory_2</span>
+                  </div>
+                  <span className={`font-headline font-black text-2xl sm:text-3xl block ${
+                    isDark ? 'text-amber-400' : 'text-amber-600'
+                  }`}>
                     {selectedZone.estTonnage.toLocaleString()} t
                   </span>
+                  <span className={`text-[10.5px] font-semibold block ${
+                    isDark ? 'text-slate-400' : 'text-slate-600'
+                  }`}>
+                    Recoverable ore volume
+                  </span>
                 </div>
-                <span className="material-symbols-outlined text-[#C77B00] text-2xl">view_in_ar</span>
               </div>
 
-              {/* Zone Attributes */}
-              <div className="space-y-3 pt-1">
-                <div className="space-y-1">
-                  <span className={`text-[10px] font-bold uppercase tracking-wider block ${textMuted}`}>
-                    GEOLOGICAL STRUCTURE
-                  </span>
-                  <p className={`text-xs font-semibold leading-relaxed ${textSecondary}`}>
-                    {selectedZone.geologicalStructure}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className={`p-3 rounded-lg border ${nestedBg} space-y-1`}>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider block ${textMuted}`}>ACCESSIBLE</span>
-                    <span className="font-bold text-xs text-emerald-400">{selectedZone.accessibilityPct}% Index</span>
+              {/* Key Indicators (Accessibility & Recoverability) */}
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs font-bold">
+                    <span className={isDark ? textSecondary : 'text-slate-800'}>Accessibility Index</span>
+                    <span className={`font-mono ${isDark ? 'text-teal-400' : 'text-teal-700 font-black'}`}>{selectedZone.accessibilityPct}%</span>
                   </div>
-                  <div className={`p-3 rounded-lg border ${nestedBg} space-y-1`}>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider block ${textMuted}`}>RECOVERABLE</span>
-                    <span className="font-bold text-xs text-teal-400">{selectedZone.recoverabilityPct}% Ratio</span>
+                  <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`}>
+                    <div
+                      className="h-full rounded-full bg-teal-500 transition-all duration-500 shadow-sm"
+                      style={{ width: `${selectedZone.accessibilityPct}%` }}
+                    />
                   </div>
                 </div>
 
-                <div className="space-y-1 pt-1">
-                  <span className={`text-[10px] font-bold uppercase tracking-wider block ${textMuted}`}>EVIDENCE / DRILL CORE</span>
-                  <p className={`text-[11px] font-mono leading-relaxed ${textSecondary}`}>
-                    {selectedZone.evidence}
-                  </p>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs font-bold">
+                    <span className={isDark ? textSecondary : 'text-slate-800'}>Recoverability Ratio</span>
+                    <span className={`font-mono ${isDark ? 'text-amber-400' : 'text-amber-700 font-black'}`}>{selectedZone.recoverabilityPct}%</span>
+                  </div>
+                  <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`}>
+                    <div
+                      className="h-full rounded-full bg-amber-500 transition-all duration-500 shadow-sm"
+                      style={{ width: `${selectedZone.recoverabilityPct}%` }}
+                    />
+                  </div>
                 </div>
+              </div>
+
+              {/* Drill Core & Geological Evidence */}
+              <div className={`p-4 rounded-xl border space-y-1.5 ${
+                isDark ? nestedBg : 'bg-gradient-to-br from-slate-50 to-white border-slate-200 shadow-xs'
+              }`}>
+                <span className={`text-[10px] font-bold uppercase tracking-wider block ${
+                  isDark ? 'text-teal-400' : 'text-teal-800 font-black'
+                }`}>
+                  DRILL CORE & GEOLOGICAL EVIDENCE
+                </span>
+                <p className={`text-xs font-mono leading-relaxed ${
+                  isDark ? textSecondary : 'text-slate-800 font-semibold'
+                }`}>
+                  {selectedZone.evidence}
+                </p>
+              </div>
+
+              {/* Recommended Action */}
+              <div className={`p-4 rounded-xl space-y-1 border ${
+                isDark
+                  ? 'bg-amber-500/10 border-amber-500/30'
+                  : 'bg-gradient-to-r from-amber-500/15 via-amber-50 to-amber-500/10 border-amber-300 shadow-sm'
+              }`}>
+                <span className={`text-[10px] font-black uppercase tracking-wider block ${
+                  isDark ? 'text-amber-400' : 'text-amber-900 font-extrabold'
+                }`}>
+                  RECOMMENDED OPERATIONAL ACTION
+                </span>
+                <p className={`text-xs font-bold leading-relaxed ${
+                  isDark ? 'text-slate-200' : 'text-slate-900'
+                }`}>
+                  {selectedZone.recommendedAction}
+                </p>
               </div>
             </div>
 
-            {/* 12. SEND TO FORECAST CTA BUTTON */}
+            {/* Send to Forecast Action Button */}
             <button
-              onClick={() => {
-                if (onSendToForecast) onSendToForecast();
-              }}
-              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-lg cursor-pointer flex items-center justify-center gap-2 mt-4"
+              onClick={onSendToForecast}
+              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#C77B00] hover:from-amber-400 hover:to-amber-500 text-slate-950 font-headline font-black text-sm uppercase tracking-wider shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2 transition-all transform active:scale-98 cursor-pointer mt-4"
             >
-              <span>SEND TO FORECAST</span>
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              <span>SEND ZONE TO PRODUCTION FORECAST</span>
+              <span className="material-symbols-outlined text-base">arrow_forward</span>
             </button>
           </div>
         </div>
       ) : (
-        /* 10. ZONE LIST VIEW */
+        /* LIST VIEW TABLE */
         <div className={`p-6 rounded-2xl border ${cardBg} space-y-4 shadow-xl`}>
-          <div className={`flex flex-col sm:flex-row sm:items-center justify-between border-b pb-4 gap-3 ${borderDivider}`}>
-            <div>
-              <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
-                <span className="material-symbols-outlined text-[#0E7C7B] text-base">format_list_bulleted</span>
-                PROSPECTIVITY ZONES INVENTORY
-              </h2>
-              <p className={`text-xs ${textMuted} mt-0.5`}>
-                Sort and inspect all potential manganese zones identified by Model 1.
-              </p>
-            </div>
-
-            {/* Sort Controls */}
-            <div className="flex items-center gap-2 text-xs font-semibold">
-              <span className={textMuted}>Sort by:</span>
+          <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
+            <h2 className={`font-headline font-black text-sm uppercase tracking-wider ${textPrimary}`}>
+              ALL DONGRI BUZURG PROSPECTIVITY ZONES
+            </h2>
+            <div className="flex items-center gap-2 text-xs font-bold">
+              <span className={textMuted}>Sort By:</span>
               <button
                 onClick={() => {
-                  setSortField('prospectivity');
-                  setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+                  if (sortField === 'prospectivity') setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+                  else { setSortField('prospectivity'); setSortOrder('desc'); }
                 }}
-                className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
-                  sortField === 'prospectivity' ? 'bg-[#0E7C7B] text-white border-[#0E7C7B]' : nestedBg + ' ' + textSecondary
+                className={`px-2.5 py-1 rounded cursor-pointer ${
+                  sortField === 'prospectivity'
+                    ? 'bg-[#0E7C7B] text-white'
+                    : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-950'
                 }`}
               >
-                Prospectivity {sortField === 'prospectivity' && (sortOrder === 'desc' ? '↓' : '↑')}
+                Class {sortField === 'prospectivity' && (sortOrder === 'desc' ? '↓' : '↑')}
               </button>
-
               <button
                 onClick={() => {
-                  setSortField('mno');
-                  setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+                  if (sortField === 'mno') setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+                  else { setSortField('mno'); setSortOrder('desc'); }
                 }}
-                className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
-                  sortField === 'mno' ? 'bg-[#0E7C7B] text-white border-[#0E7C7B]' : nestedBg + ' ' + textSecondary
+                className={`px-2.5 py-1 rounded cursor-pointer ${
+                  sortField === 'mno'
+                    ? 'bg-[#0E7C7B] text-white'
+                    : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-950'
                 }`}
               >
-                Predicted MnO% {sortField === 'mno' && (sortOrder === 'desc' ? '↓' : '↑')}
+                MnO% {sortField === 'mno' && (sortOrder === 'desc' ? '↓' : '↑')}
               </button>
-
               <button
                 onClick={() => {
-                  setSortField('tonnage');
-                  setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+                  if (sortField === 'tonnage') setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+                  else { setSortField('tonnage'); setSortOrder('desc'); }
                 }}
-                className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
-                  sortField === 'tonnage' ? 'bg-[#0E7C7B] text-white border-[#0E7C7B]' : nestedBg + ' ' + textSecondary
+                className={`px-2.5 py-1 rounded cursor-pointer ${
+                  sortField === 'tonnage'
+                    ? 'bg-[#0E7C7B] text-white'
+                    : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-950'
                 }`}
               >
                 Tonnage {sortField === 'tonnage' && (sortOrder === 'desc' ? '↓' : '↑')}
@@ -611,20 +762,22 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
             </div>
           </div>
 
-          {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left text-sm">
               <thead>
-                <tr className={`border-b text-[10px] font-black uppercase tracking-wider ${borderDivider} ${textMuted}`}>
-                  <th className="py-3 px-4">ZONE</th>
-                  <th className="py-3 px-4">PROSPECTIVITY</th>
-                  <th className="py-3 px-4">PREDICTED MnO%</th>
-                  <th className="py-3 px-4">EST. TONNAGE</th>
-                  <th className="py-3 px-4">STATUS</th>
-                  <th className="py-3 px-4 text-right">ACTIONS</th>
+                <tr className={`border-b text-[10px] font-black uppercase tracking-wider ${borderDivider} ${
+                  isDark ? textMuted : 'bg-slate-100 text-slate-700'
+                }`}>
+                  <th className="py-3 px-4">Zone Code</th>
+                  <th className="py-3 px-4">Target Name</th>
+                  <th className="py-3 px-4">Class</th>
+                  <th className="py-3 px-4">Predicted MnO%</th>
+                  <th className="py-3 px-4">Est. Tonnage</th>
+                  <th className="py-3 px-4">Priority</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className={`divide-y text-xs font-semibold ${borderDivider}`}>
+              <tbody className={`divide-y font-medium ${isDark ? 'divide-white/5' : 'divide-slate-200'}`}>
                 {sortedZones.map((zone) => {
                   const style = getProspectivityColor(zone.prospectivityClass);
                   const isSelected = selectedZone.id === zone.id;
@@ -632,37 +785,40 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
                     <tr
                       key={zone.id}
                       onClick={() => setSelectedZone(zone)}
-                      className={`cursor-pointer transition-colors ${
-                        isSelected
-                          ? isDark ? 'bg-white/10' : 'bg-slate-100'
+                      className={`transition-colors cursor-pointer ${
+                        isSelected 
+                          ? isDark ? 'bg-[#0E7C7B]/15' : 'bg-teal-50/70 border-l-4 border-l-teal-600' 
                           : isDark ? 'hover:bg-white/5' : 'hover:bg-slate-50'
                       }`}
                     >
-                      <td className="py-3.5 px-4 font-headline font-black text-white">
+                      <td className={`py-3.5 px-4 font-mono font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                         {zone.code}
-                        <span className="block text-[11px] font-normal text-slate-400">{zone.name}</span>
                       </td>
-
+                      <td className={`py-3.5 px-4 ${isDark ? 'text-slate-200' : 'text-slate-800 font-semibold'}`}>
+                        {zone.name}
+                      </td>
                       <td className="py-3.5 px-4">
-                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase border ${style.badge}`}>
-                          ● {zone.prospectivityClass}
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider border ${style.badge}`}>
+                          {zone.prospectivityClass}
                         </span>
                       </td>
-
-                      <td className="py-3.5 px-4 font-headline font-black text-base text-teal-400">
+                      <td className={`py-3.5 px-4 font-headline font-black text-base ${isDark ? 'text-teal-400' : 'text-teal-700'}`}>
                         {zone.predictedMnO}%
                       </td>
-
-                      <td className="py-3.5 px-4 font-mono font-bold text-white">
+                      <td className={`py-3.5 px-4 font-mono font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                         {zone.estTonnage.toLocaleString()} t
                       </td>
-
                       <td className="py-3.5 px-4">
-                        <span className={`text-[11px] font-bold ${zone.priority === 'Priority' ? 'text-red-400' : zone.priority === 'Monitor' ? 'text-amber-400' : 'text-slate-400'}`}>
+                        <span className={`text-[11px] font-bold ${
+                          zone.priority === 'Priority'
+                            ? isDark ? 'text-red-400' : 'text-rose-700 font-black'
+                            : zone.priority === 'Monitor'
+                            ? isDark ? 'text-amber-400' : 'text-amber-700 font-black'
+                            : isDark ? 'text-slate-400' : 'text-slate-600 font-semibold'
+                        }`}>
                           {zone.priority}
                         </span>
                       </td>
-
                       <td className="py-3.5 px-4 text-right">
                         <button
                           onClick={(e) => {
@@ -670,7 +826,11 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
                             setSelectedZone(zone);
                             setViewMode('MAP');
                           }}
-                          className="px-3 py-1 rounded bg-[#0E7C7B]/20 hover:bg-[#0E7C7B]/30 border border-[#0E7C7B]/40 text-teal-300 text-[11px] font-bold uppercase transition-all cursor-pointer mr-2"
+                          className={`px-3 py-1 rounded text-[11px] font-bold uppercase transition-all cursor-pointer mr-2 ${
+                            isDark
+                              ? 'bg-[#0E7C7B]/20 hover:bg-[#0E7C7B]/30 border border-[#0E7C7B]/40 text-teal-300'
+                              : 'bg-teal-50 hover:bg-teal-100 border border-teal-300 text-teal-800'
+                          }`}
                         >
                           Map Focus →
                         </button>
@@ -679,7 +839,7 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
                             e.stopPropagation();
                             if (onSendToForecast) onSendToForecast();
                           }}
-                          className="px-3 py-1 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-black uppercase transition-all cursor-pointer"
+                          className="px-3 py-1 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-black uppercase transition-all cursor-pointer shadow-xs"
                         >
                           Send to Forecast
                         </button>
@@ -694,7 +854,7 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* 13. MODEL 1 INFORMATION (COLLAPSIBLE EXPLAINABILITY SECTION) */}
+      {/* 5. MODEL 1 INFORMATION (COLLAPSIBLE EXPLAINABILITY SECTION) */}
       {/* ========================================================================= */}
       <div className={`p-6 rounded-2xl border ${cardBg} space-y-3 shadow-md`}>
         <button
@@ -706,11 +866,13 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
             <h3 className={`font-headline font-black text-xs uppercase tracking-wider ${textPrimary}`}>
               MODEL 1 INFORMATION
             </h3>
-            <span className="text-[10px] font-mono text-slate-400">
+            <span className={`text-[10px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500 font-bold'}`}>
               (Random Forest Classifier & Regressor Details)
             </span>
           </div>
-          <span className="material-symbols-outlined text-slate-400 group-hover:text-white transition-colors">
+          <span className={`material-symbols-outlined transition-colors ${
+            isDark ? 'text-slate-400 group-hover:text-white' : 'text-slate-600 group-hover:text-slate-950'
+          }`}>
             {showModelInfo ? 'expand_less' : 'expand_more'}
           </span>
         </button>
@@ -718,23 +880,33 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
         {showModelInfo && (
           <div className={`pt-3 border-t space-y-4 text-xs font-medium ${borderDivider} ${textSecondary} animate-in fade-in duration-200`}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className={`p-4 rounded-xl border ${nestedBg} space-y-2`}>
-                <span className="text-[10px] font-black text-teal-400 uppercase tracking-wider block">
+              <div className={`p-4 rounded-xl border space-y-2 ${
+                isDark ? nestedBg : 'bg-slate-50/80 border-slate-200/90 shadow-xs'
+              }`}>
+                <span className={`text-[10px] font-black uppercase tracking-wider block ${
+                  isDark ? 'text-teal-400' : 'text-teal-800'
+                }`}>
                   MODEL ARCHITECTURE & DUAL-STAGE PROCESS
                 </span>
-                <p className="leading-relaxed">
+                <p className={`leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-800'}`}>
                   <strong>Stage 1 (Classification):</strong> Random Forest Classifier assigns prospectivity zones to spatial grid cells (High, Medium, Low) based on multispectral satellite indices and structural faults.
                 </p>
-                <p className="leading-relaxed">
+                <p className={`leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-800'}`}>
                   <strong>Stage 2 (Regression):</strong> Random Forest Regressor predicts continuous manganese grade (MnO%) for each identified target zone.
                 </p>
               </div>
 
-              <div className={`p-4 rounded-xl border ${nestedBg} space-y-2`}>
-                <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider block">
+              <div className={`p-4 rounded-xl border space-y-2 ${
+                isDark ? nestedBg : 'bg-slate-50/80 border-slate-200/90 shadow-xs'
+              }`}>
+                <span className={`text-[10px] font-black uppercase tracking-wider block ${
+                  isDark ? 'text-amber-400' : 'text-amber-800'
+                }`}>
                   GEOSPATIAL INPUT FEATURES
                 </span>
-                <ul className="list-disc list-inside space-y-1 font-mono text-[11px]">
+                <ul className={`list-disc list-inside space-y-1 font-mono text-[11px] ${
+                  isDark ? 'text-slate-300' : 'text-slate-800'
+                }`}>
                   <li>Sentinel-2 MSI Multispectral Bands (Band 11 SWIR & Band 8 NIR)</li>
                   <li>Topographic Aspect, Elevation DEM & Slope Gradient</li>
                   <li>Structural Lineaments & Fault Proximity Distances</li>

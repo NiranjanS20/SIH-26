@@ -270,12 +270,12 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
   });
 
   // Reusable Theme Helper Classes
-  const cardBg = isDark ? 'bg-[#20242D] border-white/10' : 'bg-white border-slate-200 shadow-sm';
-  const nestedBg = isDark ? 'bg-[#14171C] border-white/10' : 'bg-slate-50 border-slate-200';
-  const textPrimary = isDark ? 'text-white' : 'text-slate-900';
-  const textSecondary = isDark ? 'text-slate-300' : 'text-slate-600';
-  const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
-  const borderDivider = isDark ? 'border-white/10' : 'border-slate-200';
+  const cardBg = isDark ? 'bg-[#20242D] border-white/10' : 'bg-gradient-to-br from-white via-slate-50/40 to-white border-slate-200/90 shadow-md hover:shadow-lg transition-all';
+  const nestedBg = isDark ? 'bg-[#14171C] border-white/10' : 'bg-white border-slate-200/90 shadow-xs hover:border-slate-300 transition-colors';
+  const textPrimary = isDark ? 'text-white' : 'text-slate-900 font-extrabold';
+  const textSecondary = isDark ? 'text-slate-300' : 'text-slate-700 font-medium';
+  const textMuted = isDark ? 'text-slate-400' : 'text-slate-500 font-semibold';
+  const borderDivider = isDark ? 'border-white/10' : 'border-slate-200/80';
 
   return (
     <div
@@ -675,46 +675,57 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                 <FeatureCard
                   glowColors="from-amber-500/70 via-blue-600/50 via-teal-500/60 to-amber-500/70"
                   className="lg:col-span-5 h-full"
+                  isDark={isDark}
                 >
                   <div className="flex flex-col justify-between h-full space-y-5">
                     <div className="space-y-4">
                       <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
-                        <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
+                        <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                           <span className="material-symbols-outlined text-[#D97706] text-base">verified</span>
                           CURRENT STATUS
                         </h2>
-                        <span className="text-[10px] font-mono text-[#D97706] font-bold uppercase tracking-wider">
+                        <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
+                          isDark ? 'text-[#D97706]' : 'text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded border border-amber-300'
+                        }`}>
                           ACTIVE MONITORING
                         </span>
                       </div>
 
-                      <div className="p-4 rounded-xl bg-[#D97706]/15 border border-[#D97706]/40 flex items-center justify-between gap-4">
+                      <div className={`p-4 rounded-xl flex items-center justify-between gap-4 ${
+                        isDark 
+                          ? 'bg-[#D97706]/15 border border-[#D97706]/40' 
+                          : 'bg-gradient-to-r from-amber-500/15 via-amber-50 to-amber-500/10 border border-amber-300 shadow-sm'
+                      }`}>
                         <div>
-                          <span className="text-[10px] font-extrabold text-[#D97706] uppercase tracking-wider block">
+                          <span className={`text-[10px] font-extrabold uppercase tracking-wider block ${
+                            isDark ? 'text-[#D97706]' : 'text-amber-800 font-black'
+                          }`}>
                             RISK ASSESSMENT STATE
                           </span>
-                          <span className="font-headline text-3xl font-black text-[#D97706] block mt-0.5">
+                          <span className={`font-headline text-3xl font-black block mt-0.5 ${
+                            isDark ? 'text-[#D97706]' : 'text-amber-700'
+                          }`}>
                             MEDIUM RISK
                           </span>
                         </div>
-                        <span className="w-3.5 h-3.5 rounded-full bg-[#D97706] animate-pulse shrink-0" />
+                        <span className="w-3.5 h-3.5 rounded-full bg-[#D97706] animate-pulse shrink-0 shadow-md shadow-amber-500/50" />
                       </div>
 
-                      <p className={`text-sm leading-relaxed font-semibold ${textSecondary}`}>
+                      <p className={`text-sm leading-relaxed font-semibold ${isDark ? textSecondary : 'text-slate-700'}`}>
                         “Production is currently being monitored against the monthly target.”
                       </p>
 
-                      <div className={`space-y-2.5 pt-1 border-t text-xs font-bold ${borderDivider} ${textSecondary}`}>
+                      <div className={`space-y-2.5 pt-1 border-t text-xs font-bold ${borderDivider} ${isDark ? textSecondary : 'text-slate-800'}`}>
                         <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
                           <span>Operational</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
                           <span>Production Monitoring Active</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-blue-500" />
+                          <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50" />
                           <span>Forecast Monitoring Active</span>
                         </div>
                       </div>
@@ -722,7 +733,11 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
 
                     <button
                       onClick={() => setActiveTab('shortfall-diagnosis')}
-                      className={`w-full py-2.5 rounded-xl border border-[#D97706]/30 text-[#D97706] hover:bg-[#D97706]/15 hover:text-[#FEA619] text-xs font-extrabold uppercase tracking-wider transition-all text-center flex items-center justify-center gap-2 cursor-pointer ${nestedBg}`}
+                      className={`w-full py-2.5 rounded-xl border text-xs font-extrabold uppercase tracking-wider transition-all text-center flex items-center justify-center gap-2 cursor-pointer ${
+                        isDark
+                          ? 'border-[#D97706]/30 text-[#D97706] hover:bg-[#D97706]/15 hover:text-[#FEA619] bg-[#14171C]'
+                          : 'border-amber-400 bg-gradient-to-r from-amber-500 to-[#C77B00] hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20'
+                      }`}
                     >
                       <span>View shortfall diagnosis</span>
                       <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -743,25 +758,31 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   <GlowCard 
                     glowColor="green" 
                     customSize={true} 
-                    className="relative p-5 rounded-2xl border border-emerald-500/30 flex flex-col justify-between space-y-4 overflow-hidden shadow-xl"
+                    className={`relative p-5 rounded-2xl border flex flex-col justify-between space-y-4 overflow-hidden transition-all shadow-xl ${
+                      isDark ? 'border-emerald-500/30' : 'border-emerald-200 shadow-emerald-500/10'
+                    }`}
                     style={{
-                      background: 'radial-gradient(circle at 85% 15%, rgba(16, 185, 129, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)',
+                      background: isDark
+                        ? 'radial-gradient(circle at 85% 15%, rgba(16, 185, 129, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)'
+                        : 'linear-gradient(135deg, #FFFFFF 0%, #ECFDF5 100%)',
                     }}
                   >
                     <div className="flex items-center justify-between relative z-10">
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-300">CURRENT PRODUCTION</span>
-                      <span className="material-symbols-outlined text-lg text-emerald-400">trending_up</span>
+                      <span className={`text-[11px] font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-emerald-800'}`}>
+                        CURRENT PRODUCTION
+                      </span>
+                      <span className={`material-symbols-outlined text-lg ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>trending_up</span>
                     </div>
-                    <span className="font-headline font-black text-3xl sm:text-4xl text-white block relative z-10 drop-shadow-md">
+                    <span className={`font-headline font-black text-3xl sm:text-4xl block relative z-10 drop-shadow-md ${isDark ? 'text-white' : 'text-emerald-950'}`}>
                       4,100 t
                     </span>
                     <div className="space-y-2 relative z-10">
                       <div className="flex justify-between text-xs font-bold">
-                        <span className="text-emerald-400">82% of target</span>
-                        <span className="font-mono text-slate-400">4,100 / 5,000 t</span>
+                        <span className={isDark ? 'text-emerald-400' : 'text-emerald-700'}>82% of target</span>
+                        <span className={`font-mono ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>4,100 / 5,000 t</span>
                       </div>
-                      <div className="w-full h-1.5 rounded-full overflow-hidden bg-slate-800/80 border border-white/10">
-                        <div className="h-full bg-emerald-400 rounded-full shadow-[0_0_10px_rgba(52,211,153,0.8)]" style={{ width: '82%' }} />
+                      <div className={`w-full h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-slate-800/80 border border-white/10' : 'bg-emerald-100 border border-emerald-200'}`}>
+                        <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.8)]" style={{ width: '82%' }} />
                       </div>
                     </div>
                   </GlowCard>
@@ -770,19 +791,25 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   <GlowCard 
                     glowColor="blue" 
                     customSize={true} 
-                    className="relative p-5 rounded-2xl border border-blue-500/30 flex flex-col justify-between space-y-4 overflow-hidden shadow-xl"
+                    className={`relative p-5 rounded-2xl border flex flex-col justify-between space-y-4 overflow-hidden transition-all shadow-xl ${
+                      isDark ? 'border-blue-500/30' : 'border-blue-200 shadow-blue-500/10'
+                    }`}
                     style={{
-                      background: 'radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)',
+                      background: isDark
+                        ? 'radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)'
+                        : 'linear-gradient(135deg, #FFFFFF 0%, #EFF6FF 100%)',
                     }}
                   >
                     <div className="flex items-center justify-between relative z-10">
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-300">TARGET</span>
-                      <span className="material-symbols-outlined text-lg text-blue-400">flag</span>
+                      <span className={`text-[11px] font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-blue-800'}`}>
+                        TARGET
+                      </span>
+                      <span className={`material-symbols-outlined text-lg ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>flag</span>
                     </div>
-                    <span className="font-headline font-black text-3xl sm:text-4xl text-blue-400 block relative z-10 drop-shadow-md">
+                    <span className={`font-headline font-black text-3xl sm:text-4xl block relative z-10 drop-shadow-md ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
                       5,000 t
                     </span>
-                    <span className="text-xs font-semibold text-slate-300 block relative z-10">
+                    <span className={`text-xs font-semibold block relative z-10 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                       Current month allocation
                     </span>
                   </GlowCard>
@@ -791,19 +818,25 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   <GlowCard 
                     glowColor="orange" 
                     customSize={true} 
-                    className="relative p-5 rounded-2xl border border-amber-500/30 flex flex-col justify-between space-y-4 overflow-hidden shadow-xl"
+                    className={`relative p-5 rounded-2xl border flex flex-col justify-between space-y-4 overflow-hidden transition-all shadow-xl ${
+                      isDark ? 'border-amber-500/30' : 'border-amber-200 shadow-amber-500/10'
+                    }`}
                     style={{
-                      background: 'radial-gradient(circle at 85% 15%, rgba(245, 158, 11, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)',
+                      background: isDark
+                        ? 'radial-gradient(circle at 85% 15%, rgba(245, 158, 11, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)'
+                        : 'linear-gradient(135deg, #FFFFFF 0%, #FFFBEB 100%)',
                     }}
                   >
                     <div className="flex items-center justify-between relative z-10">
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-400">PROSPECTIVITY</span>
-                      <span className="material-symbols-outlined text-lg text-amber-400">layers</span>
+                      <span className={`text-[11px] font-extrabold uppercase tracking-wider ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>
+                        PROSPECTIVITY
+                      </span>
+                      <span className={`material-symbols-outlined text-lg ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>layers</span>
                     </div>
-                    <span className="font-headline font-black text-3xl sm:text-4xl text-amber-400 block relative z-10 drop-shadow-md">
+                    <span className={`font-headline font-black text-3xl sm:text-4xl block relative z-10 drop-shadow-md ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
                       82%
                     </span>
-                    <span className="text-xs font-semibold text-amber-300/90 block relative z-10">
+                    <span className={`text-xs font-semibold block relative z-10 ${isDark ? 'text-amber-300/90' : 'text-amber-900 font-bold'}`}>
                       Highest potential: Zone 14
                     </span>
                   </GlowCard>
@@ -812,21 +845,31 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   <GlowCard 
                     glowColor="red" 
                     customSize={true} 
-                    className="relative p-5 rounded-2xl border border-red-500/30 flex flex-col justify-between space-y-4 overflow-hidden shadow-xl"
+                    className={`relative p-5 rounded-2xl border flex flex-col justify-between space-y-4 overflow-hidden transition-all shadow-xl ${
+                      isDark ? 'border-red-500/30' : 'border-rose-200 shadow-rose-500/10'
+                    }`}
                     style={{
-                      background: 'radial-gradient(circle at 85% 15%, rgba(239, 68, 68, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)',
+                      background: isDark
+                        ? 'radial-gradient(circle at 85% 15%, rgba(239, 68, 68, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)'
+                        : 'linear-gradient(135deg, #FFFFFF 0%, #FFF1F2 100%)',
                     }}
                   >
                     <div className="flex items-center justify-between relative z-10">
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-300">ACTIVE ALERTS</span>
-                      <span className="material-symbols-outlined text-lg text-red-400">notifications</span>
+                      <span className={`text-[11px] font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-rose-800'}`}>
+                        ACTIVE ALERTS
+                      </span>
+                      <span className={`material-symbols-outlined text-lg ${isDark ? 'text-red-400' : 'text-rose-600'}`}>notifications</span>
                     </div>
-                    <span className="font-headline font-black text-3xl sm:text-4xl text-white block relative z-10 drop-shadow-md">
+                    <span className={`font-headline font-black text-3xl sm:text-4xl block relative z-10 drop-shadow-md ${isDark ? 'text-white' : 'text-rose-950'}`}>
                       2
                     </span>
                     <div className="flex items-center gap-2 text-xs font-bold relative z-10">
-                      <span className="px-2.5 py-0.5 rounded-full bg-red-500/25 text-red-300 border border-red-500/40">1 High Risk</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-amber-500/25 text-amber-300 border border-amber-500/40">1 Medium Risk</span>
+                      <span className={`px-2.5 py-0.5 rounded-full border ${isDark ? 'bg-red-500/25 text-red-300 border-red-500/40' : 'bg-rose-100 text-rose-800 border-rose-300 font-bold'}`}>
+                        1 High Risk
+                      </span>
+                      <span className={`px-2.5 py-0.5 rounded-full border ${isDark ? 'bg-amber-500/25 text-amber-300 border-amber-500/40' : 'bg-amber-100 text-amber-800 border-amber-300 font-bold'}`}>
+                        1 Medium Risk
+                      </span>
                     </div>
                   </GlowCard>
                 </div>
@@ -846,40 +889,40 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className={`p-4 rounded-xl border space-y-1 ${nestedBg}`}>
+                    <div className={`p-4 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'border-l-4 border-l-teal-500 bg-gradient-to-br from-teal-50/40 via-white to-white' : ''}`}>
                       <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>
                         EQUIPMENT AVAILABILITY
                       </span>
                       <span className={`font-headline font-black text-2xl block ${textPrimary}`}>
                         80%
                       </span>
-                      <span className="text-[10px] font-bold text-emerald-500 block">Fleet operational</span>
+                      <span className={`text-[10px] font-bold block ${isDark ? 'text-emerald-500' : 'text-teal-700'}`}>Fleet operational</span>
                     </div>
 
-                    <div className={`p-4 rounded-xl border space-y-1 ${nestedBg}`}>
+                    <div className={`p-4 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'border-l-4 border-l-amber-500 bg-gradient-to-br from-amber-50/40 via-white to-white' : ''}`}>
                       <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>
                         BLASTING STATUS
                       </span>
-                      <span className="font-headline font-black text-2xl text-[#D97706] block">
+                      <span className={`font-headline font-black text-2xl block ${isDark ? 'text-[#D97706]' : 'text-amber-700'}`}>
                         2 days delay
                       </span>
-                      <span className="text-[10px] font-bold text-[#D97706] block">Bench clearance</span>
+                      <span className={`text-[10px] font-bold block ${isDark ? 'text-[#D97706]' : 'text-amber-800'}`}>Bench clearance</span>
                     </div>
 
-                    <div className={`p-4 rounded-xl border space-y-1 ${nestedBg}`}>
+                    <div className={`p-4 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'border-l-4 border-l-emerald-500 bg-gradient-to-br from-emerald-50/40 via-white to-white' : ''}`}>
                       <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>
                         PRODUCTION EFFICIENCY
                       </span>
-                      <span className="font-headline font-black text-2xl text-emerald-500 block">
+                      <span className={`font-headline font-black text-2xl block ${isDark ? 'text-emerald-500' : 'text-emerald-700'}`}>
                         82%
                       </span>
-                      <span className="text-[10px] font-bold text-emerald-500 block">Throughput rate</span>
+                      <span className={`text-[10px] font-bold block ${isDark ? 'text-emerald-500' : 'text-emerald-700'}`}>Throughput rate</span>
                     </div>
                   </div>
                 </div>
 
                 <div className={`lg:col-span-5 p-6 rounded-xl border flex flex-col justify-between space-y-4 ${
-                  isDark ? 'bg-[#20242D] border-[#D97706]/40' : 'bg-white border-[#D97706]/40 shadow-sm'
+                  isDark ? 'bg-[#20242D] border-[#D97706]/40' : 'bg-gradient-to-br from-white via-amber-50/20 to-white border-amber-300 shadow-md'
                 }`}>
                   <div className="space-y-3">
                     <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
@@ -887,34 +930,38 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                         <span className="material-symbols-outlined text-[#D97706] text-base">layers</span>
                         PROSPECTIVITY SNAPSHOT
                       </h2>
-                      <span className="text-[10px] font-mono text-[#D97706] font-bold uppercase">
+                      <span className={`text-[10px] font-mono font-bold uppercase ${isDark ? 'text-[#D97706]' : 'text-amber-800'}`}>
                         SPATIAL MODEL
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 text-xs font-bold">
-                      <div className={`p-2.5 rounded-lg border ${nestedBg}`}>
+                      <div className={`p-2.5 rounded-lg border ${nestedBg} ${!isDark ? 'bg-amber-50/30 border-amber-200' : ''}`}>
                         <span className={`text-[10px] uppercase block ${textMuted}`}>Overall Score</span>
-                        <span className="font-headline text-xl font-black text-[#D97706]">82%</span>
+                        <span className={`font-headline text-xl font-black ${isDark ? 'text-[#D97706]' : 'text-amber-700'}`}>82%</span>
                       </div>
-                      <div className={`p-2.5 rounded-lg border ${nestedBg}`}>
+                      <div className={`p-2.5 rounded-lg border ${nestedBg} ${!isDark ? 'bg-slate-50/80 border-slate-200' : ''}`}>
                         <span className={`text-[10px] uppercase block ${textMuted}`}>Highest Potential</span>
                         <span className={`font-headline text-xl font-black ${textPrimary}`}>Zone 14</span>
                       </div>
-                      <div className={`p-2.5 rounded-lg border ${nestedBg}`}>
+                      <div className={`p-2.5 rounded-lg border ${nestedBg} ${!isDark ? 'bg-amber-50/30 border-amber-200' : ''}`}>
                         <span className={`text-[10px] uppercase block ${textMuted}`}>Accessible</span>
-                        <span className="font-headline text-xl font-black text-[#D97706]">61%</span>
+                        <span className={`font-headline text-xl font-black ${isDark ? 'text-[#D97706]' : 'text-amber-700'}`}>61%</span>
                       </div>
-                      <div className={`p-2.5 rounded-lg border ${nestedBg}`}>
+                      <div className={`p-2.5 rounded-lg border ${nestedBg} ${!isDark ? 'bg-emerald-50/30 border-emerald-200' : ''}`}>
                         <span className={`text-[10px] uppercase block ${textMuted}`}>Recoverable</span>
-                        <span className="font-headline text-xl font-black text-emerald-500">44%</span>
+                        <span className={`font-headline text-xl font-black ${isDark ? 'text-emerald-500' : 'text-emerald-700'}`}>44%</span>
                       </div>
                     </div>
                   </div>
 
                   <button
                     onClick={() => setActiveTab('prospectivity')}
-                    className={`w-full py-2.5 rounded-lg border text-[#D97706] hover:text-[#B45309] text-xs font-extrabold uppercase tracking-wider transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${nestedBg}`}
+                    className={`w-full py-2.5 rounded-lg border text-xs font-black uppercase tracking-wider transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${
+                      isDark
+                        ? 'border-[#D97706]/40 text-[#D97706] hover:text-[#FEA619] bg-[#14171C] hover:bg-[#D97706]/20'
+                        : 'border-amber-400 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+                    }`}
                   >
                     <span>Open Prospectivity Map</span>
                     <span className="material-symbols-outlined text-sm">open_in_new</span>
@@ -937,9 +984,9 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg}`}>
-                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>RAINFALL (MM)</span>
-                      <span className="font-headline font-black text-xl text-blue-500 block">
+                    <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'bg-gradient-to-b from-blue-50/50 via-white to-white border-blue-200 shadow-xs' : ''}`}>
+                      <span className={`text-[10px] font-bold uppercase block ${isDark ? textMuted : 'text-blue-800'}`}>RAINFALL (MM)</span>
+                      <span className={`font-headline font-black text-xl block ${isDark ? 'text-blue-500' : 'text-blue-700'}`}>
                         {liveWeather ? `${liveWeather.rainfallMm} mm` : '70%'}
                       </span>
                       <span className={`text-[9px] block ${textMuted}`}>
@@ -947,23 +994,23 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                       </span>
                     </div>
 
-                    <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg}`}>
-                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>HUMIDITY</span>
-                      <span className="font-headline font-black text-xl text-cyan-500 block">
+                    <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'bg-gradient-to-b from-cyan-50/50 via-white to-white border-cyan-200 shadow-xs' : ''}`}>
+                      <span className={`text-[10px] font-bold uppercase block ${isDark ? textMuted : 'text-cyan-800'}`}>HUMIDITY</span>
+                      <span className={`font-headline font-black text-xl block ${isDark ? 'text-cyan-500' : 'text-cyan-700'}`}>
                         {liveWeather ? `${liveWeather.humidity}%` : '68%'}
                       </span>
                       <span className={`text-[9px] block ${textMuted}`}>Ambient Air RH</span>
                     </div>
 
-                    <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg}`}>
-                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>SOIL MOISTURE</span>
-                      <span className="font-headline font-black text-xl text-amber-500 block">38%</span>
+                    <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'bg-gradient-to-b from-amber-50/50 via-white to-white border-amber-200 shadow-xs' : ''}`}>
+                      <span className={`text-[10px] font-bold uppercase block ${isDark ? textMuted : 'text-amber-800'}`}>SOIL MOISTURE</span>
+                      <span className={`font-headline font-black text-xl block ${isDark ? 'text-amber-500' : 'text-amber-700'}`}>38%</span>
                       <span className={`text-[9px] block ${textMuted}`}>Pit Bench Sensor</span>
                     </div>
 
-                    <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg}`}>
-                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>TEMPERATURE</span>
-                      <span className={`font-headline font-black text-xl block ${textPrimary}`}>
+                    <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'bg-gradient-to-b from-orange-50/50 via-white to-white border-orange-200 shadow-xs' : ''}`}>
+                      <span className={`text-[10px] font-bold uppercase block ${isDark ? textMuted : 'text-orange-800'}`}>TEMPERATURE</span>
+                      <span className={`font-headline font-black text-xl block ${isDark ? 'text-white' : 'text-orange-700'}`}>
                         {liveWeather ? `${liveWeather.temp}°C` : '31°C'}
                       </span>
                       <span className={`text-[9px] block ${textMuted}`}>
@@ -1058,6 +1105,9 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
           {/* ========================================================================= */}
           {/* TAB 3: PRODUCTION & FORECAST TAB CONTENT */}
           {/* ========================================================================= */}
+          {/* ========================================================================= */}
+          {/* TAB 3: PRODUCTION & FORECAST TAB CONTENT */}
+          {/* ========================================================================= */}
           {activeTab === 'production-forecast' && (
             <div className="space-y-8 animate-in fade-in duration-300">
               <div className={`p-6 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 ${cardBg}`}>
@@ -1067,7 +1117,11 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                       <span className="material-symbols-outlined text-[#0E7C7B] text-2xl">trending_up</span>
                       PRODUCTION & FORECAST
                     </h2>
-                    <span className="px-3 py-1 rounded-full bg-[#D97706]/20 border border-[#D97706] text-[#D97706] text-[10px] font-black uppercase tracking-wider">
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                      isDark
+                        ? 'bg-[#D97706]/20 border-[#D97706] text-[#D97706]'
+                        : 'bg-amber-100 border-amber-300 text-amber-800 shadow-xs'
+                    }`}>
                       POTENTIAL FUTURE SOURCE: {mineProfile.potentialSourceZone}
                     </span>
                   </div>
@@ -1095,39 +1149,43 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
 
               {/* FORECAST SUMMARY CARDS WITH SHADER EFFECTS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <ShaderCard variant="teal" className="p-5 flex flex-col justify-between">
+                <ShaderCard variant="teal" isDark={isDark} className="p-5 flex flex-col justify-between">
                   <div className="flex items-start justify-between">
-                    <span className={`text-[11px] font-black uppercase tracking-wider ${textMuted}`}>
+                    <span className={`text-[11px] font-black uppercase tracking-wider ${isDark ? textMuted : 'text-emerald-800'}`}>
                       CURRENT OUTPUT
                     </span>
-                    <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                      isDark ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400' : 'bg-emerald-100 border border-emerald-300 text-emerald-700'
+                    }`}>
                       <span className="material-symbols-outlined text-base">trending_up</span>
                     </div>
                   </div>
                   <div className="mt-3">
-                    <span className={`font-headline font-black text-3xl block ${textPrimary}`}>
+                    <span className={`font-headline font-black text-3xl block ${isDark ? textPrimary : 'text-slate-950'}`}>
                       {mineProfile.currentOutputTons.toLocaleString()} t
                     </span>
-                    <div className="w-full bg-slate-700/50 h-1.5 rounded-full mt-2.5 overflow-hidden">
+                    <div className={`w-full h-1.5 rounded-full mt-2.5 overflow-hidden ${isDark ? 'bg-slate-700/50' : 'bg-slate-200'}`}>
                       <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${Math.min(100, Math.round((mineProfile.currentOutputTons / mineProfile.plannedTargetTons) * 100))}%` }} />
                     </div>
-                    <span className="text-[10px] font-bold text-emerald-400 block mt-1.5">
+                    <span className={`text-[10px] font-bold block mt-1.5 ${isDark ? 'text-emerald-400' : 'text-emerald-700'}`}>
                       {Math.round((mineProfile.currentOutputTons / mineProfile.plannedTargetTons) * 100)}% of target
                     </span>
                   </div>
                 </ShaderCard>
 
-                <ShaderCard variant="indigo" className="p-5 flex flex-col justify-between">
+                <ShaderCard variant="indigo" isDark={isDark} className="p-5 flex flex-col justify-between">
                   <div className="flex items-start justify-between">
-                    <span className={`text-[11px] font-black uppercase tracking-wider ${textMuted}`}>
+                    <span className={`text-[11px] font-black uppercase tracking-wider ${isDark ? textMuted : 'text-blue-800'}`}>
                       PLANNED TARGET
                     </span>
-                    <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                      isDark ? 'bg-blue-500/15 border border-blue-500/30 text-blue-400' : 'bg-blue-100 border border-blue-300 text-blue-700'
+                    }`}>
                       <span className="material-symbols-outlined text-base">flag</span>
                     </div>
                   </div>
                   <div className="mt-3">
-                    <span className="font-headline font-black text-3xl text-blue-400 block">
+                    <span className={`font-headline font-black text-3xl block ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
                       {mineProfile.plannedTargetTons.toLocaleString()} t
                     </span>
                     <span className={`text-xs font-semibold block mt-1.5 ${textMuted}`}>
@@ -1136,43 +1194,51 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   </div>
                 </ShaderCard>
 
-                <ShaderCard variant="teal" className="p-5 flex flex-col justify-between">
+                <ShaderCard variant="teal" isDark={isDark} className="p-5 flex flex-col justify-between">
                   <div className="flex items-start justify-between">
-                    <span className="text-[11px] font-black text-[#0E7C7B] uppercase tracking-wider block">
+                    <span className={`text-[11px] font-black uppercase tracking-wider block ${isDark ? 'text-[#0E7C7B]' : 'text-teal-800'}`}>
                       PREDICTED OUTPUT
                     </span>
-                    <div className="w-7 h-7 rounded-lg bg-[#0E7C7B]/15 border border-[#0E7C7B]/30 flex items-center justify-center text-[#0E7C7B]">
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                      isDark ? 'bg-[#0E7C7B]/15 border border-[#0E7C7B]/30 text-[#0E7C7B]' : 'bg-teal-100 border border-teal-300 text-teal-700'
+                    }`}>
                       <span className="material-symbols-outlined text-base">layers</span>
                     </div>
                   </div>
                   <div className="mt-3">
-                    <span className="font-headline font-black text-3xl text-[#0E7C7B] block">
+                    <span className={`font-headline font-black text-3xl block ${isDark ? 'text-[#0E7C7B]' : 'text-teal-700'}`}>
                       {mineProfile.predictedOutputTons.toLocaleString()} t
                     </span>
-                    <span className="text-xs font-semibold text-[#0E7C7B] block mt-1.5">
+                    <span className={`text-xs font-semibold block mt-1.5 ${isDark ? 'text-[#0E7C7B]' : 'text-teal-700'}`}>
                       Model forecast
                     </span>
                   </div>
                 </ShaderCard>
 
-                <ShaderCard variant="amber" className="p-5 flex flex-col justify-between">
+                <ShaderCard variant="amber" isDark={isDark} className="p-5 flex flex-col justify-between">
                   <div className="flex items-start justify-between">
-                    <span className="text-[11px] font-black text-[#D97706] uppercase tracking-wider block">
+                    <span className={`text-[11px] font-black uppercase tracking-wider block ${isDark ? 'text-[#D97706]' : 'text-amber-900'}`}>
                       PROJECTED GAP
                     </span>
-                    <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-[#D97706]">
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                      isDark ? 'bg-amber-500/15 border border-amber-500/30 text-[#D97706]' : 'bg-amber-100 border border-amber-300 text-amber-800'
+                    }`}>
                       <span className="material-symbols-outlined text-base">notifications</span>
                     </div>
                   </div>
                   <div className="mt-3">
-                    <span className="font-headline font-black text-3xl text-[#D97706] block">
+                    <span className={`font-headline font-black text-3xl block ${isDark ? 'text-[#D97706]' : 'text-amber-700'}`}>
                       {mineProfile.projectedGapTons.toLocaleString()} t
                     </span>
                     <div className="flex items-center gap-1.5 mt-1.5">
-                      <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px] font-extrabold border border-red-500/30">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold border ${
+                        isDark ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-rose-100 text-rose-800 border-rose-300'
+                      }`}>
                         1 High Risk
                       </span>
-                      <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px] font-extrabold border border-amber-500/30">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold border ${
+                        isDark ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-amber-100 text-amber-800 border-amber-300'
+                      }`}>
                         {mineProfile.gapPct}% deficit
                       </span>
                     </div>
@@ -1203,23 +1269,31 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
               </div>
 
               {/* SHORTFALL WARNING BANNER */}
-              <div className="p-4 rounded-xl bg-[#D97706]/15 border border-[#D97706]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                isDark
+                  ? 'bg-[#D97706]/15 border-[#D97706]/50'
+                  : 'bg-gradient-to-r from-amber-500/15 via-amber-50 to-amber-500/10 border-amber-300 shadow-sm'
+              }`}>
                 <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[#D97706] text-2xl">warning</span>
+                  <span className={`material-symbols-outlined text-2xl ${isDark ? 'text-[#D97706]' : 'text-amber-700'}`}>warning</span>
                   <div>
-                    <span className="font-headline font-black text-[#D97706] text-sm uppercase tracking-wider block">
+                    <span className={`font-headline font-black text-sm uppercase tracking-wider block ${isDark ? 'text-[#D97706]' : 'text-amber-900'}`}>
                       ⚠️ SHORTFALL DETECTED • {mineProfile.mineName}
                     </span>
-                    <p className={`text-xs font-medium mt-0.5 ${textSecondary}`}>
+                    <p className={`text-xs font-medium mt-0.5 ${isDark ? textSecondary : 'text-slate-800'}`}>
                       Predicted production is below the allocation target. Projected gap:{' '}
-                      <strong className="text-[#D97706]">{Math.abs(mineProfile.projectedGapTons).toLocaleString()} t</strong> ({mineProfile.gapPct}% deficit).
+                      <strong className={isDark ? 'text-[#D97706]' : 'text-amber-800'}>{Math.abs(mineProfile.projectedGapTons).toLocaleString()} t</strong> ({mineProfile.gapPct}% deficit).
                     </p>
                   </div>
                 </div>
 
                 <button
                   onClick={() => setActiveTab('shortfall-diagnosis')}
-                  className="px-4 py-2 rounded-lg bg-[#D97706] hover:bg-[#B45309] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shrink-0 shadow-md border border-[#D97706]"
+                  className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer shrink-0 shadow-md border ${
+                    isDark
+                      ? 'bg-[#D97706] hover:bg-[#B45309] text-white border-[#D97706]'
+                      : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 border-amber-400 shadow-amber-500/20'
+                  }`}
                 >
                   View Shortfall Diagnosis →
                 </button>
@@ -1255,27 +1329,27 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 pt-1">
-                    <div className={`p-3 rounded-lg border space-y-1 ${nestedBg}`}>
-                      <span className={`text-[9.5px] font-bold uppercase block ${textMuted}`}>RAINFALL</span>
-                      <span className="font-headline font-black text-lg text-blue-500 block">
+                    <div className={`p-3 rounded-lg border space-y-1 ${nestedBg} ${!isDark ? 'bg-gradient-to-br from-blue-50/60 via-white to-white border-blue-200 shadow-xs' : ''}`}>
+                      <span className={`text-[9.5px] font-bold uppercase block ${isDark ? textMuted : 'text-blue-800'}`}>RAINFALL</span>
+                      <span className={`font-headline font-black text-lg block ${isDark ? 'text-blue-500' : 'text-blue-700'}`}>
                         {mineProfile.environmentalFactors.rainfallPct}% ({mineProfile.environmentalFactors.rainfallMm} mm)
                       </span>
                     </div>
-                    <div className={`p-3 rounded-lg border space-y-1 ${nestedBg}`}>
-                      <span className={`text-[9.5px] font-bold uppercase block ${textMuted}`}>NDVI VEGETATION</span>
-                      <span className="font-headline font-black text-lg text-emerald-500 block">
+                    <div className={`p-3 rounded-lg border space-y-1 ${nestedBg} ${!isDark ? 'bg-gradient-to-br from-emerald-50/60 via-white to-white border-emerald-200 shadow-xs' : ''}`}>
+                      <span className={`text-[9.5px] font-bold uppercase block ${isDark ? textMuted : 'text-emerald-800'}`}>NDVI VEGETATION</span>
+                      <span className={`font-headline font-black text-lg block ${isDark ? 'text-emerald-500' : 'text-emerald-700'}`}>
                         {mineProfile.environmentalFactors.ndvi}
                       </span>
                     </div>
-                    <div className={`p-3 rounded-lg border space-y-1 ${nestedBg}`}>
-                      <span className={`text-[9.5px] font-bold uppercase block ${textMuted}`}>SOIL MOISTURE</span>
-                      <span className="font-headline font-black text-lg text-amber-500 block">
+                    <div className={`p-3 rounded-lg border space-y-1 ${nestedBg} ${!isDark ? 'bg-gradient-to-br from-amber-50/60 via-white to-white border-amber-200 shadow-xs' : ''}`}>
+                      <span className={`text-[9.5px] font-bold uppercase block ${isDark ? textMuted : 'text-amber-800'}`}>SOIL MOISTURE</span>
+                      <span className={`font-headline font-black text-lg block ${isDark ? 'text-amber-500' : 'text-amber-700'}`}>
                         {mineProfile.environmentalFactors.soilMoisturePct}%
                       </span>
                     </div>
-                    <div className={`p-3 rounded-lg border space-y-1 ${nestedBg}`}>
-                      <span className={`text-[9.5px] font-bold uppercase block ${textMuted}`}>FLEET UPTIME</span>
-                      <span className="font-headline font-black text-lg text-emerald-500 block">
+                    <div className={`p-3 rounded-lg border space-y-1 ${nestedBg} ${!isDark ? 'bg-gradient-to-br from-teal-50/60 via-white to-white border-teal-200 shadow-xs' : ''}`}>
+                      <span className={`text-[9.5px] font-bold uppercase block ${isDark ? textMuted : 'text-teal-800'}`}>FLEET UPTIME</span>
+                      <span className={`font-headline font-black text-lg block ${isDark ? 'text-emerald-500' : 'text-teal-700'}`}>
                         {mineProfile.environmentalFactors.equipmentAvailabilityPct}%
                       </span>
                     </div>
@@ -1293,39 +1367,39 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                     </h3>
                     <p className={`text-xs mt-0.5 ${textSecondary}`}>“Explore how operational and environmental changes could affect predicted output.”</p>
                   </div>
-                  <div className={`p-4 rounded-xl border text-right shrink-0 ${nestedBg}`}>
-                    <span className="text-[10px] font-black text-[#0E7C7B] uppercase tracking-wider block">SIMULATED OUTPUT</span>
-                    <span className={`font-headline font-black text-2xl block ${textPrimary}`}>{simulatedOutput.toLocaleString()} t</span>
-                    <span className="text-xs font-extrabold text-emerald-500 block">{simulatedGain >= 0 ? `+${simulatedGain}` : simulatedGain} t vs current forecast</span>
+                  <div className={`p-4 rounded-xl border text-right shrink-0 ${nestedBg} ${!isDark ? 'bg-gradient-to-br from-teal-50/60 via-white to-white border-teal-200 shadow-xs' : ''}`}>
+                    <span className={`text-[10px] font-black uppercase tracking-wider block ${isDark ? 'text-[#0E7C7B]' : 'text-teal-800'}`}>SIMULATED OUTPUT</span>
+                    <span className={`font-headline font-black text-2xl block ${isDark ? textPrimary : 'text-slate-950'}`}>{simulatedOutput.toLocaleString()} t</span>
+                    <span className={`text-xs font-extrabold block ${isDark ? 'text-emerald-500' : 'text-emerald-700'}`}>{simulatedGain >= 0 ? `+${simulatedGain}` : simulatedGain} t vs current forecast</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs font-bold">
-                      <span className={textSecondary}>Equipment Efficiency</span>
-                      <span className="text-[#0E7C7B] font-mono">{simEquipment}%</span>
+                      <span className={isDark ? textSecondary : 'text-slate-800'}>Equipment Efficiency</span>
+                      <span className={`font-mono ${isDark ? 'text-[#0E7C7B]' : 'text-teal-700 font-black'}`}>{simEquipment}%</span>
                     </div>
                     <input type="range" min="50" max="100" value={simEquipment} onChange={(e) => setSimEquipment(Number(e.target.value))} className="w-full accent-[#0E7C7B] cursor-pointer" />
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs font-bold">
-                      <span className={textSecondary}>Blasting Delay</span>
-                      <span className="text-[#D97706] font-mono">{simBlastingDelay} days</span>
+                      <span className={isDark ? textSecondary : 'text-slate-800'}>Blasting Delay</span>
+                      <span className={`font-mono ${isDark ? 'text-[#D97706]' : 'text-amber-700 font-black'}`}>{simBlastingDelay} days</span>
                     </div>
                     <input type="range" min="0" max="7" value={simBlastingDelay} onChange={(e) => setSimBlastingDelay(Number(e.target.value))} className="w-full accent-[#D97706] cursor-pointer" />
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs font-bold">
-                      <span className={textSecondary}>Rainfall</span>
-                      <span className="text-blue-500 font-mono">{simRainfall}%</span>
+                      <span className={isDark ? textSecondary : 'text-slate-800'}>Rainfall</span>
+                      <span className={`font-mono ${isDark ? 'text-blue-500' : 'text-blue-700 font-black'}`}>{simRainfall}%</span>
                     </div>
                     <input type="range" min="0" max="100" value={simRainfall} onChange={(e) => setSimRainfall(Number(e.target.value))} className="w-full accent-blue-500 cursor-pointer" />
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs font-bold">
-                      <span className={textSecondary}>NDVI</span>
-                      <span className="text-emerald-500 font-mono">{simNdvi.toFixed(2)}</span>
+                      <span className={isDark ? textSecondary : 'text-slate-800'}>NDVI</span>
+                      <span className={`font-mono ${isDark ? 'text-emerald-500' : 'text-emerald-700 font-black'}`}>{simNdvi.toFixed(2)}</span>
                     </div>
                     <input type="range" min="10" max="90" value={simNdvi * 100} onChange={(e) => setSimNdvi(Number(e.target.value) / 100)} className="w-full accent-emerald-500 cursor-pointer" />
                   </div>

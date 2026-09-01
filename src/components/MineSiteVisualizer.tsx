@@ -146,7 +146,9 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-all cursor-pointer shadow-md ${
               inFullscreen
                 ? 'bg-red-500/20 hover:bg-red-500/30 text-red-300 border-red-500/40'
-                : 'bg-white/10 hover:bg-white/20 text-white border-white/20'
+                : isDark
+                ? 'bg-white/10 hover:bg-white/20 text-white border-white/20'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300 shadow-sm'
             }`}
             title={inFullscreen ? "Exit Full Screen (Esc)" : "Expand to Full Screen"}
           >
