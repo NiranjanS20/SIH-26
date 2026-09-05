@@ -1,0 +1,14 @@
+Feature,Mean_Abs_SHAP
+blasting_delay_hrs,90.355194
+equipment_uptime_pct,66.51874
+is_monsoon,66.50349
+production_shortfall_pct,37.29637
+lag_7d_mean_production_t,16.980583
+rainfall_mm,8.492798
+lag_1d_production_t,5.0211616
+month,2.6129231
+is_weekend,0.8558674
+stripping_ratio_miss,0.3690432
+ndvi_seasonal_delta,0.0
+soil_moisture_seasonal_delta,0.0
+ob_overrun_pct,0.0

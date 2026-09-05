@@ -1,0 +1,341 @@
+date,shortfall_pct,rule_action,gap_to_target_action
+2015-04-15,20.90616800584874,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 75.5% and reduce blasting delay to 0.0 hrs.
+2015-04-22,30.04745147108968,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 74.2% and reduce blasting delay to 0.0 hrs.
+2015-04-26,20.565693682503245,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 93.6% and reduce blasting delay to 0.0 hrs.
+2015-04-27,24.038292820318507,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 76.0% and reduce blasting delay to 0.0 hrs.
+2015-05-11,24.8572888777298,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 73.7% and reduce blasting delay to 0.0 hrs.
+2015-05-20,20.56378300831072,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 75.5% and reduce blasting delay to 0.0 hrs.
+2015-05-29,16.437512963134978,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 71.4% and reduce blasting delay to 0.0 hrs.
+2015-06-01,18.499172429843984,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 78.1% and reduce blasting delay to 0.0 hrs.
+2015-06-02,32.81724496797612,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 94.9% and reduce blasting delay to 0.0 hrs.
+2015-06-04,42.36428523929408,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 78.4% and reduce blasting delay to 0.0 hrs.
+2015-06-06,34.43633509733988,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 80.7% and reduce blasting delay to 0.0 hrs.
+2015-06-07,21.34626188930076,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 94.1% and reduce blasting delay to 0.0 hrs.
+2015-06-08,17.176718331935582,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 79.2% and reduce blasting delay to 0.0 hrs.
+2015-06-09,18.5282869707564,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 99.6% and reduce blasting delay to 0.0 hrs.
+2015-06-10,43.64485334163109,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 93.2% and reduce blasting delay to 0.0 hrs.
+2015-06-11,30.169587738102948,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 82.0% and reduce blasting delay to 0.0 hrs.
+2015-06-12,24.345821830194605,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 92.5% and reduce blasting delay to 0.0 hrs.
+2015-06-15,28.534263270543104,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 91.9% and reduce blasting delay to 0.0 hrs.
+2015-06-18,31.41246825240844,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 80.8% and reduce blasting delay to 0.0 hrs.
+2015-06-19,32.2633171181871,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 80.1% and reduce blasting delay to 0.0 hrs.
+2015-06-20,19.95337457191332,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 95.9% and reduce blasting delay to 0.0 hrs.
+2015-06-22,37.53121887023321,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 79.9% and reduce blasting delay to 0.0 hrs.
+2015-06-23,27.21246697174712,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 78.9% and reduce blasting delay to 0.0 hrs.
+2015-06-24,40.23777815975155,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 79.3% and reduce blasting delay to 0.0 hrs.
+2015-06-25,17.91446698036794,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 79.8% and reduce blasting delay to 0.0 hrs.
+2015-06-26,17.731702618347708,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 91.9% and reduce blasting delay to 0.0 hrs.
+2015-06-27,36.89781544154641,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 89.1% and reduce blasting delay to 0.0 hrs.
+2015-06-29,32.24201714635247,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 84.2% and reduce blasting delay to 0.0 hrs.
+2015-06-30,52.641129258903085,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 86.8% and reduce blasting delay to 0.0 hrs.
+2015-07-03,16.312875652163342,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 86.8% and reduce blasting delay to 0.0 hrs.
+2015-07-05,34.211414874853155,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 92.4% and reduce blasting delay to 0.0 hrs.
+2015-07-07,35.81197264545623,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 82.8% and reduce blasting delay to 0.0 hrs.
+2015-07-08,31.802314111692915,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 92.7% and reduce blasting delay to 0.0 hrs.
+2015-07-09,32.59695216868734,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 79.9% and reduce blasting delay to 0.0 hrs.
+2015-07-10,46.21377018355932,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 78.2% and reduce blasting delay to 0.0 hrs.
+2015-07-11,20.140667900185605,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 89.1% and reduce blasting delay to 0.0 hrs.
+2015-07-12,44.52298375692124,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 79.4% and reduce blasting delay to 0.0 hrs.
+2015-07-18,23.31388650251961,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 82.6% and reduce blasting delay to 0.0 hrs.
+2015-07-19,36.73929876045572,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 79.2% and reduce blasting delay to 0.0 hrs.
+2015-07-20,17.6991231723128,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 84.0% and reduce blasting delay to 0.0 hrs.
+2015-07-21,32.1510984061424,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 81.1% and reduce blasting delay to 0.0 hrs.
+2015-07-23,31.879601407955565,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 94.2% and reduce blasting delay to 0.0 hrs.
+2015-07-27,40.79168665181918,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 87.8% and reduce blasting delay to 0.0 hrs.
+2015-08-01,22.43602909368901,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 79.5% and reduce blasting delay to 0.0 hrs.
+2015-08-03,54.21744279909204,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 82.6% and reduce blasting delay to 0.0 hrs.
+2015-08-06,23.531486742312,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 95.8% and reduce blasting delay to 0.0 hrs.
+2015-08-07,32.13237518601185,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 77.7% and reduce blasting delay to 0.0 hrs.
+2015-08-08,16.14881120171237,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 85.3% and reduce blasting delay to 0.0 hrs.
+2015-08-11,35.77530560062759,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 73.6% and reduce blasting delay to 0.0 hrs.
+2015-08-12,22.052881303661724,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 80.1% and reduce blasting delay to 0.0 hrs.
+2015-08-17,19.208878561520493,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 80.9% and reduce blasting delay to 0.0 hrs.
+2015-08-19,19.23393998149321,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 98.9% and reduce blasting delay to 0.0 hrs.
+2015-08-21,25.24591568957288,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 84.9% and reduce blasting delay to 0.0 hrs.
+2015-08-24,24.57606626998492,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 71.1% and reduce blasting delay to 0.0 hrs.
+2015-08-25,19.770482069292168,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 88.3% and reduce blasting delay to 0.0 hrs.
+2015-08-26,18.688193797794145,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 85.1% and reduce blasting delay to 0.0 hrs.
+2015-08-27,41.00939569271782,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 78.7% and reduce blasting delay to 0.0 hrs.
+2015-08-31,45.836734825293725,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 74.3% and reduce blasting delay to 0.0 hrs.
+2015-09-03,30.368493321794904,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 77.3% and reduce blasting delay to 0.0 hrs.
+2015-09-06,24.99177524975007,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 77.1% and reduce blasting delay to 0.0 hrs.
+2015-09-15,36.13880882694823,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 81.7% and reduce blasting delay to 0.0 hrs.
+2015-09-19,18.285591934559275,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 70.5% and reduce blasting delay to 0.0 hrs.
+2015-09-23,35.301769075529144,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 75.2% and reduce blasting delay to 0.0 hrs.
+2015-09-29,33.22055364578619,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 73.4% and reduce blasting delay to 0.0 hrs.
+2015-10-23,36.0379543743945,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 70.3% and reduce blasting delay to 0.0 hrs.
+2015-10-27,24.87357205872228,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 74.8% and reduce blasting delay to 0.0 hrs.
+2015-11-18,20.66540967239283,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 85.1% and reduce blasting delay to 0.0 hrs.
+2015-11-24,27.000116201619328,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 70.7% and reduce blasting delay to 0.0 hrs.
+2015-12-03,25.347304659136565,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 82.8% and reduce blasting delay to 0.0 hrs.
+2015-12-11,24.08319344833497,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 75.1% and reduce blasting delay to 0.0 hrs.
+2015-12-16,35.0593106238335,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 72.9% and reduce blasting delay to 0.0 hrs.
+2015-12-17,16.251477539890157,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 88.5% and reduce blasting delay to 0.0 hrs.
+2015-12-20,17.015978894499007,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 85.5% and reduce blasting delay to 0.0 hrs.
+2015-12-25,16.48843558812797,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 80.8% and reduce blasting delay to 0.0 hrs.
+2015-12-31,26.541578417040384,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 85.3% and reduce blasting delay to 0.0 hrs.
+2016-01-02,18.869173715073124,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 93.9% and reduce blasting delay to 0.0 hrs.
+2016-01-05,28.7457266301892,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 93.9% and reduce blasting delay to 0.0 hrs.
+2016-01-07,21.14596885799851,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 80.1% and reduce blasting delay to 0.0 hrs.
+2016-01-14,17.54250200099022,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 78.6% and reduce blasting delay to 0.0 hrs.
+2016-01-16,19.64178314412653,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 70.9% and reduce blasting delay to 0.0 hrs.
+2016-01-18,22.75322874555769,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 94.7% and reduce blasting delay to 0.0 hrs.
+2016-01-19,17.16547967081326,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 80.8% and reduce blasting delay to 0.0 hrs.
+2016-01-23,17.216061445873894,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 76.5% and reduce blasting delay to 0.0 hrs.
+2016-01-25,42.952697951938326,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 79.4% and reduce blasting delay to 0.0 hrs.
+2016-01-26,16.862671548230615,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 71.6% and reduce blasting delay to 0.0 hrs.
+2016-02-05,25.18148229392433,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 83.2% and reduce blasting delay to 0.0 hrs.
+2016-02-06,32.27281633207293,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 72.4% and reduce blasting delay to 0.0 hrs.
+2016-02-07,33.80142288972652,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 78.1% and reduce blasting delay to 0.0 hrs.
+2016-02-13,26.17058385327984,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 74.7% and reduce blasting delay to 0.0 hrs.
+2016-02-14,41.30133242820796,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 77.5% and reduce blasting delay to 0.0 hrs.
+2016-02-18,25.932642329697664,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 78.4% and reduce blasting delay to 0.0 hrs.
+2016-02-23,28.90296211502704,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 82.6% and reduce blasting delay to 0.0 hrs.
+2016-02-24,42.08858779173707,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 77.4% and reduce blasting delay to 0.0 hrs.
+2016-02-26,29.38643780166111,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 92.7% and reduce blasting delay to 0.0 hrs.
+2016-02-27,30.33299684089338,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 70.4% and reduce blasting delay to 0.0 hrs.
+2016-02-28,45.3352482157802,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 80.1% and reduce blasting delay to 0.0 hrs.
+2016-02-29,15.774217566398631,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 78.5% and reduce blasting delay to 0.0 hrs.
+2016-03-01,20.781470809740167,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 78.4% and reduce blasting delay to 0.0 hrs.
+2016-03-03,19.93768981355905,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 91.1% and reduce blasting delay to 0.0 hrs.
+2016-03-10,25.306039696094366,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 82.0% and reduce blasting delay to 0.0 hrs.
+2016-03-13,20.149271134985213,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 78.5% and reduce blasting delay to 0.0 hrs.
+2016-03-14,25.167204304619844,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 81.2% and reduce blasting delay to 0.0 hrs.
+2016-03-18,22.39876849722804,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 89.8% and reduce blasting delay to 0.0 hrs.
+2016-03-19,16.6672294550701,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 74.9% and reduce blasting delay to 0.0 hrs.
+2016-03-20,20.97102969677536,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 79.1% and reduce blasting delay to 0.0 hrs.
+2016-03-22,39.06668402376453,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 78.1% and reduce blasting delay to 0.0 hrs.
+2016-03-25,28.643356381332524,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 87.3% and reduce blasting delay to 0.0 hrs.
+2016-03-26,19.08246029436172,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 81.6% and reduce blasting delay to 0.0 hrs.
+2016-03-29,23.00487665977595,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 86.4% and reduce blasting delay to 0.0 hrs.
+2016-03-31,27.413644460625907,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 81.6% and reduce blasting delay to 0.0 hrs.
+2016-04-03,28.564170955250525,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 75.9% and reduce blasting delay to 0.0 hrs.
+2016-04-05,42.53948077013084,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 79.8% and reduce blasting delay to 0.0 hrs.
+2016-04-06,19.252062109181363,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 77.9% and reduce blasting delay to 0.0 hrs.
+2016-04-07,36.74687210218583,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 79.6% and reduce blasting delay to 0.0 hrs.
+2016-04-09,28.59137651271877,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 79.1% and reduce blasting delay to 0.0 hrs.
+2016-04-10,22.623047678415624,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 79.6% and reduce blasting delay to 0.0 hrs.
+2016-04-14,31.19487153610696,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 78.5% and reduce blasting delay to 0.0 hrs.
+2016-04-15,29.49340554521299,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 73.5% and reduce blasting delay to 0.0 hrs.
+2016-04-19,18.774632235587944,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 92.1% and reduce blasting delay to 0.0 hrs.
+2016-04-26,28.370850870978508,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 82.4% and reduce blasting delay to 0.0 hrs.
+2016-05-05,15.613758824396468,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 73.1% and reduce blasting delay to 0.0 hrs.
+2016-05-08,20.359512285794608,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 94.8% and reduce blasting delay to 0.0 hrs.
+2016-05-12,36.8777377085875,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 77.7% and reduce blasting delay to 0.0 hrs.
+2016-05-14,16.07229041486498,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 79.6% and reduce blasting delay to 0.0 hrs.
+2016-05-18,17.289647802617992,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 87.2% and reduce blasting delay to 0.0 hrs.
+2016-05-19,27.813186926606043,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 89.0% and reduce blasting delay to 0.0 hrs.
+2016-05-20,17.75137869609579,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 83.5% and reduce blasting delay to 0.0 hrs.
+2016-05-21,26.791921926133483,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 78.8% and reduce blasting delay to 0.0 hrs.
+2016-05-26,22.490859496989383,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 93.7% and reduce blasting delay to 0.0 hrs.
+2016-05-28,38.50662399248278,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 84.8% and reduce blasting delay to 0.0 hrs.
+2016-05-30,28.82078703480503,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 86.5% and reduce blasting delay to 0.0 hrs.
+2016-06-02,28.40853760957347,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 90.3% and reduce blasting delay to 0.0 hrs.
+2016-06-03,36.39792242620884,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 93.4% and reduce blasting delay to 0.0 hrs.
+2016-06-04,30.49947631804254,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 93.6% and reduce blasting delay to 0.0 hrs.
+2016-06-06,44.92430872276032,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 94.3% and reduce blasting delay to 0.0 hrs.
+2016-06-07,30.360820697623485,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 93.3% and reduce blasting delay to 0.0 hrs.
+2016-06-08,27.24062797082525,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 93.1% and reduce blasting delay to 0.0 hrs.
+2016-06-09,18.70069087371617,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 91.0% and reduce blasting delay to 0.0 hrs.
+2016-06-10,43.52585610833692,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 93.0% and reduce blasting delay to 0.0 hrs.
+2016-06-12,17.74536610569169,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 91.2% and reduce blasting delay to 0.0 hrs.
+2016-06-13,22.45229066009108,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 93.1% and reduce blasting delay to 0.0 hrs.
+2016-06-14,18.67830299906612,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 93.1% and reduce blasting delay to 0.0 hrs.
+2016-06-16,27.838870373574743,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 95.3% and reduce blasting delay to 0.0 hrs.
+2016-06-17,23.28542991966348,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 85.8% and reduce blasting delay to 0.0 hrs.
+2016-06-18,17.605435360285078,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 94.4% and reduce blasting delay to 0.0 hrs.
+2016-06-20,16.03715928919034,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 99.6% and reduce blasting delay to 0.0 hrs.
+2016-06-21,16.43912863339145,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 92.6% and reduce blasting delay to 0.0 hrs.
+2016-06-22,49.90886167060825,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 90.6% and reduce blasting delay to 0.0 hrs.
+2016-06-23,34.85383954743905,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 86.3% and reduce blasting delay to 0.0 hrs.
+2016-06-24,20.820934445128927,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 93.3% and reduce blasting delay to 0.0 hrs.
+2016-06-25,22.081745022391587,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 86.8% and reduce blasting delay to 0.0 hrs.
+2016-06-28,43.4190693263654,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 86.7% and reduce blasting delay to 0.0 hrs.
+2016-06-29,23.212948645249785,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 88.6% and reduce blasting delay to 0.0 hrs.
+2016-06-30,65.25941685159496,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 92.6% and reduce blasting delay to 0.0 hrs.
+2016-07-01,38.30451993730431,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 88.0% and reduce blasting delay to 0.0 hrs.
+2016-07-02,21.397037757503487,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 78.8% and reduce blasting delay to 0.0 hrs.
+2016-07-04,32.727735360101704,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 80.1% and reduce blasting delay to 0.0 hrs.
+2016-07-05,16.704813354900683,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 89.5% and reduce blasting delay to 0.0 hrs.
+2016-07-06,33.361147673767846,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 92.4% and reduce blasting delay to 0.0 hrs.
+2016-07-07,30.78863403470832,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 87.5% and reduce blasting delay to 0.0 hrs.
+2016-07-10,34.448806499489336,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 78.6% and reduce blasting delay to 0.0 hrs.
+2016-07-12,53.24729781934302,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 94.2% and reduce blasting delay to 0.0 hrs.
+2016-07-14,47.57521354392268,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 77.8% and reduce blasting delay to 0.0 hrs.
+2016-07-16,41.95077201567099,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 85.6% and reduce blasting delay to 0.0 hrs.
+2016-07-18,33.21141978743982,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 89.4% and reduce blasting delay to 0.0 hrs.
+2016-07-20,50.670274854573016,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 93.1% and reduce blasting delay to 0.0 hrs.
+2016-07-21,32.11344144059226,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 86.6% and reduce blasting delay to 0.0 hrs.
+2016-07-25,18.129877834006024,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 90.9% and reduce blasting delay to 0.0 hrs.
+2016-07-26,22.355213554946467,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 83.6% and reduce blasting delay to 0.0 hrs.
+2016-07-30,32.74754916765219,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 78.5% and reduce blasting delay to 0.0 hrs.
+2016-08-01,36.89327746642365,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 98.5% and reduce blasting delay to 0.0 hrs.
+2016-08-03,23.89620678448284,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 83.7% and reduce blasting delay to 0.0 hrs.
+2016-08-05,16.612306032740747,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 78.3% and reduce blasting delay to 0.0 hrs.
+2016-08-06,15.109107558502751,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 75.6% and reduce blasting delay to 0.0 hrs.
+2016-08-07,23.08201881905096,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 83.9% and reduce blasting delay to 0.0 hrs.
+2016-08-08,30.74923458881179,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 80.6% and reduce blasting delay to 0.0 hrs.
+2016-08-11,22.46187147812921,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 99.2% and reduce blasting delay to 0.0 hrs.
+2016-08-18,16.384208641997922,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 74.9% and reduce blasting delay to 0.0 hrs.
+2016-08-24,31.11092796186768,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 82.5% and reduce blasting delay to 0.0 hrs.
+2016-08-27,34.13279614065844,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 71.4% and reduce blasting delay to 0.0 hrs.
+2016-08-28,44.08254271723096,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 85.4% and reduce blasting delay to 0.0 hrs.
+2016-08-29,38.29260140909266,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 90.6% and reduce blasting delay to 0.0 hrs.
+2016-09-01,33.17517890709045,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 74.5% and reduce blasting delay to 0.0 hrs.
+2016-09-02,38.54985120906776,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 87.8% and reduce blasting delay to 0.0 hrs.
+2016-09-08,20.630755876074005,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 82.4% and reduce blasting delay to 0.0 hrs.
+2016-09-09,46.603021519800414,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 78.2% and reduce blasting delay to 0.0 hrs.
+2016-09-19,24.421937618813736,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 77.4% and reduce blasting delay to 0.0 hrs.
+2016-09-20,23.25542545311774,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 83.5% and reduce blasting delay to 0.0 hrs.
+2016-09-24,43.79310727561944,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 76.9% and reduce blasting delay to 0.0 hrs.
+2016-09-25,33.86709690257253,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 90.2% and reduce blasting delay to 0.0 hrs.
+2016-09-27,25.49968479613664,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 80.7% and reduce blasting delay to 0.0 hrs.
+2016-09-28,17.882926117002,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 80.1% and reduce blasting delay to 0.0 hrs.
+2016-10-28,19.746160130392592,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 74.4% and reduce blasting delay to 0.0 hrs.
+2016-11-06,27.48331900776065,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 77.2% and reduce blasting delay to 0.0 hrs.
+2016-11-08,18.875553045766683,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 73.9% and reduce blasting delay to 0.0 hrs.
+2016-11-10,33.39918642214648,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 74.6% and reduce blasting delay to 0.0 hrs.
+2016-11-11,26.0645163402882,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 74.2% and reduce blasting delay to 0.0 hrs.
+2016-11-14,24.62820419212186,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 80.4% and reduce blasting delay to 0.0 hrs.
+2016-11-23,31.178326045548843,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 75.3% and reduce blasting delay to 0.0 hrs.
+2016-11-25,34.67864514270376,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 73.6% and reduce blasting delay to 0.0 hrs.
+2016-12-10,24.952499514657937,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 92.4% and reduce blasting delay to 0.0 hrs.
+2016-12-12,16.125675935274057,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 76.3% and reduce blasting delay to 0.0 hrs.
+2016-12-13,25.49805234687313,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 81.1% and reduce blasting delay to 0.0 hrs.
+2016-12-19,30.937730718084712,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 71.1% and reduce blasting delay to 0.0 hrs.
+2016-12-22,16.056362638797278,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 96.9% and reduce blasting delay to 0.0 hrs.
+2016-12-23,20.40859302812561,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 85.4% and reduce blasting delay to 0.0 hrs.
+2016-12-24,21.41072859109304,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 86.0% and reduce blasting delay to 0.0 hrs.
+2016-12-28,18.960190669463696,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 77.3% and reduce blasting delay to 0.0 hrs.
+2016-12-30,27.79635933429864,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 81.3% and reduce blasting delay to 0.0 hrs.
+2016-12-31,18.41742177171741,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 70.6% and reduce blasting delay to 0.0 hrs.
+2017-01-02,19.01548979973096,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 76.3% and reduce blasting delay to 0.0 hrs.
+2017-01-04,19.227997211741787,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 73.6% and reduce blasting delay to 0.0 hrs.
+2017-01-06,16.669789445244067,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 87.8% and reduce blasting delay to 0.0 hrs.
+2017-01-14,17.83807538595408,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 82.9% and reduce blasting delay to 0.0 hrs.
+2017-01-20,32.703179046147184,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 80.7% and reduce blasting delay to 0.0 hrs.
+2017-01-24,18.15778610119964,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 73.1% and reduce blasting delay to 0.0 hrs.
+2017-01-25,31.41252411351957,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 74.6% and reduce blasting delay to 0.0 hrs.
+2017-01-30,15.8646950719532,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 75.2% and reduce blasting delay to 0.0 hrs.
+2017-02-05,51.6333649320097,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 80.0% and reduce blasting delay to 0.0 hrs.
+2017-02-06,22.93160010660843,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 81.9% and reduce blasting delay to 0.0 hrs.
+2017-02-07,15.5439691812126,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 99.1% and reduce blasting delay to 0.0 hrs.
+2017-02-16,16.95352247387829,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 78.4% and reduce blasting delay to 0.0 hrs.
+2017-02-18,22.160753147882453,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 75.6% and reduce blasting delay to 0.0 hrs.
+2017-02-22,18.63272433668253,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 77.3% and reduce blasting delay to 0.0 hrs.
+2017-02-24,27.993445035978777,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 88.3% and reduce blasting delay to 0.0 hrs.
+2017-03-01,16.988758689554825,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 86.0% and reduce blasting delay to 0.0 hrs.
+2017-03-05,34.79441307841301,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 71.9% and reduce blasting delay to 0.0 hrs.
+2017-03-15,16.00075376117904,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 80.5% and reduce blasting delay to 0.0 hrs.
+2017-03-20,18.12137696635895,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 91.9% and reduce blasting delay to 0.0 hrs.
+2017-03-22,38.54716085049719,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 75.4% and reduce blasting delay to 0.0 hrs.
+2017-03-23,21.41640320019684,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 72.0% and reduce blasting delay to 0.0 hrs.
+2017-03-27,16.258801239572886,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 80.6% and reduce blasting delay to 0.0 hrs.
+2017-03-29,20.255321781624005,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 76.0% and reduce blasting delay to 0.0 hrs.
+2017-04-04,22.073048988079176,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 80.8% and reduce blasting delay to 0.0 hrs.
+2017-04-22,17.025230921696267,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 88.8% and reduce blasting delay to 0.0 hrs.
+2017-04-30,18.61049803535134,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 74.6% and reduce blasting delay to 0.0 hrs.
+2017-05-04,32.34904085145525,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 71.0% and reduce blasting delay to 0.0 hrs.
+2017-05-25,16.850911773279705,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 97.3% and reduce blasting delay to 0.0 hrs.
+2017-06-01,26.864047013788085,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 88.9% and reduce blasting delay to 0.0 hrs.
+2017-06-02,38.965576560085466,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 94.2% and reduce blasting delay to 0.0 hrs.
+2017-06-03,25.56012019503639,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 92.6% and reduce blasting delay to 0.0 hrs.
+2017-06-05,25.61539660261776,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 98.0% and reduce blasting delay to 0.0 hrs.
+2017-06-11,15.990116814741926,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 93.6% and reduce blasting delay to 0.0 hrs.
+2017-06-12,45.24728033915645,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 88.2% and reduce blasting delay to 0.0 hrs.
+2017-06-15,36.27656200861888,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 98.0% and reduce blasting delay to 0.0 hrs.
+2017-06-17,44.89965569050888,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 91.8% and reduce blasting delay to 0.0 hrs.
+2017-06-19,38.89373722041039,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 99.5% and reduce blasting delay to 0.0 hrs.
+2017-06-21,24.666631738795463,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 93.4% and reduce blasting delay to 0.0 hrs.
+2017-06-24,38.3971117797059,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 89.2% and reduce blasting delay to 0.0 hrs.
+2017-06-25,51.61167325625112,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 87.7% and reduce blasting delay to 0.0 hrs.
+2017-06-26,16.063448964074347,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 86.5% and reduce blasting delay to 0.0 hrs.
+2017-06-27,23.995010145600865,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 92.9% and reduce blasting delay to 0.0 hrs.
+2017-06-28,49.02262342478027,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 95.0% and reduce blasting delay to 0.0 hrs.
+2017-06-29,25.452221162791886,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 94.1% and reduce blasting delay to 0.0 hrs.
+2017-06-30,43.90391282846142,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 92.5% and reduce blasting delay to 0.0 hrs.
+2017-07-01,26.17833545015906,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 90.0% and reduce blasting delay to 0.0 hrs.
+2017-07-02,17.626236732442877,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 86.5% and reduce blasting delay to 0.0 hrs.
+2017-07-03,26.75816341175427,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 89.6% and reduce blasting delay to 0.0 hrs.
+2017-07-05,51.12408370300224,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 95.1% and reduce blasting delay to 0.0 hrs.
+2017-07-06,18.025704721044296,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 90.2% and reduce blasting delay to 0.0 hrs.
+2017-07-07,28.131893978630817,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 92.1% and reduce blasting delay to 0.0 hrs.
+2017-07-09,30.91813833460236,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 88.4% and reduce blasting delay to 0.0 hrs.
+2017-07-11,23.85088039280429,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 93.6% and reduce blasting delay to 0.0 hrs.
+2017-07-13,26.250504716181126,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 92.5% and reduce blasting delay to 0.0 hrs.
+2017-07-14,16.87923288831204,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 86.9% and reduce blasting delay to 0.0 hrs.
+2017-07-15,19.806692672524548,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 97.4% and reduce blasting delay to 0.0 hrs.
+2017-07-16,16.40870698906322,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 85.7% and reduce blasting delay to 0.0 hrs.
+2017-07-17,20.06953559638706,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 87.4% and reduce blasting delay to 0.0 hrs.
+2017-07-18,31.91504827230801,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 89.0% and reduce blasting delay to 0.0 hrs.
+2017-07-19,24.898494006479048,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 92.6% and reduce blasting delay to 0.0 hrs.
+2017-07-20,29.326149778270505,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 89.9% and reduce blasting delay to 0.0 hrs.
+2017-07-21,20.54941577329729,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 87.7% and reduce blasting delay to 0.0 hrs.
+2017-07-25,40.91054039750116,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 93.1% and reduce blasting delay to 0.0 hrs.
+2017-07-28,20.56130599557785,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 87.9% and reduce blasting delay to 0.0 hrs.
+2017-07-29,22.98098511951344,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 79.0% and reduce blasting delay to 0.0 hrs.
+2017-07-31,33.16576378904641,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 88.1% and reduce blasting delay to 0.0 hrs.
+2017-08-04,38.22528717189222,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 78.3% and reduce blasting delay to 0.0 hrs.
+2017-08-05,36.69834151057705,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 84.2% and reduce blasting delay to 0.0 hrs.
+2017-08-06,36.59045907431566,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 86.9% and reduce blasting delay to 0.0 hrs.
+2017-08-07,45.272382403066416,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 79.0% and reduce blasting delay to 0.0 hrs.
+2017-08-10,17.651949700041037,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 85.7% and reduce blasting delay to 0.0 hrs.
+2017-08-11,30.893776537346955,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 87.4% and reduce blasting delay to 0.0 hrs.
+2017-08-14,39.87687234406891,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 81.0% and reduce blasting delay to 0.0 hrs.
+2017-08-22,15.104777666913307,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 70.8% and reduce blasting delay to 0.0 hrs.
+2017-08-23,41.65884041240729,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 74.7% and reduce blasting delay to 0.0 hrs.
+2017-08-26,21.730564024160675,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 78.1% and reduce blasting delay to 0.0 hrs.
+2017-08-27,35.05502263778375,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 76.7% and reduce blasting delay to 0.0 hrs.
+2017-08-30,48.02668337026099,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 85.3% and reduce blasting delay to 0.0 hrs.
+2017-08-31,33.92490062573247,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 73.1% and reduce blasting delay to 0.0 hrs.
+2017-09-02,32.2604156213344,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 75.4% and reduce blasting delay to 0.0 hrs.
+2017-09-15,17.382387005806915,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 70.4% and reduce blasting delay to 0.0 hrs.
+2017-09-17,22.414530665154786,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 76.2% and reduce blasting delay to 0.0 hrs.
+2017-09-23,20.819419657939147,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 94.5% and reduce blasting delay to 0.0 hrs.
+2017-09-26,24.75864022600651,Primary Cause: Weather/Monsoon. Increase pump capacity and adjust monthly target.,Increase uptime to 81.4% and reduce blasting delay to 0.0 hrs.
+2017-11-05,15.986304826166124,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 87.9% and reduce blasting delay to 0.0 hrs.
+2017-11-13,15.12238323185534,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 71.4% and reduce blasting delay to 0.0 hrs.
+2017-11-14,28.66449017238356,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 75.0% and reduce blasting delay to 0.0 hrs.
+2017-11-18,15.245445243930488,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 77.4% and reduce blasting delay to 0.0 hrs.
+2017-11-25,18.302020058962125,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 84.3% and reduce blasting delay to 0.0 hrs.
+2017-11-30,24.35912961464793,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 70.9% and reduce blasting delay to 0.0 hrs.
+2017-12-01,22.00563103274381,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 77.9% and reduce blasting delay to 0.0 hrs.
+2017-12-03,29.934201204409185,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 71.5% and reduce blasting delay to 0.0 hrs.
+2017-12-08,28.82054973341447,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 73.2% and reduce blasting delay to 0.0 hrs.
+2017-12-09,32.125091812490574,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 72.3% and reduce blasting delay to 0.0 hrs.
+2017-12-13,28.329492651684863,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 83.0% and reduce blasting delay to 0.0 hrs.
+2017-12-18,30.80670338065612,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 78.2% and reduce blasting delay to 0.0 hrs.
+2017-12-20,17.234775983959622,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 80.8% and reduce blasting delay to 0.0 hrs.
+2017-12-21,40.94363730819145,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 72.7% and reduce blasting delay to 0.0 hrs.
+2017-12-25,20.24561473037266,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 83.4% and reduce blasting delay to 0.0 hrs.
+2017-12-26,21.37029881269205,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 75.6% and reduce blasting delay to 0.0 hrs.
+2018-01-03,19.44228928596261,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 77.5% and reduce blasting delay to 0.0 hrs.
+2018-01-05,36.18873543741336,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 76.6% and reduce blasting delay to 0.0 hrs.
+2018-01-06,18.932151830105614,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 99.6% and reduce blasting delay to 0.0 hrs.
+2018-01-08,37.570935965174655,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 71.2% and reduce blasting delay to 0.0 hrs.
+2018-01-12,23.012980612114305,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 87.0% and reduce blasting delay to 0.0 hrs.
+2018-01-23,20.268104477654663,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 79.6% and reduce blasting delay to 0.0 hrs.
+2018-01-25,21.63809022972008,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 71.1% and reduce blasting delay to 0.0 hrs.
+2018-01-27,26.36279949187849,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 76.9% and reduce blasting delay to 0.0 hrs.
+2018-02-02,27.220956696941407,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 72.0% and reduce blasting delay to 0.0 hrs.
+2018-02-03,32.3853527144497,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 79.5% and reduce blasting delay to 0.0 hrs.
+2018-02-05,15.567400933405535,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 93.7% and reduce blasting delay to 0.0 hrs.
+2018-02-07,21.588099969902338,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 88.8% and reduce blasting delay to 0.0 hrs.
+2018-02-10,22.921758643931497,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 77.0% and reduce blasting delay to 0.0 hrs.
+2018-02-13,49.64476637972589,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 70.6% and reduce blasting delay to 0.0 hrs.
+2018-02-17,16.56472503969265,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 94.0% and reduce blasting delay to 0.0 hrs.
+2018-02-21,15.71307874701032,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 82.1% and reduce blasting delay to 0.0 hrs.
+2018-02-27,22.507300109912727,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 82.5% and reduce blasting delay to 0.0 hrs.
+2018-03-03,29.784901031300738,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 73.3% and reduce blasting delay to 0.0 hrs.
+2018-03-05,35.40099682648208,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 78.6% and reduce blasting delay to 0.0 hrs.
+2018-03-06,24.50270542031961,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 78.9% and reduce blasting delay to 0.0 hrs.
+2018-03-08,26.328103865810924,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 71.3% and reduce blasting delay to 0.0 hrs.
+2018-03-09,21.825176571628177,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 77.9% and reduce blasting delay to 0.0 hrs.
+2018-03-13,15.868630916260654,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 90.4% and reduce blasting delay to 0.0 hrs.
+2018-03-17,33.71143267583753,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 72.7% and reduce blasting delay to 0.0 hrs.
+2018-03-18,20.06480862094562,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 82.5% and reduce blasting delay to 0.0 hrs.
+2018-03-25,29.334758029404696,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 77.0% and reduce blasting delay to 0.0 hrs.
+2018-03-27,16.601667530575003,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 89.5% and reduce blasting delay to 0.0 hrs.
+2018-03-29,22.620617336885044,Primary Cause: production_shortfall_pct. Review historical trends.,Increase uptime to 85.4% and reduce blasting delay to 0.0 hrs.
+2018-03-30,15.0503176789154,Primary Cause: Equipment Downtime. Schedule immediate preventive maintenance.,Increase uptime to 76.9% and reduce blasting delay to 0.0 hrs.
+2018-03-31,36.39141641259979,Primary Cause: Blasting Delays. Review drill/blast patterns and safety clearance.,Increase uptime to 75.3% and reduce blasting delay to 0.0 hrs.

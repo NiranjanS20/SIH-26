@@ -1,0 +1,9 @@
+year,rom_actual_te,rom_proposed_te,stripping_ratio_proposed,stripping_ratio_actual,ob_generated_m3,recovery_pct,source_report,source_table_ref,reconciliation_note,rom_gross_reported_te
+2010-11,303383,,,,,,A,"Report A, past production",,
+2011-12,298993,,,,,,A,"Report A, past production",,
+2012-13,390001,,,,,,"A, B","Report A & B, past production",,
+2013-14,364994,,,,,,"A, B","Report A & B, past production",,
+2014-15,337197,,,,,,"A, B","Report A & B, past production",,
+2015-16,252580,350000.0,1:6 (Lease 46.25),1:8,4134490.0,89% (bed),A,Report B 5-yr table & Report A,3b_vs_5yr_table_discrepancy: 281215 vs 252580 — likely ROM-vs-dispatch definitional difference,281215.0
+2016-17,252664,,,,,,B,"Report B, 5-yr table",,
+2017-18,305762,384000.0,1:11,1:11,3467782.0,80%,B,"Report B, current year actuals",,
