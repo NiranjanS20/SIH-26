@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Silk from './ui/Silk';
 import { Sparkles } from 'lucide-react';
+import { apiGet } from '../services/apiClient';
 
 interface ProspectivityViewProps {
   isDark?: boolean;
@@ -139,7 +140,32 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
   onSendToForecast,
   selectedMineName = 'Dongri Buzurg Mine',
 }) => {
+  const [zones, setZones] = useState<ZoneData[]>(DONGRI_ZONES);
   const [selectedZone, setSelectedZone] = useState<ZoneData>(DONGRI_ZONES[0]);
+
+  useEffect(() => {
+    let isMounted = true;
+    apiGet<any>('/mines/dongri-buzurg/prospectivity')
+      .then((data) => {
+        if (isMounted && data && data.gisZones) {
+          const mergedZones = DONGRI_ZONES.map((staticZone, i) => {
+            const backendZone = data.gisZones[i];
+            if (!backendZone) return staticZone;
+            return {
+              ...staticZone,
+              prospectivityClass: (backendZone.prospectivityScore || 'LOW').toUpperCase() as 'HIGH' | 'MEDIUM' | 'LOW',
+              predictedMnO: parseFloat(backendZone.mnGradePct) || staticZone.predictedMnO,
+              estTonnage: backendZone.estimatedContributionTons || staticZone.estTonnage,
+            };
+          });
+          setZones(mergedZones);
+          setSelectedZone(mergedZones[0]);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch prospectivity:", err));
+    return () => { isMounted = false; };
+  }, []);
+
   const [viewMode, setViewMode] = useState<'MAP' | 'LIST'>('MAP');
   const [showOreReef, setShowOreReef] = useState<boolean>(true);
   const [showPitPerimeter, setShowPitPerimeter] = useState<boolean>(true);
@@ -161,9 +187,9 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
   const borderDivider = isDark ? 'border-white/10' : 'border-slate-200/80';
 
   // Total summary calculations
-  const highZonesCount = DONGRI_ZONES.filter((z) => z.prospectivityClass === 'HIGH').length;
-  const maxPredictedMnO = Math.max(...DONGRI_ZONES.map((z) => z.predictedMnO)).toFixed(1);
-  const totalEstTonnage = DONGRI_ZONES.reduce((acc, z) => acc + z.estTonnage, 0).toLocaleString();
+  const highZonesCount = zones.filter((z) => z.prospectivityClass === 'HIGH').length;
+  const maxPredictedMnO = Math.max(...zones.map((z) => z.predictedMnO)).toFixed(1);
+  const totalEstTonnage = zones.reduce((acc, z) => acc + z.estTonnage, 0).toLocaleString();
 
   // Helper for prospectivity colors
   const getProspectivityColor = (pClass: 'HIGH' | 'MEDIUM' | 'LOW') => {
@@ -202,7 +228,7 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
   };
 
   // Sorting logic for List View
-  const sortedZones = [...DONGRI_ZONES].sort((a, b) => {
+  const sortedZones = [...zones].sort((a, b) => {
     if (sortField === 'mno') {
       return sortOrder === 'desc' ? b.predictedMnO - a.predictedMnO : a.predictedMnO - b.predictedMnO;
     }
@@ -485,7 +511,7 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
                 )}
 
                 {/* Model 1 Prospectivity Zones (Distributed Naturally Across Pit Sectors) */}
-                {DONGRI_ZONES.map((zone) => {
+                {zones.map((zone) => {
                   const isSelected = selectedZone.id === zone.id;
                   const style = getProspectivityColor(zone.prospectivityClass);
 

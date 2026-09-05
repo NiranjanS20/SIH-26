@@ -34,25 +34,19 @@ class ModelRegistry:
         
         self.is_loaded = True
         print("All ML models loaded successfully.")
-        # NOTE: SHAP TreeExplainer is NOT loaded here because `import shap`
-        # takes 30s+ on this system (it pulls in torch/tensorflow).
-        # The cause-analysis endpoint uses pre-computed CSV data from
-        # shap_summary_model2.csv, so the explainer is not needed at startup.
-        # If on-demand SHAP is needed later, call get_shap_explainer().
+        
+        # Eagerly instantiate SHAP TreeExplainer at startup to avoid lazy-loading latency during live demos
+        try:
+            import shap
+            self.shap_explainer = shap.TreeExplainer(self.model2_xgb)
+            print("  SHAP TreeExplainer instantiated (eagerly).")
+        except Exception as e:
+            print(f"  WARNING: Could not instantiate SHAP TreeExplainer: {e}")
 
     def get_shap_explainer(self):
         """
-        Lazy-load SHAP TreeExplainer on first access.
-        There must be exactly ONE instantiation site for TreeExplainer
-        in the entire codebase — this is it.
+        Return the eagerly loaded SHAP TreeExplainer.
         """
-        if self.shap_explainer is None and self.model2_xgb is not None:
-            try:
-                import shap
-                self.shap_explainer = shap.TreeExplainer(self.model2_xgb)
-                print("  SHAP TreeExplainer instantiated (lazy, single instance).")
-            except Exception as e:
-                print(f"  WARNING: Could not instantiate SHAP TreeExplainer: {e}")
         return self.shap_explainer
 
 model_registry = ModelRegistry()

@@ -1,0 +1,11 @@
+rasterio
+geopandas
+fiona
+shapely
+scikit-learn
+xgboost
+shap
+pandas
+numpy
+matplotlib
+pdfplumber

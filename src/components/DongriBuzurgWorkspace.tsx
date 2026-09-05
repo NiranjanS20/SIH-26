@@ -16,6 +16,7 @@ import {
   getMineProductionProfile,
   MINE_PRODUCTION_PROFILES,
 } from '../data/mineProductionData';
+import { apiGet } from '../services/apiClient';
 
 interface DongriBuzurgWorkspaceProps {
   onNavigate: (route: PortalRoute) => void;
@@ -75,7 +76,122 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
 
   // Multi-Mine State (Defaults to Dongri Buzurg)
   const [selectedMineId, setSelectedMineId] = useState<string>('dongri-buzurg');
-  const mineProfile = getMineProductionProfile(selectedMineId);
+  const [mineProfile, setMineProfile] = useState<any>(getMineProductionProfile('dongri-buzurg'));
+
+  useEffect(() => {
+    let isMounted = true;
+    apiGet<any>(`/mines/${selectedMineId}/workspace`)
+      .then((data) => {
+        if (isMounted && data) {
+          const mappedProfile = {
+            mineName: data.mineInfo?.name || 'Unknown Mine',
+            shortCode: data.mineInfo?.name === 'Balaghat' ? 'BG' : data.mineInfo?.name === 'Tirodi' ? 'TR' : 'DB',
+            type: data.mineInfo?.type || 'UNDERGROUND',
+            state: data.mineInfo?.state || 'Maharashtra',
+            district: data.mineInfo?.district || 'Bhandara',
+            potentialSourceZone: data.futureSourceZone?.name || 'Unknown Zone',
+            currentOutputTons: data.production?.actual || 0,
+            plannedTargetTons: data.production?.target || 0,
+            predictedOutputTons: data.production?.forecast || 0,
+            projectedGapTons: data.production?.gap || 0,
+            gapPct: data.production?.target ? Math.abs(Math.round((data.production.gap / data.production.target) * 100)) : 0,
+            monthlyTrend: data.production?.monthlyTrend || [],
+            featureImportance: (data.riskContributors || []).map((rc: any) => ({
+              factor: rc.factor,
+              importance: rc.importancePct,
+              description: rc.description
+            })),
+            environmentalFactors: {
+              rainfallPct: 70,
+              rainfallMm: 45,
+              ndvi: 0.42,
+              soilMoisturePct: 65,
+              equipmentAvailabilityPct: 80
+            }
+          };
+          setMineProfile(mappedProfile);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch workspace:", err));
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedMineId]);
+
+  // Fetch ML Forecasting Data
+  useEffect(() => {
+    let isMounted = true;
+    apiGet<any>(`/mines/${selectedMineId}/forecasting`)
+      .then((data) => {
+        if (isMounted && data && data.forecasting) {
+          setMineProfile(prev => ({
+            ...prev,
+            monthlyTrend: data.forecasting.monthlyTrend || prev.monthlyTrend,
+            predictedOutputTons: data.forecasting.forecast || prev.predictedOutputTons
+          }));
+        }
+      })
+      .catch((err) => console.error("Failed to fetch forecasting:", err));
+    return () => { isMounted = false; };
+  }, [selectedMineId]);
+
+  // Fetch Shortfall Early Warning Data
+  useEffect(() => {
+    let isMounted = true;
+    apiGet<any>(`/mines/${selectedMineId}/shortfall`)
+      .then((data) => {
+        if (isMounted && data && data.shortfall) {
+          setMineProfile(prev => ({
+            ...prev,
+            shortfallRisk: data.shortfall || prev.shortfallRisk,
+            alerts: data.alerts || prev.alerts
+          }));
+        }
+      })
+      .catch((err) => console.error("Failed to fetch shortfall:", err));
+    return () => { isMounted = false; };
+  }, [selectedMineId]);
+
+  // Fetch SHAP Cause Analysis Data
+  useEffect(() => {
+    let isMounted = true;
+    apiGet<any>(`/mines/${selectedMineId}/cause-analysis`)
+      .then((data) => {
+        if (isMounted && data && data.causeAnalysis) {
+          setMineProfile(prev => ({
+            ...prev,
+            riskContributors: data.causeAnalysis || prev.riskContributors
+          }));
+        }
+      })
+      .catch((err) => console.error("Failed to fetch cause analysis:", err));
+    return () => { isMounted = false; };
+  }, [selectedMineId]);
+
+  // Fetch Corrective Actions Data
+  useEffect(() => {
+    let isMounted = true;
+    apiGet<any>(`/mines/${selectedMineId}/corrective-action`)
+      .then((data) => {
+        if (isMounted && data && data.correctiveActions) {
+          const rec = data.correctiveActions;
+          setActions(prev => {
+            const updated = [...prev];
+            updated[0] = {
+              ...updated[0],
+              problem: rec.instruction || updated[0].problem,
+              currentValue: rec.currentParams?.equipmentAvailability || updated[0].currentValue,
+              targetValue: rec.recommendedParams?.equipmentAvailability || updated[0].targetValue,
+              expectedImpact: `Mitigate gap: ${rec.currentParams?.expectedGap} -> ${rec.recommendedParams?.expectedGap}`,
+              reason: rec.instruction || updated[0].reason
+            };
+            return updated;
+          });
+        }
+      })
+      .catch((err) => console.error("Failed to fetch corrective action:", err));
+    return () => { isMounted = false; };
+  }, [selectedMineId]);
 
   // Shortfall Diagnosis View Toggle State
   const [diagnosisViewMode, setDiagnosisViewMode] = useState<'SUMMARY' | 'CAUSE_ANALYSIS'>('SUMMARY');

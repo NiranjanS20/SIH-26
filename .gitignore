@@ -30,3 +30,32 @@ CONTEXT.md
 *.njsproj
 *.sln
 *.sw?
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+env/
+.env
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Datasets and ML Models
+data/raw/
+data/processed/
+data/mine data/
+data/new data/
+data/satellite data and more/
+*.csv
+*.json
+*.joblib
+*.pdf
+*.tif
+*.gpkg
+*.xlsx
+env
+!data/README.md
