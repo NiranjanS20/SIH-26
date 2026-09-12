@@ -122,6 +122,7 @@ uvicorn backend.app.main:app --reload --port 8000
 ### 3. Start the React Frontend
 ```bash
 # In a new terminal
+cd frontend
 npm install
 npm run dev
 ```
