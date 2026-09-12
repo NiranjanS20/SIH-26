@@ -28,6 +28,14 @@
             "before": null,
             "after": 48.12190700678097,
             "improved": true
+        },
+        {
+            "timestamp": "2026-09-12T08:51:36.281284",
+            "model_name": "model2_xgb",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 104.24888183629801,
+            "improved": true
         }
     ],
     "model1_unfc_check": {
@@ -41,7 +49,7 @@
     },
     "model2_xgb": {
         "metric_name": "RMSE",
-        "metric_value": 48.12190700678097,
-        "last_updated": "2026-08-30T22:33:25.608078"
+        "metric_value": 104.24888183629801,
+        "last_updated": "2026-09-12T08:51:36.281284"
     }
 }

@@ -1571,30 +1571,30 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
 
               <div className="pt-2">
                 <div className="font-headline font-black text-4xl sm:text-5xl text-[#0E7C7B] tracking-tight">
-                  XX%
+                  60%
                 </div>
                 <span className={`inline-block mt-1 text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border ${
                   isDark ? 'bg-white/5 border-white/10 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-600 font-bold'
                 }`}>
-                  [VERIFIED VALUE PLACEHOLDER]
+                  OF DOMESTIC CONSUMPTION
                 </span>
               </div>
 
               <p className={`text-xs sm:text-sm font-medium leading-relaxed pt-1 ${
                 isDark ? 'text-slate-300' : 'text-slate-800 font-medium'
               }`}>
-                “Domestic manganese supply remains strategically important for reducing dependence on imports.”
+                India imports 60% of the manganese ore it consumes. Import volumes have roughly doubled in five years, underlining the scale of the domestic shortfall this platform targets.
               </p>
             </div>
 
             <div className={`pt-4 border-t ${borderDivider} relative z-10 flex items-center justify-between`}>
               <span className={`text-[10px] font-mono ${textMuted}`}>
-                Source: <span className={isDark ? 'text-slate-300 font-semibold' : 'text-slate-700 font-bold'}>[Verified Source / Indian Bureau of Mines Data]</span>
+                Source: <span className={isDark ? 'text-slate-300 font-semibold' : 'text-slate-700 font-bold'}>Indian Mineral Industry at a Glance (2022-23) & Minerals Yearbook 2024</span>
               </span>
             </div>
           </div>
 
-          {/* CARD 2: MOIL'S SHARE OF DOMESTIC PRODUCTION */}
+          {/* CARD 2: EXPORT RESTRICTIONS & PRODUCTION TARGETS */}
           <div className={`p-6 sm:p-7 rounded-xl border space-y-4 relative overflow-hidden flex flex-col justify-between ${
             isDark ? cardBg : 'bg-gradient-to-br from-white via-indigo-50/20 to-white border-indigo-200 shadow-sm'
           }`}>
@@ -1605,12 +1605,12 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
                 <h3 className={`font-headline font-extrabold text-xs sm:text-sm uppercase tracking-wider ${
                   isDark ? 'text-slate-200' : 'text-indigo-950 font-black'
                 }`}>
-                  MOIL'S SHARE OF DOMESTIC PRODUCTION
+                  EXPORT RESTRICTIONS & PRODUCTION TARGETS
                 </h3>
                 <div className={`w-7 h-7 rounded flex items-center justify-center shrink-0 ${
                   isDark ? 'bg-[#1F3864]/40 border border-indigo-400/30 text-indigo-300' : 'bg-indigo-100 border border-indigo-300 text-indigo-700'
                 }`}>
-                  <span className="material-symbols-outlined text-base">pie_chart</span>
+                  <span className="material-symbols-outlined text-base">policy</span>
                 </div>
               </div>
 
@@ -1618,25 +1618,25 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
                 <div className={`font-headline font-black text-4xl sm:text-5xl tracking-tight ${
                   isDark ? 'text-indigo-300' : 'text-indigo-700'
                 }`}>
-                  XX%
+                  RESTRICTED
                 </div>
                 <span className={`inline-block mt-1 text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border ${
                   isDark ? 'bg-white/5 border-white/10 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-600 font-bold'
                 }`}>
-                  [VERIFIED VALUE PLACEHOLDER]
+                  STATE ENTERPRISE ONLY
                 </span>
               </div>
 
               <p className={`text-xs sm:text-sm font-medium leading-relaxed pt-1 ${
                 isDark ? 'text-slate-300' : 'text-slate-800 font-medium'
               }`}>
-                “MOIL plays a significant role in India's domestic manganese supply.”
+                The Government of India has restricted manganese ore exports to a single state enterprise to conserve domestic supply. MOIL aims to raise production from ~1.2 million tonnes to 3 million tonnes by 2030.
               </p>
             </div>
 
             <div className={`pt-4 border-t ${borderDivider} relative z-10 flex items-center justify-between`}>
               <span className={`text-[10px] font-mono ${textMuted}`}>
-                Source: <span className={isDark ? 'text-slate-300 font-semibold' : 'text-slate-700 font-bold'}>[Verified Source / MOIL Annual Report Data]</span>
+                Source: <span className={isDark ? 'text-slate-300 font-semibold' : 'text-slate-700 font-bold'}>Indian Minerals Yearbook 2024 (2023-24 Edition)</span>
               </span>
             </div>
           </div>

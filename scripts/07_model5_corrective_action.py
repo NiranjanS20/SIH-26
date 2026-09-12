@@ -4,36 +4,75 @@ import os
 import joblib
 
 def gap_to_target_lookup(model, row, target_production, features):
-    # Sweep equipment uptime and blasting delay to find what is needed to reach target
-    # We will simulate ranges
-    uptimes = np.linspace(row['equipment_uptime_pct'], 1.0, 5) # From current to 100%
-    delays = np.linspace(0, row['blasting_delay_hrs'], 5) # From 0 to current delay
+    # Grid size: 21x21 = 441 combinations (fast enough for inference)
+    # Equipment uptime: from current to 1.0
+    uptimes = np.linspace(row['equipment_uptime_pct'], 1.0, 21)
+    # Blasting delay: from 0 to current
+    delays = np.linspace(0, max(row['blasting_delay_hrs'], 0.1), 21)
     
-    best_diff = float('inf')
-    best_action = "No feasible action found"
+    current_u = row['equipment_uptime_pct']
+    current_d = row['blasting_delay_hrs']
     
-    # Simple grid search for the back-solve
+    feasible_actions = []
+    best_shortfall_diff = float('inf')
+    best_shortfall_action = None
+    
+    # Batch predict for speed
+    sim_rows = []
+    sim_params = []
     for u in uptimes:
         for d in delays:
             sim_row = row.copy()
             sim_row['equipment_uptime_pct'] = u
             sim_row['blasting_delay_hrs'] = d
+            sim_rows.append(sim_row[features].values)
+            sim_params.append((u, d))
             
-            # Predict
-            X_sim = pd.DataFrame([sim_row[features]])
-            pred = model.predict(X_sim)[0]
+    X_sim = pd.DataFrame(sim_rows, columns=features)
+    preds = model.predict(X_sim)
+    
+    for i, pred in enumerate(preds):
+        u, d = sim_params[i]
+        if pred >= target_production:
+            # Normalized Euclidean distance (smallest change)
+            # Uptime range is ~0.3, Delay range is ~4. Normalize to 0-1 scale approx.
+            dist_u = (u - current_u) / max(1.0 - current_u, 1e-5)
+            dist_d = (current_d - d) / max(current_d, 1e-5)
+            total_change = np.sqrt(dist_u**2 + dist_d**2)
             
-            if pred >= target_production:
-                # We reached it!
-                action = f"Increase uptime to {u*100:.1f}% and reduce blasting delay to {d:.1f} hrs."
-                return action
-            else:
-                diff = target_production - pred
-                if diff < best_diff:
-                    best_diff = diff
-                    best_action = f"Max effort (Uptime: {u*100:.1f}%, Delay: {d:.1f}h) yields {pred:.1f}t (still short by {diff:.1f}t)"
-                    
-    return best_action
+            feasible_actions.append({
+                'uptime': u,
+                'delay': d,
+                'pred': pred,
+                'change_score': total_change
+            })
+        else:
+            diff = target_production - pred
+            if diff < best_shortfall_diff:
+                best_shortfall_diff = diff
+                best_shortfall_action = {
+                    'uptime': u,
+                    'delay': d,
+                    'pred': pred
+                }
+                
+    if not feasible_actions:
+        u = best_shortfall_action['uptime']
+        d = best_shortfall_action['delay']
+        p = best_shortfall_action['pred']
+        return f"Max effort (Uptime: {u*100:.1f}%, Delay: {d:.1f}h) yields {p:.1f}t (still short by {best_shortfall_diff:.1f}t)"
+        
+    # Rank by smallest total change
+    feasible_actions.sort(key=lambda x: x['change_score'])
+    
+    # Format top 2-3
+    top_n = min(3, len(feasible_actions))
+    options = []
+    for i in range(top_n):
+        opt = feasible_actions[i]
+        options.append(f"Option {i+1}: Increase uptime to {opt['uptime']*100:.1f}% and reduce blasting delay to {opt['delay']:.1f} hrs (Forecast: {opt['pred']:.1f}t)")
+        
+    return " | ".join(options)
 
 def generate_actions():
     print("--- Phase 5: Model 5 Corrective Action ---")

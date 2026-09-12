@@ -89,27 +89,28 @@ def train_model2():
             df.loc[df['fy'] == fy, 'true_production_t'] *= scale_factor
             print(f"Scaled FY {fy}: synth sum {synth_sum:.1f} -> target {target_actual} (scale {scale_factor:.4f})")
             
-    # Inject Derived Features
-    # FY 15-16
+    # Inject Derived Features (Lagged by 1 Fiscal Year to avoid look-ahead bias)
+    
+    # FY 15-16 uses FY 14-15 outcome (Assume 0 / perfectly met plan)
     idx_15_16 = df['fy'] == '2015-16'
-    df.loc[idx_15_16, 'rom_gross_reported_te'] = 281215
-    df.loc[idx_15_16, 'stripping_ratio_miss'] = 2.0  # 1:8 actual vs 1:6 proposed
-    df.loc[idx_15_16, 'production_shortfall_pct'] = 0.1965 # (350000 - 281215)/350000
-    df.loc[idx_15_16, 'ob_overrun_pct'] = 0.20 # Derived proxy
+    df.loc[idx_15_16, 'rom_gross_reported_te'] = np.nan
+    df.loc[idx_15_16, 'stripping_ratio_miss'] = 0.0
+    df.loc[idx_15_16, 'production_shortfall_pct'] = 0.0
+    df.loc[idx_15_16, 'ob_overrun_pct'] = 0.0
     
-    # FY 16-17
+    # FY 16-17 uses FY 15-16 actual outcomes
     idx_16_17 = df['fy'] == '2016-17'
-    df.loc[idx_16_17, 'rom_gross_reported_te'] = np.nan
-    df.loc[idx_16_17, 'stripping_ratio_miss'] = 0.0
-    df.loc[idx_16_17, 'production_shortfall_pct'] = 0.0
-    df.loc[idx_16_17, 'ob_overrun_pct'] = 0.0
+    df.loc[idx_16_17, 'rom_gross_reported_te'] = 281215
+    df.loc[idx_16_17, 'stripping_ratio_miss'] = 2.0  # 1:8 actual vs 1:6 proposed
+    df.loc[idx_16_17, 'production_shortfall_pct'] = 0.1965 # (350000 - 281215)/350000
+    df.loc[idx_16_17, 'ob_overrun_pct'] = 0.20 # Derived proxy
     
-    # FY 17-18
+    # FY 17-18 uses FY 16-17 actual outcomes (which had 0 shortfall)
     idx_17_18 = df['fy'] == '2017-18'
     df.loc[idx_17_18, 'rom_gross_reported_te'] = np.nan
-    df.loc[idx_17_18, 'stripping_ratio_miss'] = 0.0 # 1:11 vs 1:11
-    df.loc[idx_17_18, 'production_shortfall_pct'] = 0.2037 # (384000 - 305762)/384000
-    df.loc[idx_17_18, 'ob_overrun_pct'] = 0.10 # Derived proxy
+    df.loc[idx_17_18, 'stripping_ratio_miss'] = 0.0
+    df.loc[idx_17_18, 'production_shortfall_pct'] = 0.0
+    df.loc[idx_17_18, 'ob_overrun_pct'] = 0.0
 
     # Fillnas with 0 for safety for training
     df['rom_gross_reported_te'] = df['rom_gross_reported_te'].fillna(0)

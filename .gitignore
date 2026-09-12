@@ -53,9 +53,11 @@ data/satellite data and more/
 *.csv
 *.json
 *.joblib
+*.cbm
 *.pdf
 *.tif
 *.gpkg
 *.xlsx
 env
+catboost_info/
 !data/README.md

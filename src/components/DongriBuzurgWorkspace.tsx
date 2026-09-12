@@ -1186,6 +1186,34 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                 </div>
               </div>
 
+              {/* SITE PROFILE: DONGRI BUZURG */}
+              <div className={`p-6 rounded-xl border mb-6 ${cardBg}`}>
+                <h3 className={`font-headline font-black text-sm uppercase tracking-wider mb-4 flex items-center gap-2 ${textPrimary}`}>
+                  <span className="material-symbols-outlined text-[#0E7C7B] text-lg">factory</span>
+                  SITE PROFILE: DONGRI BUZURG
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className={`p-4 rounded-lg border ${nestedBg}`}>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 block ${textMuted}`}>Beneficiation Plant</span>
+                    <p className={`font-medium text-sm ${textPrimary}`}>
+                      Integrated manganese ore beneficiation plant with 4 lakh tonnes/annum r.o.m. processing capacity.
+                    </p>
+                  </div>
+                  <div className={`p-4 rounded-lg border ${nestedBg}`}>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 block ${textMuted}`}>EMD Plant Capacity</span>
+                    <p className={`font-medium text-sm ${textPrimary}`}>
+                      Hosts MOIL's Electrolytic Manganese Dioxide (EMD) plant with a capacity of 1,500 tonnes/year.
+                    </p>
+                  </div>
+                  <div className={`p-4 rounded-lg border ${nestedBg}`}>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 block ${textMuted}`}>EMD Production Trend</span>
+                    <p className={`font-medium text-sm ${textPrimary}`}>
+                      992t (2018-19) → 1,100t (2022-23) → 1,413t (2023-24)
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* STRATEGIC ALIGNMENT STRIP */}
               <div className={`p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left ${nestedBg}`}>
                 <div className="flex items-center gap-2.5">
