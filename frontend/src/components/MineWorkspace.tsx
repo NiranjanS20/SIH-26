@@ -92,7 +92,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
         if (isMounted && data) {
           const mappedProfile = {
             mineName: data.mineInfo?.name || 'Unknown Mine',
-            shortCode: data.mineInfo?.name === 'Balaghat' ? 'BG' : data.mineInfo?.name === 'Tirodi' ? 'TR' : 'DB',
+            shortCode: data.mineInfo?.name === 'Balaghat' ? 'BG' : data.mineInfo?.name === 'Tirodi' ? 'TR' : data.mineInfo?.name === 'Sitapatore' ? 'SP' : 'DB',
             type: data.mineInfo?.type || 'UNDERGROUND',
             state: data.mineInfo?.state || 'Maharashtra',
             district: data.mineInfo?.district || 'Bhandara',
@@ -229,8 +229,8 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
   const [liveWeather, setLiveWeather] = useState<LiveWeatherData | null>(null);
 
   useEffect(() => {
-    const lat = selectedMineId === 'balaghat' ? 21.870 : selectedMineId === 'tirodi' ? 21.680 : 21.554;
-    const lng = selectedMineId === 'balaghat' ? 80.185 : selectedMineId === 'tirodi' ? 79.720 : 79.702;
+    const lat = selectedMineId === 'balaghat' ? 21.870 : (selectedMineId === 'tirodi' || selectedMineId === 'sitapatore') ? 21.680 : 21.554;
+    const lng = selectedMineId === 'balaghat' ? 80.185 : (selectedMineId === 'tirodi' || selectedMineId === 'sitapatore') ? 79.720 : 79.702;
     fetchLiveMineWeather(lat, lng, mineProfile.mineName).then((data) => {
       setLiveWeather(data);
     });

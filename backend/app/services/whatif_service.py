@@ -14,13 +14,17 @@ def simulate_whatif(mine_id: str, equipment_pct: float, blasting_delay_days: flo
         model = model_registry.model2_xgb
         if not model:
             raise ValueError("Model 2 for Dongri Buzurg is missing or failed to load.")
+    elif mine_id == "sitapatore":
+        model = model_registry.model2_xgb_sitapatore
+        if not model:
+            raise ValueError("Model 2 for Sitapatore is missing or failed to load.")
     else:
         raise ValueError(f"Unsupported mine_id: {mine_id}")
         
     # Standard 13-feature input vector based on training
-    # Note: Dongri uses is_weekend, Tirodi uses is_sunday.
+    # Note: Dongri uses is_weekend, Tirodi and Sitapatore use is_sunday.
     is_weekend_or_sunday = 0
-    if mine_id == "tirodi":
+    if mine_id in ["tirodi", "sitapatore"]:
         input_data = {
             'month': [4],
             'is_sunday': [is_weekend_or_sunday],

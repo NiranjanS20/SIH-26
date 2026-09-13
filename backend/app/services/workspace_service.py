@@ -302,6 +302,102 @@ def precompute_workspace_data():
     
     _workspace_cache["dongri-buzurg"] = MineWorkspaceData(**workspace_data_db)
     _workspace_cache["tirodi"] = MineWorkspaceData(**workspace_data_tirodi)
+    
+    # --- Precompute Sitapatore ---
+    actual_prod_sitapatore = 1350.0
+    target_prod_sitapatore = 1415.0
+    workspace_data_sitapatore = {
+        "mineInfo": {
+            "id": "sitapatore",
+            "name": "Sitapatore",
+            "location": "Balaghat, Madhya Pradesh",
+            "district": "Balaghat District",
+            "state": "Madhya Pradesh",
+            "type": "Open Cast Manganese Mine",
+            "leaseId": "MOIL-LEASE-SP-10",
+            "status": "Active Digital Telemetry Hub",
+            "dgmsStatus": "DGMS Safety Approved",
+            "ibmRegistration": "IBM/5711/40MPR01016"
+        },
+        "operationalSummary": {
+            "headline": "Sitapatore Operations Center",
+            "riskState": "MEDIUM",
+            "dynamicStatement": "PRODUCTION GAP DETECTED: Operating at 50% capacity due to Pit 3 deviation.",
+            "coreValueMessage": "Monitoring constrained fleet operations and evaluating recovery strategies.",
+            "complianceStandard": "DGMS & IBM Regulatory Standards Compliant",
+            "lastUpdated": "Live Stream"
+        },
+        "production": {
+            "actual": actual_prod_sitapatore,
+            "target": target_prod_sitapatore,
+            "forecast": 1380.0,
+            "gap": -35.0,
+            "unit": "tonnes",
+            "isSynthetic": False,
+            "oreGradeBreakdown": {
+                "highGradeMn": round(actual_prod_sitapatore * 0.20, 0),
+                "mediumGradeMn": round(actual_prod_sitapatore * 0.70, 0),
+                "lowGradeMn": round(actual_prod_sitapatore * 0.10, 0)
+            },
+            "monthlyTrend": monthly_trend
+        },
+        "shortfallRisk": {
+            "probability": 75.0,
+            "expectedProduction": 1380.0,
+            "target": target_prod_sitapatore,
+            "expectedGap": -35.0,
+            "riskLevel": "MEDIUM"
+        },
+        "accessibleOre": {
+            "geologicalPotential": 100000.0,
+            "accessiblePotential": 85000.0,
+            "operationallyRecoverable": 60000.0,
+            "estimatedVolumeTons": 60000.0
+        },
+        "gisZones": [
+            {
+                "id": "SP-06", "name": "Pit 6 (Active)", "prospectivityScore": "High",
+                "geologicalPotential": 85.0, "accessiblePotential": 75.0, "recoverablePotential": 65.0,
+                "estimatedContributionTons": 16985.0, "mnGradePct": "35.0% Mn",
+                "coords": {"x": 25.0, "y": 30.0, "width": 35.0, "height": 30.0}
+            }
+        ],
+        "modelInputs": [
+            {"category": "Geology", "label": "3D Geological Wireframe Assays", "status": "LIVE", "source": "MOIL Core Drilling"},
+            {"category": "Remote Sensing", "label": "Multi-spectral Satellite Imagery", "status": "LIVE", "source": "Sentinel-2 / Landsat"},
+            {"category": "Production", "label": "MCDR Audited Reports", "status": "VERIFIED", "source": "IBM Jabalpur Regional Office"}
+        ],
+        "riskContributors": risk_contributors,
+        "futureSourceZone": {
+            "id": "SP-03",
+            "name": "Pit 3 (Non-Operational)",
+            "prospectivity": "LOW",
+            "estimatedPotentialContributionTons": 0.0,
+            "description": "Proposed pit that never entered production."
+        },
+        "recommendation": {
+            "instruction": "Optimize blasting cycle to improve fragmentation for small fleet.",
+            "currentParams": {
+                "equipmentAvailability": "78%",
+                "blastingDelay": "1 day",
+                "expectedGap": "35 t"
+            },
+            "recommendedParams": {
+                "equipmentAvailability": "85%",
+                "blastingDelay": "0 days",
+                "expectedGap": "0 t (Target Achieved)"
+            }
+        },
+        "alerts": [
+            {
+                "id": "ALT-SP-1", "priority": "MEDIUM", "title": "CAPACITY UNDERUTILIZED",
+                "mine": "Sitapatore", "triggeredCondition": "Only 1 of 2 planned pits active",
+                "affectedZone": "Pit 3", "timestamp": "Today, 08:30 IST"
+            }
+        ]
+    }
+    _workspace_cache["sitapatore"] = MineWorkspaceData(**workspace_data_sitapatore)
+    
     print("  Workspace data precomputed and cached.")
 
 

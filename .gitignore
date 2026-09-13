@@ -61,3 +61,11 @@ data/satellite data and more/
 env
 catboost_info/
 !data/README.md
+
+# Allow pushed models for deployment
+!data/processed/*.json
+!data/processed/*.joblib
+!data/processed/*.cbm
+!frontend/package.json
+!frontend/tsconfig.json
+!package.json

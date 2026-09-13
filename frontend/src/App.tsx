@@ -92,7 +92,7 @@ export function App() {
             {/* 6. Mine Launcher & Selection Section */}
             <MineCardSection
               onOpenMineModal={(mine) => {
-                if (mine.id === 'dongri-buzurg' || mine.id === 'tirodi') {
+                if (mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore') {
                   handleNavigate(`workspace/${mine.id}` as PortalRoute);
                 } else {
                   setSelectedMine(mine);

@@ -250,6 +250,47 @@ export const MINE_PRODUCTION_PROFILES: Record<string, MineProductionProfile> = {
       blastingDelayDays: 2,
     },
   },
+
+  'sitapatore': {
+    id: 'sitapatore',
+    mineName: 'Sitapatore Opencast Mine',
+    shortCode: 'SP-10',
+    type: 'Open Cast',
+    state: 'Madhya Pradesh',
+    district: 'Balaghat',
+    currentOutputTons: 1350,
+    plannedTargetTons: 1415,
+    predictedOutputTons: 1380,
+    projectedGapTons: -35,
+    gapPct: 2.4,
+    potentialSourceZone: 'Pit 6 Active Face',
+    monthlyTrend: [
+      { label: 'Apr', actual: 1400, target: 1415, forecast: null, confidenceLower: null, confidenceUpper: null },
+      { label: 'May', actual: 1420, target: 1415, forecast: null, confidenceLower: null, confidenceUpper: null },
+      { label: 'Jun', actual: 1300, target: 1415, forecast: null, confidenceLower: null, confidenceUpper: null, isMonsoon: true },
+      { label: 'Jul', actual: 1250, target: 1415, forecast: null, confidenceLower: null, confidenceUpper: null, isMonsoon: true },
+      { label: 'Aug (Cur)', actual: 1350, target: 1415, forecast: 1350, confidenceLower: 1200, confidenceUpper: 1450, isMonsoon: true },
+      { label: 'Sep (Fcst)', actual: null, target: 1415, forecast: 1380, confidenceLower: 1250, confidenceUpper: 1500, isMonsoon: true },
+      { label: 'Oct (Fcst)', actual: null, target: 1415, forecast: 1450, confidenceLower: 1350, confidenceUpper: 1550 },
+      { label: 'Nov (Fcst)', actual: null, target: 1415, forecast: 1480, confidenceLower: 1400, confidenceUpper: 1600 },
+    ],
+    featureImportance: [
+      { feature: 'Fleet Capacity & Uptime', weightPct: 40, category: 'Operational', color: '#10B981' },
+      { feature: 'Pit 3 Non-operation Impact', weightPct: 25, category: 'Operational', color: '#F59E0B' },
+      { feature: 'Monsoon Rainfall / Sump', weightPct: 15, category: 'Environmental', color: '#3B82F6' },
+      { feature: 'Blasting Cycle Efficiency', weightPct: 12, category: 'Operational', color: '#06B6D4' },
+      { feature: 'Reef Continuity', weightPct: 8, category: 'Geological', color: '#8B5CF6' },
+    ],
+    environmentalFactors: {
+      rainfallPct: 65,
+      rainfallMm: 3.5,
+      ndvi: 0.44,
+      soilMoisturePct: 35,
+      temperatureC: 31.0,
+      equipmentAvailabilityPct: 78,
+      blastingDelayDays: 1,
+    },
+  },
 };
 
 export function getMineProductionProfile(mineId: string): MineProductionProfile {

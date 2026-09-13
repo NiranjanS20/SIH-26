@@ -1057,6 +1057,152 @@ export const MINE_INTELLIGENCE_DATA: Record<string, MineIntelligenceProfile> = {
       },
     ],
   },
+  
+  // 6. SITAPATORE MINE (Sukli Lease, Balaghat, MP)
+  'sitapatore': {
+    mineId: 'sitapatore',
+    mineName: 'Sitapatore Opencast Mine',
+    shortCode: 'SP-10',
+    type: 'Open Cast',
+    state: 'Madhya Pradesh',
+    district: 'Balaghat',
+    latitude: 21.680,
+    longitude: 79.720,
+    elevationMsl: 300,
+    leaseAreaHa: 43.35,
+    geologicalFormation: 'Tirodi Biotite Gneiss & Mansar Schist',
+    dominantMineral: 'High-Grade Braunsite & Manganese Dioxide',
+
+    terrainData: {
+      boundaryCoords: [
+        [21.686, 79.713],
+        [21.687, 79.727],
+        [21.674, 79.726],
+        [21.673, 79.712],
+      ],
+      pitWorkingAreaCoords: [
+        [21.683, 79.717],
+        [21.684, 79.724],
+        [21.677, 79.723],
+        [21.676, 79.716],
+      ],
+      elevationRangeM: { min: 230, max: 300 },
+      contours: [
+        {
+          elevationM: 300,
+          label: 'North Pit Rim (+300m MSL)',
+          pathD: 'M 20 40 Q 150 15 280 40 T 520 40',
+          color: '#64748B',
+          type: 'crest',
+        },
+        {
+          elevationM: 265,
+          label: 'Pit 6 Working Bench (+265m MSL)',
+          pathD: 'M 50 90 Q 170 60 280 90 T 490 90',
+          color: '#F59E0B',
+          type: 'ore_face',
+        },
+        {
+          elevationM: 240,
+          label: 'Sump & Lower Bench (+240m MSL)',
+          pathD: 'M 90 140 Q 200 110 320 130 T 450 150',
+          color: '#06B6D4',
+          type: 'sump',
+        },
+      ],
+      haulRoads: [
+        {
+          name: 'Main Ramp (9% Grade)',
+          gradePct: 9.0,
+          pathD: 'M 490 90 L 320 130 L 150 180',
+          lengthM: 650,
+        },
+      ],
+      equipmentAssets: [
+        {
+          id: 'EQ-SP-01',
+          name: 'Shovel & Tipper Fleet',
+          type: 'Excavator',
+          status: 'ACTIVE',
+          location: 'Pit 6',
+          x: 280,
+          y: 90,
+          operator: 'MOIL Operations',
+        },
+      ],
+    },
+
+    satelliteConfig: {
+      sensor: 'Sentinel-2A & B / Landsat 8',
+      lastPassDate: '2026-08-30 (Cloud Free)',
+      cloudCoverPct: 2.1,
+      spatialResolution: '10m (VNIR) / 30m (SWIR) Pan-sharpened',
+      availableLayers: [
+        {
+          id: 'TRUE_COLOR',
+          label: 'Optical (RGB)',
+          icon: 'image',
+          type: 'OPTICAL',
+          isLiveConnected: true,
+          sampleOverlayColor: 'transparent',
+          description: 'True color optical base map for general site context.',
+        },
+        {
+          id: 'NDVI',
+          label: 'Vegetation (NDVI)',
+          icon: 'leaf',
+          type: 'NDVI',
+          isLiveConnected: true,
+          sampleOverlayColor: '#22c55e',
+          description: 'Tracks deforestation and rehabilitation using Sentinel-2 NDVI.',
+        },
+        {
+          id: 'SOIL_MOISTURE',
+          label: 'Soil Moisture Proxy',
+          icon: 'droplet',
+          type: 'MOISTURE',
+          isLiveConnected: true,
+          sampleOverlayColor: '#3b82f6',
+          description: 'Assesses bench stability and monsoon impacts.',
+        },
+        {
+          id: 'LST',
+          label: 'Land Surface Temp',
+          icon: 'thermometer',
+          type: 'THERMAL',
+          isLiveConnected: true,
+          sampleOverlayColor: '#ef4444',
+          description: 'Detects equipment hotspots and localized thermal anomalies.',
+        },
+      ],
+    },
+
+    prospectivityZones: [
+      {
+        id: 'PZ-SP-01',
+        name: 'Pit 6 Extension',
+        scorePct: 85.0,
+        confidencePct: 90.0,
+        estimatedTonnageKt: 60.0,
+        dominantGradePct: 35.0,
+        structuralContext: 'Gneissic contact extension',
+        polygonD: 'M 160 65 L 360 70 L 330 145 L 140 140 Z',
+        geoPolygon: [
+          [21.687, 79.719],
+          [21.688, 79.723],
+          [21.684, 79.722],
+          [21.683, 79.718],
+        ],
+        evidence: [
+          'High grade assay averaging 35.0% Mn',
+        ],
+        recommendedAction: 'Optimize blasting to clear extension block.',
+      },
+    ],
+
+    drillHoles: [],
+    structuralFeatures: [],
+  },
 };
 
 // Helper function to safely fetch mine intelligence profile

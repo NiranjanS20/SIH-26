@@ -57,11 +57,11 @@ export const MineSelectionPage: React.FC<MineSelectionPageProps> = ({
 
   const handleSelectMine = (mine: MineItem) => {
     const id = mine.id;
-    if (id === 'dongri-buzurg' || id === 'tirodi') {
+    if (id === 'dongri-buzurg' || id === 'tirodi' || id === 'sitapatore') {
       onNavigate(`workspace/${id}` as PortalRoute);
     } else {
       setToastMessage(
-        `Digital Telemetry for ${mine.name} is currently under Phase II onboarding. Select Dongri Buzurg for active pilot telemetry.`
+        `Digital Telemetry for ${mine.name} is currently under Phase II onboarding. Select Dongri Buzurg, Tirodi, or Sitapatore for active pilot telemetry.`
       );
       setTimeout(() => setToastMessage(null), 4500);
     }

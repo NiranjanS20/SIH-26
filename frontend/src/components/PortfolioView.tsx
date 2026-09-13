@@ -93,6 +93,34 @@ export const PORTFOLIO_MINES_DATA: PortfolioMineProfile[] = [
     status: 'Shortfall',
     riskColor: '#B03A2E', // Red
   },
+  {
+    id: 'tirodi',
+    name: 'Tirodi Opencast Mine',
+    shortName: 'Tirodi',
+    location: 'Balaghat, Madhya Pradesh',
+    type: 'Open Cast',
+    production: 9200,
+    target: 9380,
+    variance: -180,
+    performance: 98,
+    risk: 'LOW',
+    status: 'Shortfall',
+    riskColor: '#2E7D32', // Green
+  },
+  {
+    id: 'sitapatore',
+    name: 'Sitapatore Opencast Mine',
+    shortName: 'Sitapatore',
+    location: 'Balaghat, Madhya Pradesh',
+    type: 'Open Cast',
+    production: 1350,
+    target: 1415,
+    variance: -65,
+    performance: 95,
+    risk: 'MEDIUM',
+    status: 'Shortfall',
+    riskColor: '#B8860B', // Amber
+  },
 ];
 
 // Aggregated Multi-Month Supply Outlook Dataset (Model 2 Aggregated Outputs)
@@ -150,6 +178,34 @@ export const PORTFOLIO_RECOVERY_BREAKDOWN: MineRecoveryData[] = [
     primaryAction: 'Deploy standby Komatsu excavator & activate Pit Sump-3 auxiliary pump array',
     riskLevel: 'HIGH',
     riskColor: '#B03A2E',
+  },
+  {
+    id: 'tirodi',
+    shortName: 'Tirodi',
+    mineName: 'Tirodi Opencast Mine',
+    location: 'Balaghat, Madhya Pradesh',
+    type: 'Open Cast',
+    projectedShortfall: 130,
+    potentiallyRecoverable: 110,
+    recoveryRatePct: 84,
+    remainingGap: 20,
+    primaryAction: 'Increase dumper dispatch frequency to clear South Pit stockpile',
+    riskLevel: 'LOW',
+    riskColor: '#2E7D32',
+  },
+  {
+    id: 'sitapatore',
+    shortName: 'Sitapatore',
+    mineName: 'Sitapatore Opencast Mine',
+    location: 'Balaghat, Madhya Pradesh',
+    type: 'Open Cast',
+    projectedShortfall: 35,
+    potentiallyRecoverable: 15,
+    recoveryRatePct: 42,
+    remainingGap: 20,
+    primaryAction: 'Optimize blasting cycle to improve fragmentation for small fleet',
+    riskLevel: 'MEDIUM',
+    riskColor: '#B8860B',
   },
   {
     id: 'balaghat',
@@ -215,7 +271,7 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
   const borderDivider = isDark ? 'border-white/10' : 'border-slate-200/80';
 
   // Sorted list for Mine Performance cards (Dongri Buzurg, Chikla, Balaghat)
-  const displayCardsOrder = ['dongri-buzurg', 'chikla', 'balaghat'];
+  const displayCardsOrder = ['dongri-buzurg', 'tirodi', 'sitapatore', 'chikla', 'balaghat'];
   const mineCards = displayCardsOrder.map((id) =>
     PORTFOLIO_MINES_DATA.find((m) => m.id === id)!
   );
@@ -600,7 +656,7 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
                   <button
                     onClick={() => onOpenMine(mine.id)}
                     className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-bold transition-all border cursor-pointer shadow-md group ${
-                      mine.id === 'dongri-buzurg'
+                      (mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore')
                         ? isDark
                           ? 'bg-[#1F3864] hover:bg-[#27467C] text-white border-indigo-400/30'
                           : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black border-blue-500 shadow-blue-500/20'
@@ -609,9 +665,9 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-300 font-semibold'
                     }`}
                   >
-                    <span>{mine.id === 'dongri-buzurg' ? 'Open Mine' : 'Open Mine (Phase II 🔒)'}</span>
+                    <span>{(mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore') ? 'Open Mine' : 'Open Mine (Phase II 🔒)'}</span>
                     <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">
-                      {mine.id === 'dongri-buzurg' ? 'arrow_forward' : 'lock'}
+                      {(mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore') ? 'arrow_forward' : 'lock'}
                     </span>
                   </button>
                 </div>
@@ -966,14 +1022,14 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
                         <button
                           onClick={() => onOpenMine(mine.id)}
                           className={`px-3 py-1.5 rounded text-[11px] font-bold transition-all border cursor-pointer ${
-                            mine.id === 'dongri-buzurg'
+                            (mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore')
                               ? 'bg-[#0E7C7B] hover:bg-[#0C6B6A] text-white border-teal-400/30 shadow-sm'
                               : isDark
                               ? 'bg-white/10 hover:bg-white/20 text-slate-400 border-white/15'
                               : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-300 font-semibold'
                           }`}
                         >
-                          {mine.id === 'dongri-buzurg' ? 'Open Mine →' : 'Phase II 🔒'}
+                          {(mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore') ? 'Open Mine →' : 'Phase II 🔒'}
                         </button>
                       </td>
                     </tr>
@@ -1361,7 +1417,7 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
                         <span
                           className="px-2 py-0.5 rounded text-[9px] font-black uppercase"
                           style={{
-                            color: isDark ? mine.riskColor : (mine.riskLevel === 'LOW' ? '#15803D' : mine.riskLevel === 'MEDIUM' ? '#B45309' : '#BE123C'),
+                            color: isDark ? mine.riskColor : (mine.riskLevel === 'LOW' ? '#15803D' : mine.riskLevel === 'HIGH' ? '#BE123C' : '#B45309'),
                             backgroundColor: `${mine.riskColor}${isDark ? '18' : '22'}`,
                             border: `1px solid ${mine.riskColor}40`,
                           }}
@@ -1411,14 +1467,14 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
                       <button
                         onClick={() => onOpenMine(mine.id)}
                         className={`px-3 py-1.5 rounded text-[11px] font-bold transition-all border cursor-pointer ${
-                          mine.id === 'dongri-buzurg'
+                          (mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore')
                             ? 'bg-[#0E7C7B] hover:bg-[#0C6B6A] text-white border-teal-400/30 shadow-xs'
                             : isDark
                             ? 'bg-white/5 hover:bg-white/10 text-slate-400 border-white/10'
                             : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200'
                         }`}
                       >
-                        {mine.id === 'dongri-buzurg' ? 'View Actions →' : 'Details 🔒'}
+                        {(mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore') ? 'View Actions →' : 'Details 🔒'}
                       </button>
                     </div>
                   </div>

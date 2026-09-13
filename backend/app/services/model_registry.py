@@ -9,6 +9,7 @@ class ModelRegistry:
         self.model1_pooled_reg = None
         self.model2_xgb = None
         self.model2_xgb_tirodi = None
+        self.model2_xgb_sitapatore = None
         self.shap_explainer = None  # Task 3: instantiate once at startup
         self.is_loaded = False
 
@@ -17,7 +18,8 @@ class ModelRegistry:
             "model1_clf.joblib",
             "model1_pooled_reg.joblib",
             "model2_xgb.json",
-            "model2_xgb_tirodi.json"
+            "model2_xgb_tirodi.json",
+            "model2_xgb_sitapatore.json"
         ]
         
         for m in required_models:
@@ -36,6 +38,9 @@ class ModelRegistry:
         
         self.model2_xgb_tirodi = xgb.Booster()
         self.model2_xgb_tirodi.load_model(os.path.join(settings.MODEL_DIR, "model2_xgb_tirodi.json"))
+        
+        self.model2_xgb_sitapatore = xgb.Booster()
+        self.model2_xgb_sitapatore.load_model(os.path.join(settings.MODEL_DIR, "model2_xgb_sitapatore.json"))
         
         self.is_loaded = True
         print("All ML models loaded successfully.")

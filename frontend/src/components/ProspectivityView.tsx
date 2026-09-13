@@ -453,7 +453,7 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
             <div className="relative w-full h-[440px] sm:h-[480px] rounded-2xl overflow-hidden border border-white/15 bg-slate-950 shadow-2xl flex items-center justify-center group select-none">
               {/* Actual High-Res Top-Down Satellite Photo of Dongri Buzurg Open Cast Mine */}
               <img
-                src={selectedMineName?.toLowerCase().includes('tirodi') ? "/tirodi_heatmap.png" : "/dongri_heatmap.png"}
+                src={selectedMineName?.toLowerCase().includes('tirodi') || selectedMineName?.toLowerCase().includes('sitapatore') ? "/tirodi_heatmap.png" : "/dongri_heatmap.png"}
                 alt={`${selectedMineName || 'Mine'} Heatmap Imagery`}
                 className="absolute inset-0 w-full h-full object-cover filter"
               />
@@ -477,12 +477,12 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
                 </defs>
 
                 {/* SWIR Thermal Multi-Spectral Heatmap Simulation */}
-                {showThermalOverlay && !selectedMineName?.toLowerCase().includes('tirodi') && (
+                {showThermalOverlay && !selectedMineName?.toLowerCase().includes('tirodi') && !selectedMineName?.toLowerCase().includes('sitapatore') && (
                   <circle cx="330" cy="140" r="130" fill="#F43F5E" fillOpacity="0.22" filter="url(#glowEffect)" />
                 )}
 
                 {/* Main Open Pit Shell (Yellow Perimeter) */}
-                {showPitPerimeter && !selectedMineName?.toLowerCase().includes('tirodi') && (
+                {showPitPerimeter && !selectedMineName?.toLowerCase().includes('tirodi') && !selectedMineName?.toLowerCase().includes('sitapatore') && (
                   <g>
                     <path
                       d="M 100 140 C 130 55 240 60 350 65 C 450 70 540 85 545 130 C 540 175 430 190 340 195 C 230 190 120 185 100 140 Z"
@@ -495,7 +495,7 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
                 )}
 
                 {/* Manganese Ore Body Strike Line (Pink / Magenta Reef Line) */}
-                {showOreReef && !selectedMineName?.toLowerCase().includes('tirodi') && (
+                {showOreReef && !selectedMineName?.toLowerCase().includes('tirodi') && !selectedMineName?.toLowerCase().includes('sitapatore') && (
                   <g filter="url(#glowEffect)">
                     <path
                       d="M 120 150 Q 270 145 380 135 T 510 120"

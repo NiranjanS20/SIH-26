@@ -52,6 +52,22 @@
             "before": null,
             "after": 27.140069503130036,
             "improved": true
+        },
+        {
+            "timestamp": "2026-09-13T20:23:59.351557",
+            "model_name": "model1_reg",
+            "metric_name": "RMSE",
+            "before": 1.264118252513871,
+            "after": 0.5712833480008576,
+            "improved": true
+        },
+        {
+            "timestamp": "2026-09-13T20:28:30.039484",
+            "model_name": "model2_xgb_sitapatore",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 8.13073510197869,
+            "improved": true
         }
     ],
     "model1_unfc_check": {
@@ -60,8 +76,8 @@
     },
     "model1_reg": {
         "metric_name": "RMSE",
-        "metric_value": 1.264118252513871,
-        "last_updated": "2026-09-13T13:12:11.319665"
+        "metric_value": 0.5712833480008576,
+        "last_updated": "2026-09-13T20:23:59.351557"
     },
     "model2_xgb": {
         "metric_name": "RMSE",
@@ -72,5 +88,10 @@
         "metric_name": "RMSE",
         "metric_value": 27.140069503130036,
         "last_updated": "2026-09-13T14:03:06.330958"
+    },
+    "model2_xgb_sitapatore": {
+        "metric_name": "RMSE",
+        "metric_value": 8.13073510197869,
+        "last_updated": "2026-09-13T20:28:30.039484"
     }
 }
