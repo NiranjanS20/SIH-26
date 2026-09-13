@@ -453,9 +453,9 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
             <div className="relative w-full h-[440px] sm:h-[480px] rounded-2xl overflow-hidden border border-white/15 bg-slate-950 shadow-2xl flex items-center justify-center group select-none">
               {/* Actual High-Res Top-Down Satellite Photo of Dongri Buzurg Open Cast Mine */}
               <img
-                src={selectedMineName?.toLowerCase().includes('tirodi') ? "/tirodi_heatmap.png" : "/assets/dongri-buzurg-satellite-pit.png"}
-                alt={`${selectedMineName || 'Mine'} Satellite Imagery`}
-                className={`absolute inset-0 w-full h-full object-cover filter ${selectedMineName?.toLowerCase().includes('tirodi') ? '' : 'brightness-90 contrast-110'}`}
+                src={selectedMineName?.toLowerCase().includes('tirodi') ? "/tirodi_heatmap.png" : "/dongri_heatmap.png"}
+                alt={`${selectedMineName || 'Mine'} Heatmap Imagery`}
+                className="absolute inset-0 w-full h-full object-cover filter"
               />
 
               {/* Subtle Dark Vignette for Premium Depth */}
