@@ -11,11 +11,12 @@ class WhatIfRequest(BaseModel):
     blasting_delay_days: float
     precipitation_mm: float
 
-@router.post("/simulate", response_model=Envelope[dict])
-def run_simulation(req: WhatIfRequest):
+@router.post("/{mine_id}/simulate", response_model=Envelope[dict])
+def run_simulation(mine_id: str, req: WhatIfRequest):
     """Feature 6: What-If Simulation. Live XGBoost inference — legitimately slower than cache reads."""
     try:
         result = simulate_whatif(
+            mine_id,
             req.equipment_availability_pct,
             req.blasting_delay_days,
             req.precipitation_mm

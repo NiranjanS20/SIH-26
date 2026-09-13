@@ -11,6 +11,7 @@ class DataRegistry:
         self.corrective_actions = None
         self.production_training = None
         self.production_calibration = None
+        self.production_training_tirodi = None
         self.is_loaded = False
 
     def verify_artifacts(self):
@@ -41,6 +42,7 @@ class DataRegistry:
         optional_csvs = {
             "production_training": "production_training.csv",
             "production_calibration": "production_calibration.csv",
+            "production_training_tirodi": "production_training_tirodi.csv",
         }
         for attr, filename in optional_csvs.items():
             path = os.path.join(settings.DATA_DIR, filename)

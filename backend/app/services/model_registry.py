@@ -6,16 +6,18 @@ from app.core.config import settings
 class ModelRegistry:
     def __init__(self):
         self.model1_clf = None
-        self.model1_reg = None
+        self.model1_pooled_reg = None
         self.model2_xgb = None
+        self.model2_xgb_tirodi = None
         self.shap_explainer = None  # Task 3: instantiate once at startup
         self.is_loaded = False
 
     def verify_artifacts(self):
         required_models = [
             "model1_clf.joblib",
-            "model1_reg.joblib",
-            "model2_xgb.json"
+            "model1_pooled_reg.joblib",
+            "model2_xgb.json",
+            "model2_xgb_tirodi.json"
         ]
         
         for m in required_models:
@@ -27,10 +29,13 @@ class ModelRegistry:
     def load_models(self):
         print("Loading ML models into memory...")
         self.model1_clf = joblib.load(os.path.join(settings.MODEL_DIR, "model1_clf.joblib"))
-        self.model1_reg = joblib.load(os.path.join(settings.MODEL_DIR, "model1_reg.joblib"))
+        self.model1_pooled_reg = joblib.load(os.path.join(settings.MODEL_DIR, "model1_pooled_reg.joblib"))
         
         self.model2_xgb = xgb.Booster()
         self.model2_xgb.load_model(os.path.join(settings.MODEL_DIR, "model2_xgb.json"))
+        
+        self.model2_xgb_tirodi = xgb.Booster()
+        self.model2_xgb_tirodi.load_model(os.path.join(settings.MODEL_DIR, "model2_xgb_tirodi.json"))
         
         self.is_loaded = True
         print("All ML models loaded successfully.")

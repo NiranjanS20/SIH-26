@@ -56,8 +56,9 @@ export const MineSelectionPage: React.FC<MineSelectionPageProps> = ({
   });
 
   const handleSelectMine = (mine: MineItem) => {
-    if (mine.isImplemented) {
-      onNavigate('dongri-buzurg-workspace');
+    const id = mine.id;
+    if (id === 'dongri-buzurg' || id === 'tirodi') {
+      onNavigate(`workspace/${id}` as PortalRoute);
     } else {
       setToastMessage(
         `Digital Telemetry for ${mine.name} is currently under Phase II onboarding. Select Dongri Buzurg for active pilot telemetry.`
@@ -317,7 +318,7 @@ export const MineSelectionPage: React.FC<MineSelectionPageProps> = ({
               onHoverMine={(id) => setHoveredMineId(id)}
               onSelectState={(st) => setSelectedState(st.toUpperCase())}
               themeMode={themeMode}
-              onLaunchWorkspace={() => onNavigate('dongri-buzurg-workspace')}
+              onLaunchWorkspace={(mineId) => onNavigate(`workspace/${mineId}` as PortalRoute)}
             />
           </div>
 
@@ -556,7 +557,7 @@ export const MineSelectionPage: React.FC<MineSelectionPageProps> = ({
           </div>
 
           <button
-            onClick={() => onNavigate('dongri-buzurg-workspace')}
+            onClick={() => onNavigate('workspace/dongri-buzurg' as PortalRoute)}
             className={`px-5 py-2.5 rounded-lg text-xs font-extrabold uppercase tracking-wider shrink-0 cursor-pointer shadow-sm flex items-center gap-2 border ${
               isDark
                 ? 'bg-[#D97706] hover:bg-[#B45309] text-[#181B20] border-[#D97706]'

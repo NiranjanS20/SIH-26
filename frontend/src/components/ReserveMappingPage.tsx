@@ -405,7 +405,7 @@ export const ReserveMappingPage: React.FC<ReserveMappingPageProps> = ({
         <div className="flex items-center gap-2">
           {/* Pilot Workspace Direct Access */}
           <button
-            onClick={() => onNavigate('dongri-buzurg-workspace')}
+            onClick={() => onNavigate('workspace/dongri-buzurg' as PortalRoute)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md transition-transform active:scale-95 cursor-pointer"
             title="Open Dongri Buzurg Operational Workspace"
           >

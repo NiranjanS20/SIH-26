@@ -916,7 +916,7 @@ export const MINE_INTELLIGENCE_DATA: Record<string, MineIntelligenceProfile> = {
     latitude: 21.680,
     longitude: 79.720,
     elevationMsl: 300,
-    leaseAreaHa: 210.0,
+    leaseAreaHa: 254.59, // Core pit. Supplementary dump reprocessing lease: 37.09 Ha
     geologicalFormation: 'Tirodi Biotite Gneiss & Mansar Schist',
     dominantMineral: 'High-Grade Braunsite & Manganese Dioxide',
 

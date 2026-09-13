@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-export type PortalRoute = 'landing' | 'mine-selection' | 'dongri-buzurg-workspace' | 'reserve-mapping';
+export type PortalRoute = 'landing' | 'mine-selection' | 'reserve-mapping' | `workspace/${string}`;
 
 interface NavbarProps {
   currentRoute?: PortalRoute;

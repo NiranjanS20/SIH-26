@@ -12,7 +12,7 @@ import { Footer } from './components/Footer';
 import { ServiceModal } from './components/ServiceModal';
 import { MineDetailModal } from './components/MineDetailModal';
 import { MineSelectionPage } from './components/MineSelectionPage';
-import { DongriBuzurgWorkspace } from './components/DongriBuzurgWorkspace';
+import { MineWorkspace } from './components/MineWorkspace';
 import { ReserveMappingPage } from './components/ReserveMappingPage';
 
 export function App() {
@@ -53,7 +53,7 @@ export function App() {
   };
 
   const isFullScreenWorkspace =
-    currentRoute === 'dongri-buzurg-workspace' || currentRoute === 'reserve-mapping';
+    currentRoute.startsWith('workspace/') || currentRoute === 'reserve-mapping';
 
   return (
     <div
@@ -92,8 +92,8 @@ export function App() {
             {/* 6. Mine Launcher & Selection Section */}
             <MineCardSection
               onOpenMineModal={(mine) => {
-                if (mine.id === 'dongri-buzurg') {
-                  handleNavigate('dongri-buzurg-workspace');
+                if (mine.id === 'dongri-buzurg' || mine.id === 'tirodi') {
+                  handleNavigate(`workspace/${mine.id}` as PortalRoute);
                 } else {
                   setSelectedMine(mine);
                 }
@@ -119,11 +119,12 @@ export function App() {
           />
         )}
 
-        {currentRoute === 'dongri-buzurg-workspace' && (
-          <DongriBuzurgWorkspace
+        {currentRoute.startsWith('workspace/') && (
+          <MineWorkspace
             onNavigate={handleNavigate}
             themeMode={themeMode}
             onToggleTheme={handleToggleTheme}
+            initialMineId={currentRoute.replace('workspace/', '')}
           />
         )}
 

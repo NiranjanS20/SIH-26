@@ -285,7 +285,7 @@ export const MANGANESE_MINES_DATA: MineGeoLocation[] = [
     state: 'Madhya Pradesh',
     type: 'Open Cast',
     status: 'Active',
-    isPilot: false,
+    isPilot: true,
     latitude: 21.6880,
     longitude: 79.7120,
     gradePct: '38% - 45% Mn',

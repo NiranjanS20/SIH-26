@@ -18,10 +18,11 @@ import {
 } from '../data/mineProductionData';
 import { apiGet } from '../services/apiClient';
 
-interface DongriBuzurgWorkspaceProps {
+interface MineWorkspaceProps {
   onNavigate: (route: PortalRoute) => void;
   themeMode?: 'dark' | 'light';
   onToggleTheme?: () => void;
+  initialMineId?: string;
 }
 
 export type OverviewTab =
@@ -65,18 +66,24 @@ export interface AlertItem {
   recipients: string[];
 }
 
-export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
+export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
   onNavigate,
   themeMode = 'dark',
   onToggleTheme,
+  initialMineId = 'dongri-buzurg',
 }) => {
   const [activeTab, setActiveTab] = useState<OverviewTab>('overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [isMineDropdownOpen, setIsMineDropdownOpen] = useState<boolean>(false);
 
-  // Multi-Mine State (Defaults to Dongri Buzurg)
-  const [selectedMineId, setSelectedMineId] = useState<string>('dongri-buzurg');
-  const [mineProfile, setMineProfile] = useState<any>(getMineProductionProfile('dongri-buzurg'));
+  // Multi-Mine State
+  const [selectedMineId, setSelectedMineId] = useState<string>(initialMineId);
+  const [mineProfile, setMineProfile] = useState<any>(getMineProductionProfile(initialMineId));
+
+  // Sync state if prop changes
+  useEffect(() => {
+    setSelectedMineId(initialMineId);
+  }, [initialMineId]);
 
   useEffect(() => {
     let isMounted = true;
@@ -95,11 +102,20 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
             predictedOutputTons: data.production?.forecast || 0,
             projectedGapTons: data.production?.gap || 0,
             gapPct: data.production?.target ? Math.abs(Math.round((data.production.gap / data.production.target) * 100)) : 0,
-            monthlyTrend: data.production?.monthlyTrend || [],
-            featureImportance: (data.riskContributors || []).map((rc: any) => ({
-              factor: rc.factor,
-              importance: rc.importancePct,
-              description: rc.description
+            monthlyTrend: (data.production?.monthlyTrend || []).map((mt: any) => ({
+              label: mt.month,
+              actual: mt.actual,
+              target: mt.target,
+              forecast: mt.forecast,
+              confidenceLower: mt.lowerBound,
+              confidenceUpper: mt.upperBound,
+              isMonsoon: ['Jun', 'Jul', 'Aug', 'Sep'].some(m => mt.month.includes(m))
+            })),
+            featureImportance: (data.riskContributors || []).map((rc: any, idx: number) => ({
+              feature: rc.factor,
+              weightPct: rc.importancePct,
+              category: rc.factor.toLowerCase().includes('rain') ? 'Environmental' : 'Operational',
+              color: ['#3B82F6', '#10B981', '#06B6D4', '#F59E0B', '#8B5CF6'][idx % 5]
             })),
             environmentalFactors: {
               rainfallPct: 70,
@@ -124,9 +140,17 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
     apiGet<any>(`/mines/${selectedMineId}/forecasting`)
       .then((data) => {
         if (isMounted && data && data.forecasting) {
-          setMineProfile(prev => ({
+          setMineProfile((prev: any) => ({
             ...prev,
-            monthlyTrend: data.forecasting.monthlyTrend || prev.monthlyTrend,
+            monthlyTrend: data.forecasting.monthlyTrend ? data.forecasting.monthlyTrend.map((mt: any) => ({
+              label: mt.month,
+              actual: mt.actual,
+              target: mt.target,
+              forecast: mt.forecast,
+              confidenceLower: mt.lowerBound,
+              confidenceUpper: mt.upperBound,
+              isMonsoon: ['Jun', 'Jul', 'Aug', 'Sep'].some(m => mt.month.includes(m))
+            })) : prev.monthlyTrend,
             predictedOutputTons: data.forecasting.forecast || prev.predictedOutputTons
           }));
         }
@@ -141,7 +165,7 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
     apiGet<any>(`/mines/${selectedMineId}/shortfall`)
       .then((data) => {
         if (isMounted && data && data.shortfall) {
-          setMineProfile(prev => ({
+          setMineProfile((prev: any) => ({
             ...prev,
             shortfallRisk: data.shortfall || prev.shortfallRisk,
             alerts: data.alerts || prev.alerts
@@ -158,9 +182,14 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
     apiGet<any>(`/mines/${selectedMineId}/cause-analysis`)
       .then((data) => {
         if (isMounted && data && data.causeAnalysis) {
-          setMineProfile(prev => ({
+          setMineProfile((prev: any) => ({
             ...prev,
-            riskContributors: data.causeAnalysis || prev.riskContributors
+            featureImportance: data.causeAnalysis ? data.causeAnalysis.map((rc: any, idx: number) => ({
+              feature: rc.factor,
+              weightPct: rc.importancePct,
+              category: rc.factor.toLowerCase().includes('rain') ? 'Environmental' : 'Operational',
+              color: ['#3B82F6', '#10B981', '#06B6D4', '#F59E0B', '#8B5CF6'][idx % 5]
+            })) : prev.featureImportance
           }));
         }
       })
@@ -1186,11 +1215,11 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                 </div>
               </div>
 
-              {/* SITE PROFILE: DONGRI BUZURG */}
+              {/* SITE PROFILE: {mineProfile.mineName} */}
               <div className={`p-6 rounded-xl border mb-6 ${cardBg}`}>
                 <h3 className={`font-headline font-black text-sm uppercase tracking-wider mb-4 flex items-center gap-2 ${textPrimary}`}>
                   <span className="material-symbols-outlined text-[#0E7C7B] text-lg">factory</span>
-                  SITE PROFILE: DONGRI BUZURG
+                  SITE PROFILE: {mineProfile.mineName.toUpperCase()}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className={`p-4 rounded-lg border ${nestedBg}`}>
@@ -1874,7 +1903,7 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
 
                 <div className="flex items-center gap-3 flex-wrap">
                   <button className={`px-3.5 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-2 cursor-pointer ${nestedBg} ${textPrimary}`}>
-                    <span>Dongri Buzurg ▾</span>
+                    <span>{mineProfile.mineName} ▾</span>
                   </button>
                 </div>
               </div>
@@ -1989,7 +2018,7 @@ export const DongriBuzurgWorkspace: React.FC<DongriBuzurgWorkspaceProps> = ({
                                 {alt.title}
                               </span>
                               <span className="text-[11px] font-mono text-[#D97706] font-bold">
-                                {alt.zone} • Dongri Buzurg
+                                {alt.zone} • {mineProfile.mineName}
                               </span>
                             </div>
                           </div>
