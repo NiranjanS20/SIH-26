@@ -105,8 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, onNavigate }) => {
             currentRoute === 'landing' ? (
               <button
                 onClick={() => {
-                  const target: PortalRoute = user?.role === 'industry_viewer' ? 'industry-viewer' : 'mine-selection';
-                  if (onNavigate) onNavigate(target);
+                  if (onNavigate) onNavigate(portalRoute);
                 }}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#D97706] to-[#B45309] text-white font-bold text-sm shadow-md hover:from-[#F59E0B] hover:to-[#D97706] transition-all cursor-pointer"
               >

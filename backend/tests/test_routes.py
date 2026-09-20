@@ -76,21 +76,14 @@ def test_industry_viewer_denial_operational():
         resp_denied = client_with_lifespan.post(
             "/api/v1/whatif/dongri-buzurg/simulate",
             json=payload,
-<<<<<<< HEAD
-            headers=get_auth_headers("industry_viewer", "Industry User")
-        )
-        assert resp_denied.status_code == 403
-=======
             headers=get_auth_headers(role="industry_viewer")
         )
         assert resp_denied.status_code == 403
-        
+
         # Authorized
         resp_allowed = client_with_lifespan.post(
-            "/api/v1/whatif/simulate",
+            "/api/v1/whatif/dongri-buzurg/simulate",
             json=payload,
             headers=get_auth_headers(role="admin")
         )
-        # Assuming model loads, it returns 200. Otherwise 500.
         assert resp_allowed.status_code in [200, 500]
->>>>>>> ab736a9c5c0e8474a9db32147c37c2f0b86fc2c0
