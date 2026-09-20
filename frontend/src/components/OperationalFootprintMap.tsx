@@ -9,29 +9,18 @@ import {
   TileLayer,
   Marker,
   Popup,
-  Circle,
-  Polygon,
   useMap,
 } from 'react-leaflet';
 import L from 'leaflet';
 import {
   MANGANESE_MINES_DATA,
-  PROSPECTIVITY_HOTSPOTS_DATA,
-  EXPLORATION_LICENSES_DATA,
   TILE_PROVIDERS,
   type MineGeoLocation,
 } from '../data/reserveMappingData';
-import { type SatelliteMode, SATELLITE_MODES } from './ReserveMappingPage';
 import {
-  Layers,
   ZoomIn,
   ZoomOut,
   Target,
-  Satellite,
-  Sparkles,
-  Leaf,
-  Droplets,
-  Thermometer,
 } from 'lucide-react';
 
 interface OperationalFootprintMapProps {
@@ -81,7 +70,6 @@ export const OperationalFootprintMap: React.FC<OperationalFootprintMapProps> = (
   themeMode = 'dark',
   onLaunchWorkspace,
 }) => {
-  const [activeLayer, setActiveLayer] = useState<SatelliteMode>('TRUE_COLOR');
   const [mapCenter, setMapCenter] = useState<[number, number]>([21.554, 79.702]);
   const [mapZoom, setMapZoom] = useState<number>(7.5);
 
@@ -157,47 +145,7 @@ export const OperationalFootprintMap: React.FC<OperationalFootprintMapProps> = (
       style={{ height: '580px' }}
     >
       {/* Top Floating Control Bar */}
-      <div className="absolute top-3 left-3 right-3 z-400 flex items-center justify-between pointer-events-none gap-2">
-        {/* Layer Selector Chips */}
-        <div className="pointer-events-auto flex items-center gap-1.5 p-1 rounded-xl bg-black/60 backdrop-blur-md border border-white/15 shadow-lg overflow-x-auto max-w-[85%]">
-          <div className="px-2 text-[9px] font-mono font-bold text-amber-400 uppercase flex items-center gap-1 shrink-0">
-            <Layers className="w-3 h-3" />
-            <span className="hidden sm:inline">Layer:</span>
-          </div>
-          {SATELLITE_MODES.map((mode) => {
-            const isActive = activeLayer === mode.id;
-            const renderLayerIcon = () => {
-              switch (mode.id) {
-                case 'TRUE_COLOR':
-                  return <Satellite className="w-3 h-3 shrink-0" />;
-                case 'MN_PROSPECTIVITY':
-                  return <Sparkles className="w-3 h-3 shrink-0" />;
-                case 'NDVI_VEGETATION':
-                  return <Leaf className="w-3 h-3 shrink-0" />;
-                case 'SOIL_MOISTURE':
-                  return <Droplets className="w-3 h-3 shrink-0" />;
-                case 'THERMAL_LST':
-                  return <Thermometer className="w-3 h-3 shrink-0" />;
-              }
-            };
-
-            return (
-              <button
-                key={mode.id}
-                onClick={() => setActiveLayer(mode.id)}
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  isActive
-                    ? 'bg-amber-500 text-slate-950 shadow-md ring-1 ring-amber-300 font-extrabold'
-                    : 'text-slate-300 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                {renderLayerIcon()}
-                <span>{mode.shortName}</span>
-              </button>
-            );
-          })}
-        </div>
-
+      <div className="absolute top-3 right-3 z-400 flex items-center pointer-events-none gap-2">
         {/* Zoom & Reset Controls */}
         <div className="pointer-events-auto flex items-center rounded-xl bg-black/60 backdrop-blur-md border border-white/15 shadow-lg overflow-hidden shrink-0">
           <button
@@ -257,77 +205,6 @@ export const OperationalFootprintMap: React.FC<OperationalFootprintMapProps> = (
           attribution={TILE_PROVIDERS.satellite.attribution}
           maxZoom={18}
         />
-
-        {/* Satellite Prospectivity & Radiance Overlays */}
-        {activeLayer !== 'TRUE_COLOR' &&
-          PROSPECTIVITY_HOTSPOTS_DATA.map((hs) => {
-            const isThermal = activeLayer === 'THERMAL_LST';
-            const isMoisture = activeLayer === 'SOIL_MOISTURE';
-            const isNdvi = activeLayer === 'NDVI_VEGETATION';
-
-            const outerColor = isThermal
-              ? '#3b82f6'
-              : isMoisture
-              ? '#0284c7'
-              : isNdvi
-              ? '#15803d'
-              : '#d97706';
-
-            const coreColor = isThermal
-              ? '#ef4444'
-              : isMoisture
-              ? '#06b6d4'
-              : isNdvi
-              ? '#eab308'
-              : '#ef4444';
-
-            return (
-              <React.Fragment key={hs.id}>
-                <Circle
-                  center={hs.center}
-                  radius={hs.radiusKm * 1000}
-                  pathOptions={{
-                    color: outerColor,
-                    fillColor: outerColor,
-                    fillOpacity: 0.18,
-                    stroke: false,
-                  }}
-                />
-                <Circle
-                  center={hs.center}
-                  radius={hs.radiusKm * 320}
-                  pathOptions={{
-                    color: coreColor,
-                    fillColor: coreColor,
-                    fillOpacity: 0.6,
-                    weight: 2,
-                  }}
-                >
-                  <Popup>
-                    <div className="p-2 text-xs">
-                      <span className="font-bold text-amber-400 block">{hs.beltName}</span>
-                      <span className="text-[10px] text-slate-300 block">{hs.dominantGrade}</span>
-                    </div>
-                  </Popup>
-                </Circle>
-              </React.Fragment>
-            );
-          })}
-
-        {/* Exploration Lease Boundaries */}
-        {EXPLORATION_LICENSES_DATA.map((lic) => (
-          <Polygon
-            key={lic.id}
-            positions={lic.coordinates}
-            pathOptions={{
-              color: '#f59e0b',
-              weight: 1.5,
-              dashArray: '4 4',
-              fillColor: '#f59e0b',
-              fillOpacity: 0.08,
-            }}
-          />
-        ))}
 
         {/* Manganese Mine Markers */}
         {filteredMines.map((mine) => {
