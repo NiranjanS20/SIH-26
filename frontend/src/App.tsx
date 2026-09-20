@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Navbar, type PortalRoute } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { ValuePropSection } from './components/ValuePropSection';
@@ -14,12 +15,16 @@ import { MineDetailModal } from './components/MineDetailModal';
 import { MineSelectionPage } from './components/MineSelectionPage';
 import { MineWorkspace } from './components/MineWorkspace';
 import { ReserveMappingPage } from './components/ReserveMappingPage';
+import { LoginPage } from './components/LoginPage';
 
-export function App() {
+// Inner app that has access to AuthContext
+function AppInner() {
   const [currentRoute, setCurrentRoute] = useState<PortalRoute>('landing');
-  const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark'); // Default theme is Dark Mode per request
+  const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark');
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [selectedMine, setSelectedMine] = useState<any | null>(null);
+
+  const { isAuthenticated, user } = useAuth();
 
   // Setup Intersection Observer for smooth section fade-in animations
   useEffect(() => {
@@ -44,6 +49,13 @@ export function App() {
   }, [currentRoute, themeMode]);
 
   const handleNavigate = (route: PortalRoute) => {
+    // Guard: any route that's not landing or login requires authentication
+    const publicRoutes: PortalRoute[] = ['landing', 'login'];
+    if (!publicRoutes.includes(route) && !isAuthenticated) {
+      setCurrentRoute('login');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     setCurrentRoute(route);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -53,7 +65,9 @@ export function App() {
   };
 
   const isFullScreenWorkspace =
-    currentRoute.startsWith('workspace/') || currentRoute === 'reserve-mapping';
+    currentRoute.startsWith('workspace/') ||
+    currentRoute === 'reserve-mapping' ||
+    currentRoute === 'login';
 
   return (
     <div
@@ -63,7 +77,7 @@ export function App() {
           : 'bg-[#FCF9F8] text-[#1B1B1C] selection:bg-[#FEA619] selection:text-[#1B1B1C]'
       }`}
     >
-      {/* 1. Header / Top Portal Navigation (Landing & Mine Selection only) */}
+      {/* Header — not shown in full-screen modes */}
       {!isFullScreenWorkspace && (
         <Navbar
           currentRoute={currentRoute}
@@ -71,46 +85,35 @@ export function App() {
         />
       )}
 
-      {/* Main Content Area based on current route */}
+      {/* Main Content */}
       <main>
+        {/* LOGIN PAGE */}
+        {currentRoute === 'login' && (
+          <LoginPage onNavigate={handleNavigate} />
+        )}
+
+        {/* LANDING PAGE */}
         {currentRoute === 'landing' && (
           <>
-            {/* 2. Hero Section */}
             <Hero
-              onExploreClick={() => handleNavigate('mine-selection')}
+              onExploreClick={() => handleNavigate('login')}
             />
-
-            {/* 3. Value Proposition Section */}
             <ValuePropSection />
-
-            {/* 4. Data Sources Section */}
             <DataSourcesSection />
-
-            {/* 5. What We're Solving Section */}
             <WhatWeAreSolvingSection />
-
-            {/* 6. Mine Launcher & Selection Section */}
             <MineCardSection
-              onOpenMineModal={(mine) => {
-                if (mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore') {
-                  handleNavigate(`workspace/${mine.id}` as PortalRoute);
-                } else {
-                  setSelectedMine(mine);
-                }
+              onOpenMineModal={() => {
+                // Any mine click → login if not authenticated, mine-selection if authenticated
+                handleNavigate(isAuthenticated ? 'mine-selection' : 'login');
               }}
             />
-
-            {/* 7. Digital Mine Services Section */}
             <ServicesSection onSelectService={(service) => setSelectedService(service)} />
-
-            {/* 8. Latest Updates Timeline Section */}
             <UpdatesSection />
-
-            {/* 9. Final Sub-Footer CTA Section */}
-            <CTASection onCTAClick={() => handleNavigate('mine-selection')} />
+            <CTASection onCTAClick={() => handleNavigate(isAuthenticated ? 'mine-selection' : 'login')} />
           </>
         )}
 
+        {/* MINE SELECTION PAGE */}
         {currentRoute === 'mine-selection' && (
           <MineSelectionPage
             onNavigate={handleNavigate}
@@ -119,15 +122,18 @@ export function App() {
           />
         )}
 
+        {/* MINE WORKSPACE */}
         {currentRoute.startsWith('workspace/') && (
           <MineWorkspace
             onNavigate={handleNavigate}
             themeMode={themeMode}
             onToggleTheme={handleToggleTheme}
             initialMineId={currentRoute.replace('workspace/', '')}
+            userRole={user?.role ?? 'site_manager'}
           />
         )}
 
+        {/* RESERVE MAPPING */}
         {currentRoute === 'reserve-mapping' && (
           <ReserveMappingPage
             onNavigate={handleNavigate}
@@ -137,17 +143,16 @@ export function App() {
         )}
       </main>
 
-      {/* Footer (Landing & Mine Selection only) */}
-      {!isFullScreenWorkspace && (
+      {/* Footer */}
+      {!isFullScreenWorkspace && currentRoute !== 'mine-selection' && (
         <Footer themeMode={themeMode} />
       )}
 
-      {/* Interactive Modals */}
+      {/* Modals */}
       <ServiceModal
         service={selectedService}
         onClose={() => setSelectedService(null)}
       />
-
       <MineDetailModal
         mine={selectedMine}
         onClose={() => setSelectedMine(null)}
@@ -156,5 +161,12 @@ export function App() {
   );
 }
 
-export default App;
+export function App() {
+  return (
+    <AuthProvider>
+      <AppInner />
+    </AuthProvider>
+  );
+}
 
+export default App;

@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     # comma separated string -> list
     ALLOWED_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
     
+    JWT_SECRET: str = "moil-sih-2026-super-secret-key-change-in-prod"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRE_HOURS: int = 8
+    
     DATA_DIR: str = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/processed"))
     MODEL_DIR: str = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../data/processed"))
     

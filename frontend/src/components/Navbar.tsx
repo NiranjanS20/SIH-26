@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
-export type PortalRoute = 'landing' | 'mine-selection' | 'reserve-mapping' | `workspace/${string}`;
+export type PortalRoute = 'landing' | 'login' | 'mine-selection' | 'reserve-mapping' | `workspace/${string}`;
 
 interface NavbarProps {
   currentRoute?: PortalRoute;
@@ -9,6 +10,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
   const [scrolled, setScrolled] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,8 +97,44 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
           </span>
         </div>
 
-        {/* Right side is intentionally empty per user request */}
-        <div className="w-12 h-12 invisible"></div>
+        {/* Right: Login / User Info */}
+        <div className="flex items-center gap-2">
+          {isAuthenticated && user ? (
+            // Logged in: show role badge + logout
+            <div className="flex items-center gap-2">
+              <span className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                user.role === 'admin'
+                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                  : 'bg-teal-500/10 border-teal-500/30 text-teal-400'
+              }`}>
+                <span className="material-symbols-outlined text-sm">
+                  {user.role === 'admin' ? 'shield' : 'badge'}
+                </span>
+                {user.role === 'admin' ? 'Admin' : 'Site Manager'}
+              </span>
+              <button
+                onClick={() => {
+                  logout();
+                  if (onNavigate) onNavigate('landing');
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 hover:text-white text-xs font-semibold transition-all cursor-pointer"
+                title="Logout"
+              >
+                <span className="material-symbols-outlined text-sm">logout</span>
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            </div>
+          ) : (
+            // Not logged in: show Login button
+            <button
+              onClick={() => onNavigate && onNavigate('login')}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#D97706] to-[#B45309] text-white font-bold text-sm shadow-md hover:from-[#F59E0B] hover:to-[#D97706] transition-all cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-base">login</span>
+              Login
+            </button>
+          )}
+        </div>
 
       </div>
     </header>

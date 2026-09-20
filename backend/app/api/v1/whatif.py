@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from app.schemas.responses import Envelope, ResponseMeta
 from app.services.whatif_service import simulate_whatif
+from app.core.security import require_role
 import datetime
 
 router = APIRouter()
@@ -11,9 +12,9 @@ class WhatIfRequest(BaseModel):
     blasting_delay_days: float
     precipitation_mm: float
 
-@router.post("/{mine_id}/simulate", response_model=Envelope[dict])
+@router.post("/{mine_id}/simulate", response_model=Envelope[dict], dependencies=[Depends(require_role(["admin"]))])
 def run_simulation(mine_id: str, req: WhatIfRequest):
-    """Feature 6: What-If Simulation. Live XGBoost inference — legitimately slower than cache reads."""
+    """Feature 6: What-If Simulation. Admin only — live XGBoost inference."""
     try:
         result = simulate_whatif(
             mine_id,
