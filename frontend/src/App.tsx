@@ -109,7 +109,7 @@ function AppInner() {
         {currentRoute === 'landing' && (
           <>
             <Hero
-              onExploreClick={() => handleNavigate('login')}
+              onExploreClick={() => handleNavigate(isAuthenticated ? 'mine-selection' : 'login')}
             />
             <ValuePropSection />
             <DataSourcesSection />
@@ -135,15 +135,23 @@ function AppInner() {
           />
         )}
 
-        {/* MINE WORKSPACE */}
+        {/* WORKSPACE PAGES */}
         {currentRoute.startsWith('workspace/') && (
-          <MineWorkspace
-            onNavigate={handleNavigate}
-            themeMode={themeMode}
-            onToggleTheme={handleToggleTheme}
-            initialMineId={currentRoute.replace('workspace/', '')}
-            userRole={user?.role ?? 'site_manager'}
-          />
+          user?.role === 'industry_viewer' ? (
+            <IndustryViewerDashboard
+              onNavigate={handleNavigate}
+              themeMode={themeMode}
+              onToggleTheme={handleToggleTheme}
+            />
+          ) : (
+            <MineWorkspace
+              onNavigate={handleNavigate}
+              themeMode={themeMode}
+              onToggleTheme={handleToggleTheme}
+              initialMineId={currentRoute.replace('workspace/', '')}
+              userRole={user?.role ?? 'site_manager'}
+            />
+          )
         )}
 
         {/* INDUSTRY VIEWER DASHBOARD */}

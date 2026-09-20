@@ -104,21 +104,24 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, onNavigate }) => {
           {isAuthenticated && user ? (
             currentRoute === 'landing' ? (
               <button
-                onClick={() => onNavigate && onNavigate(portalRoute)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#002452] text-white font-bold text-sm shadow-md hover:bg-[#003070] transition-all cursor-pointer border border-white/20"
+                onClick={() => {
+                  const target: PortalRoute = user?.role === 'industry_viewer' ? 'industry-viewer' : 'mine-selection';
+                  if (onNavigate) onNavigate(target);
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#D97706] to-[#B45309] text-white font-bold text-sm shadow-md hover:from-[#F59E0B] hover:to-[#D97706] transition-all cursor-pointer"
               >
-                Go to Portal
-                <span className="material-symbols-outlined text-base">arrow_forward</span>
+                <span className="material-symbols-outlined text-base">dashboard</span>
+                Dashboard
               </button>
             ) : (
-              // Logged in: show role badge + logout
+              // Logged in on protected page: show role badge + logout
               <div className="flex items-center gap-2">
                 <span className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border ${
                   user.role === 'admin'
                     ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
                     : user.role === 'industry_viewer'
-                      ? 'bg-purple-500/10 border-purple-500/30 text-purple-400'
-                      : 'bg-teal-500/10 border-teal-500/30 text-teal-400'
+                    ? 'bg-blue-500/10 border-blue-500/30 text-blue-400'
+                    : 'bg-teal-500/10 border-teal-500/30 text-teal-400'
                 }`}>
                   <span className="material-symbols-outlined text-sm">
                     {user.role === 'admin' ? 'shield' : user.role === 'industry_viewer' ? 'visibility' : 'badge'}

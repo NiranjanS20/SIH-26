@@ -3,9 +3,9 @@
  * Thin fetch wrapper that unwraps the Envelope response format.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
-
 import { getAuthHeader, logoutUser } from './authService';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
 interface Envelope<T> {
   success: boolean;
@@ -35,7 +35,10 @@ export async function apiGet<T>(path: string, signal?: AbortSignal): Promise<T> 
   
   const response = await fetch(url, {
     method: 'GET',
-    headers: { 'Accept': 'application/json', ...getAuthHeader() },
+    headers: {
+      'Accept': 'application/json',
+      ...getAuthHeader(),
+    },
     signal,
   });
 
@@ -117,15 +120,21 @@ export async function apiGetRaw<T>(path: string, signal?: AbortSignal): Promise<
   const url = `${API_BASE_URL}${path}`;
   const response = await fetch(url, {
     method: 'GET',
-    headers: { 'Accept': 'application/json', ...getAuthHeader() },
+    headers: {
+      'Accept': 'application/json',
+      ...getAuthHeader(),
+    },
     signal,
   });
+
   if (response.status === 401) {
     logoutUser();
     window.dispatchEvent(new Event('auth:unauthorized'));
   }
+
   if (!response.ok) {
     throw new ApiError(`HTTP ${response.status}`, 'HTTP_ERROR', response.status);
   }
+
   return response.json();
 }

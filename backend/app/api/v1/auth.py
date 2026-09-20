@@ -24,8 +24,8 @@ DEMO_USERS = {
     "industry": {
         "password": "industry123",
         "role": "industry_viewer",
-        "name": "Industry Partner (Viewer)",
-        "display_name": "Industry Partner",
+        "name": "Tata Steel (Industry Partner)",
+        "display_name": "Tata Steel",
     },
 }
 
