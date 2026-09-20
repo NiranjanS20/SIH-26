@@ -14,13 +14,14 @@ import { ServiceModal } from './components/ServiceModal';
 import { MineDetailModal } from './components/MineDetailModal';
 import { MineSelectionPage } from './components/MineSelectionPage';
 import { MineWorkspace } from './components/MineWorkspace';
+import { IndustryWorkspace } from './components/IndustryWorkspace';
 import { ReserveMappingPage } from './components/ReserveMappingPage';
 import { LoginPage } from './components/LoginPage';
 
 // Inner app that has access to AuthContext
 function AppInner() {
   const [currentRoute, setCurrentRoute] = useState<PortalRoute>('landing');
-  const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark');
+  const [themeMode, setThemeMode] = useState<'dark' | 'light'>('light');
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [selectedMine, setSelectedMine] = useState<any | null>(null);
 
@@ -96,7 +97,7 @@ function AppInner() {
         {currentRoute === 'landing' && (
           <>
             <Hero
-              onExploreClick={() => handleNavigate('login')}
+              onExploreClick={() => handleNavigate(isAuthenticated ? 'mine-selection' : 'login')}
             />
             <ValuePropSection />
             <DataSourcesSection />
@@ -122,15 +123,22 @@ function AppInner() {
           />
         )}
 
-        {/* MINE WORKSPACE */}
+        {/* WORKSPACE PAGES */}
         {currentRoute.startsWith('workspace/') && (
-          <MineWorkspace
-            onNavigate={handleNavigate}
-            themeMode={themeMode}
-            onToggleTheme={handleToggleTheme}
-            initialMineId={currentRoute.replace('workspace/', '')}
-            userRole={user?.role ?? 'site_manager'}
-          />
+          user?.role === 'industry_viewer' ? (
+            <IndustryWorkspace
+              mineId={currentRoute.replace('workspace/', '')}
+              onNavigate={handleNavigate}
+            />
+          ) : (
+            <MineWorkspace
+              onNavigate={handleNavigate}
+              themeMode={themeMode}
+              onToggleTheme={handleToggleTheme}
+              initialMineId={currentRoute.replace('workspace/', '')}
+              userRole={user?.role ?? 'site_manager'}
+            />
+          )
         )}
 
         {/* RESERVE MAPPING */}

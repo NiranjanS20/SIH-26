@@ -3,6 +3,8 @@
  * Thin fetch wrapper that unwraps the Envelope response format.
  */
 
+import { getAuthHeader, logoutUser } from './authService';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
 interface Envelope<T> {
@@ -33,11 +35,18 @@ export async function apiGet<T>(path: string, signal?: AbortSignal): Promise<T> 
   
   const response = await fetch(url, {
     method: 'GET',
-    headers: { 'Accept': 'application/json' },
+    headers: { 
+      'Accept': 'application/json',
+      ...getAuthHeader(),
+    },
     signal,
   });
   
   if (!response.ok) {
+    if (response.status === 401) {
+      logoutUser();
+      window.location.href = '/?route=login';
+    }
     const body = await response.json().catch(() => ({}));
     throw new ApiError(
       body?.error?.message || body?.detail || `HTTP ${response.status}`,
@@ -70,12 +79,17 @@ export async function apiPost<T>(path: string, body: unknown, signal?: AbortSign
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
+      ...getAuthHeader(),
     },
     body: JSON.stringify(body),
     signal,
   });
   
   if (!response.ok) {
+    if (response.status === 401) {
+      logoutUser();
+      window.location.href = '/?route=login';
+    }
     const respBody = await response.json().catch(() => ({}));
     throw new ApiError(
       respBody?.error?.message || respBody?.detail || `HTTP ${response.status}`,
@@ -104,10 +118,17 @@ export async function apiGetRaw<T>(path: string, signal?: AbortSignal): Promise<
   const url = `${API_BASE_URL}${path}`;
   const response = await fetch(url, {
     method: 'GET',
-    headers: { 'Accept': 'application/json' },
+    headers: { 
+      'Accept': 'application/json',
+      ...getAuthHeader(),
+    },
     signal,
   });
   if (!response.ok) {
+    if (response.status === 401) {
+      logoutUser();
+      window.location.href = '/?route=login';
+    }
     throw new ApiError(`HTTP ${response.status}`, 'HTTP_ERROR', response.status);
   }
   return response.json();

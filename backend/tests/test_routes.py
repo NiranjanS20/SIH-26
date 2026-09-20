@@ -5,8 +5,8 @@ from app.core.security import generate_demo_token
 
 client = TestClient(app)
 
-def get_auth_headers(role: str = "Mine Officer"):
-    token = generate_demo_token(role)
+def get_auth_headers(role: str = "admin", name: str = "Test User"):
+    token = generate_demo_token(role, name)
     return {"Authorization": f"Bearer {token}"}
 
 def test_health_check():
@@ -45,7 +45,7 @@ def test_whatif_auth_roles():
         resp_denied = client_with_lifespan.post(
             "/api/v1/whatif/simulate",
             json=payload,
-            headers=get_auth_headers(role="Industry Viewer")
+            headers=get_auth_headers(role="industry_viewer")
         )
         assert resp_denied.status_code == 403
         
@@ -53,7 +53,7 @@ def test_whatif_auth_roles():
         resp_allowed = client_with_lifespan.post(
             "/api/v1/whatif/simulate",
             json=payload,
-            headers=get_auth_headers(role="Mine Officer")
+            headers=get_auth_headers(role="admin")
         )
         # Assuming model loads, it returns 200. Otherwise 500.
         assert resp_allowed.status_code in [200, 500]
