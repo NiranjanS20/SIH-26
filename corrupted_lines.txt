@@ -1,0 +1,17 @@
+Line 272: targetValue: 'â‰¤ 0 days',
+Line 489: {mineProfile.mineName} â–¾
+Line 535: <span>â† Back to Mine Selection Map</span>
+Line 549: <span>ðŸ—ºï¸</span>
+Line 711: {!sidebarCollapsed && <span>â† Mine Selection</span>}
+Line 770: <span>â— OPERATIONAL</span>
+Line 1469: {liveWeather ? `${liveWeather.temp}Â°C` : '31.4Â°C'}
+Line 1485: <span className="font-bold">ðŸ”ï¸ PIT ELEVATION:</span>
+Line 1765: âš ï¸ SHORTFALL DETECTED "¢ {mineProfile.mineName}
+Line 1920: â— HIGH RISK TARGET DEFICIT
+Line 2181: <span>â— ALERT MONITORING ACTIVE</span>
+Line 2191: <span>{mineProfile.mineName} â–¾</span>
+Line 2323: ? 'â— UNACKNOWLEDGED'
+Line 2325: ? 'âœ“ ACKNOWLEDGED'
+Line 2326: : 'â— MONITORING'}
+Line 2390: <div><strong className={textPrimary}>Delivery Status:</strong> âœ“ Sent (Automated)</div>
+Line 2474: â— ACTIVE

@@ -269,7 +269,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
       title: 'Reduce Blasting Delay',
       problem: 'Current blasting delay is contributing significantly to the production gap.',
       currentValue: '2 days',
-      targetValue: 'â‰¤ 0 days',
+      targetValue: '≤ 0 days',
       expectedImpact: 'Increase available production window',
       status: 'PENDING',
       cause: 'Blasting delay',
@@ -463,7 +463,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
           </button>
 
           <div className="w-8 h-8 rounded-full bg-[#2B3990] flex flex-col items-center justify-center text-white text-[6px] font-black leading-none shrink-0 border border-white/30 shadow-md">
-            <span>à¤®à¥‰à¤¯à¤²</span>
+            <span>मॉयल</span>
             <span>MOIL</span>
           </div>
           <div>
@@ -486,7 +486,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="font-headline font-extrabold uppercase tracking-wide">
-              {mineProfile.mineName} â–¾
+              {mineProfile.mineName} ▾
             </span>
           </button>
 
@@ -516,7 +516,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                   <div>
                     <span className="block">{m.mineName}</span>
                     <span className={`text-[10px] font-normal ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                      {m.district}, {m.state} â€¢ {m.type}
+                      {m.district}, {m.state} • {m.type}
                     </span>
                   </div>
                   {selectedMineId === m.id && (
@@ -532,7 +532,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                   className="w-full text-left px-3 py-1.5 text-xs text-[#D97706] font-bold hover:underline flex items-center gap-1.5 cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-sm">map</span>
-                  <span>â† Back to Mine Selection Map</span>
+                  <span>← Back to Mine Selection Map</span>
                 </button>
               </div>
             </div>
@@ -546,7 +546,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
             className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold transition-all shadow-md cursor-pointer"
             title="Open National Geospatial Reserve Mapping"
           >
-            <span>ðŸ—ºï¸</span>
+            <span>🗺️</span>
             <span>National Reserve Map</span>
           </button>
 
@@ -622,7 +622,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
               })}
             </div>
 
-            {/* Portfolio section â€” admin only */}
+            {/* Portfolio section “ admin only */}
             {userRole === 'admin' && (
               <>
                 <div className="border-t border-white/10 my-1" />
@@ -652,7 +652,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
               </>
             )}
 
-            {/* Customer View section â€” admin only */}
+            {/* Customer View section “ admin only */}
             {userRole === 'admin' && (
               <>
                 <div className="border-t border-white/10 my-1" />
@@ -708,7 +708,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
               title={sidebarCollapsed ? 'Back to Mine Selection' : undefined}
             >
               <span className="material-symbols-outlined text-base shrink-0">map</span>
-              {!sidebarCollapsed && <span>â† Mine Selection</span>}
+              {!sidebarCollapsed && <span>← Mine Selection</span>}
             </button>
 
             <button
@@ -767,7 +767,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                   <div className="flex items-center gap-3 flex-wrap">
                     <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/25 border border-emerald-400/50 text-emerald-300 text-[11px] font-black uppercase tracking-widest backdrop-blur-md shadow-md">
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span>â— OPERATIONAL</span>
+                      <span>● OPERATIONAL</span>
                     </div>
 
                     {/* Prominent Back to Mine Selection Button inside Hero Banner */}
@@ -834,7 +834,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                         DESCRIPTION & GEOLOGICAL STRATA
                       </span>
                       <p className={`text-sm leading-relaxed font-medium ${textSecondary}`}>
-                        â€œ{mineProfile.mineName} is an active {mineProfile.type.toLowerCase()} manganese ore lease in {mineProfile.district} district, {mineProfile.state}, producing metallurgical and high-grade battery oxide ores.â€
+                        "{mineProfile.mineName} is an active {mineProfile.type.toLowerCase()} manganese ore lease in {mineProfile.district} district, {mineProfile.state}, producing metallurgical and high-grade battery oxide ores." 
                       </p>
                     </div>
                   </div>
@@ -897,7 +897,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                     </div>
 
                     <p className="text-xs leading-relaxed font-medium text-blue-100">
-                      â€œProduction is currently being monitored against monthly target. Initiate bench throughput optimization.â€
+                      "Production is currently being monitored against monthly target. Initiate bench throughput optimization." 
                     </p>
 
                     {/* Telemetry Checklist */}
@@ -1366,7 +1366,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                         </h2>
                         <span className="text-[10px] font-mono uppercase font-bold flex items-center gap-1.5 text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          <span>{liveWeather?.lastUpdated || 'LIVE STREAM â€¢ OPENWEATHER API'}</span>
+                          <span>{liveWeather?.lastUpdated || 'LIVE STREAM • OPENWEATHER API'}</span>
                         </span>
                       </div>
 
@@ -1466,7 +1466,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                           <span className={`font-headline font-black text-2xl block leading-tight ${
                             isDark ? 'text-orange-300' : 'text-[#9C3810]'
                           }`}>
-                            {liveWeather ? `${liveWeather.temp}Â°C` : '31.4Â°C'}
+                            {liveWeather ? `${liveWeather.temp}°C` : '31.4°C'}
                           </span>
                           <span className={`text-[10px] block truncate ${
                             isDark ? 'text-slate-300' : 'text-slate-600'
@@ -1482,8 +1482,8 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                       isDark ? 'border-white/10 text-zinc-300' : 'border-slate-200/80 text-slate-700'
                     }`}>
                       <div className="flex items-center gap-2 bg-white/70 dark:bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-inherit">
-                        <span className="font-bold">ðŸ”ï¸ PIT ELEVATION:</span>
-                        <span>Sump 680mRL â€¢ Bench 720mRL â€¢ Crest 760mRL</span>
+                        <span className="font-bold">⛰️ PIT ELEVATION:</span>
+                        <span>Sump 680mRL • Bench 720mRL • Crest 760mRL</span>
                       </div>
                       <div className="flex items-center gap-1.5 bg-white/70 dark:bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-inherit">
                         <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
@@ -1547,7 +1547,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                     <div className="p-4 rounded-xl bg-slate-700/65 backdrop-blur-md border border-slate-400/30 text-white shadow-sm hover:border-slate-300/50 hover:bg-slate-700/80 transition-all">
                       <span className="text-[10px] font-bold uppercase tracking-wider mb-1.5 block text-[#38BDF8]">EMD Production Trend</span>
                       <p className="font-medium text-sm text-slate-100 leading-relaxed">
-                        992t (2018-19) â†’ 1,100t (2022-23) â†’ 1,413t (2023-24)
+                        992t (2018-19) → 1,100t (2022-23) → 1,413t (2023-24)
                       </p>
                     </div>
                   </div>
@@ -1561,7 +1561,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                     NATIONAL PRIORITY ALIGNMENT
                   </span>
                   <p className={`text-xs font-semibold italic ${textSecondary}`}>
-                    â€œContributing to import-substitution for Indiaâ€™s steel & battery industryâ€
+                    "Contributing to import-substitution for India's steel & battery industry" 
                   </p>
                 </div>
 
@@ -1610,7 +1610,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                     </span>
                   </div>
                   <p className={`text-xs font-medium ${textSecondary}`}>
-                    â€œProduction performance and model-based output forecast for {mineProfile.mineName}.â€
+                    "Production performance and model-based output forecast for {mineProfile.mineName}." 
                   </p>
                 </div>
                 <div className="flex items-center gap-2.5 flex-wrap">
@@ -1762,7 +1762,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                   <span className={`material-symbols-outlined text-2xl ${isDark ? 'text-[#D97706]' : 'text-amber-700'}`}>warning</span>
                   <div>
                     <span className={`font-headline font-black text-sm uppercase tracking-wider block ${isDark ? 'text-[#D97706]' : 'text-amber-900'}`}>
-                      âš ï¸ SHORTFALL DETECTED â€¢ {mineProfile.mineName}
+                      ⚠️ SHORTFALL DETECTED • {mineProfile.mineName}
                     </span>
                     <p className={`text-xs font-medium mt-0.5 ${isDark ? textSecondary : 'text-slate-800'}`}>
                       Predicted production is below the allocation target. Projected gap:{' '}
@@ -1779,7 +1779,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                       : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 border-amber-400 shadow-amber-500/20'
                   }`}
                 >
-                  View Shortfall Diagnosis â†’
+                  View Shortfall Diagnosis →
                 </button>
               </div>
 
@@ -1790,7 +1790,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                   <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
                     <h3 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
                       <span className="material-symbols-outlined text-[#8B5CF6] text-base">psychology</span>
-                      EXPLAINABLE AI (XAI) â€¢ FEATURE IMPORTANCE
+                      EXPLAINABLE AI (XAI) • FEATURE IMPORTANCE
                     </h3>
                     <span className={`text-[10px] font-mono uppercase ${textMuted}`}>
                       ATTRIBUTION WEIGHTS
@@ -1849,7 +1849,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                       <span className="material-symbols-outlined text-[#0E7C7B]">tune</span>
                       WHAT-IF SIMULATION
                     </h3>
-                    <p className={`text-xs mt-0.5 ${textSecondary}`}>â€œExplore how operational and environmental changes could affect predicted output.â€</p>
+                    <p className={`text-xs mt-0.5 ${textSecondary}`}>"Explore how operational and environmental changes could affect predicted output." </p>
                   </div>
                   <div className={`p-4 rounded-xl border text-right shrink-0 ${nestedBg} ${!isDark ? 'bg-gradient-to-br from-teal-50/60 via-white to-white border-teal-200 shadow-xs' : ''}`}>
                     <span className={`text-[10px] font-black uppercase tracking-wider block ${isDark ? 'text-[#0E7C7B]' : 'text-teal-800'}`}>SIMULATED OUTPUT</span>
@@ -1917,10 +1917,10 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                       SHORTFALL DIAGNOSIS
                     </h2>
                     <span className="px-3 py-1 rounded-full bg-[#B03A2E]/20 border border-[#B03A2E] text-[#B03A2E] text-[10px] font-black uppercase tracking-wider">
-                      â— HIGH RISK TARGET DEFICIT
+                      ● HIGH RISK TARGET DEFICIT
                     </span>
                   </div>
-                  <p className={`text-xs font-medium ${textSecondary}`}>â€œUnderstand the factors contributing to the projected production gap.â€</p>
+                  <p className={`text-xs font-medium ${textSecondary}`}>"Understand the factors contributing to the projected production gap." </p>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap">
                   <div className={`flex items-center p-1 rounded-lg border ${nestedBg}`}>
@@ -1967,7 +1967,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                     </div>
 
                     <p className={`text-sm font-semibold ${textSecondary}`}>
-                      â€œProduction is projected to finish <strong>900 t</strong> below the current target.â€
+                      "Production is projected to finish <strong>900 t</strong> below the current target." 
                     </p>
 
                     <div className="space-y-4 pt-2">
@@ -2080,10 +2080,10 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                     </h2>
                     <span className="px-3 py-1 rounded-full bg-[#B03A2E]/20 border border-[#B03A2E] text-[#B03A2E] text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#B03A2E] animate-pulse" />
-                      <span>â— HIGH RISK â€¢ Zone 14</span>
+                      <span>● HIGH RISK • Zone 14</span>
                     </span>
                   </div>
-                  <p className={`text-xs font-medium ${textSecondary}`}>â€œRecommended operational actions to reduce the projected production shortfall.â€</p>
+                  <p className={`text-xs font-medium ${textSecondary}`}>“Recommended operational actions to reduce the projected production shortfall.”</p>
                 </div>
               </div>
 
@@ -2091,11 +2091,11 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
               <div className="p-3.5 rounded-xl bg-[#B03A2E]/15 border border-[#B03A2E]/50 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#B03A2E] animate-ping shrink-0" />
-                  <span className="text-xs font-black text-[#B03A2E] uppercase tracking-wider">ðŸ”´ HIGH-RISK ALERT ACTIVE</span>
-                  <span className={`text-xs font-medium ${textSecondary}`}>â€œMOIL stakeholders have been notified of projected shortfall.â€</span>
+                  <span className="text-xs font-black text-[#B03A2E] uppercase tracking-wider">🔴 HIGH-RISK ALERT ACTIVE</span>
+                  <span className={`text-xs font-medium ${textSecondary}`}>“MOIL stakeholders have been notified of projected shortfall.”</span>
                 </div>
                 <button onClick={() => setActiveTab('alerts')} className="px-3 py-1 rounded bg-[#B03A2E] hover:bg-[#8F2E24] text-white text-[11px] font-bold uppercase transition-all shrink-0 cursor-pointer">
-                  View Alert â†’
+                  View Alert →
                 </button>
               </div>
 
@@ -2108,9 +2108,9 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                   <div className={`h-6 w-px ${borderDivider}`} />
                   <div><span className="text-[#B03A2E] uppercase block text-[10px]">PROJECTED GAP</span><span className="font-headline font-black text-lg text-[#B03A2E]">-900 t</span></div>
                   <div className={`h-6 w-px ${borderDivider}`} />
-                  <div><span className="text-[#B03A2E] uppercase block text-[10px]">EVALUATED RISK</span><span className="px-2 py-0.5 rounded bg-[#B03A2E] text-white text-[10px] font-black uppercase">ðŸ”´ HIGH</span></div>
+                  <div><span className="text-[#B03A2E] uppercase block text-[10px]">EVALUATED RISK</span><span className="px-2 py-0.5 rounded bg-[#B03A2E] text-white text-[10px] font-black uppercase">🔴 HIGH</span></div>
                 </div>
-                <span className={`text-[11px] italic ${textMuted}`}>â€œActions below are generated from the current shortfall diagnosis.â€</span>
+                <span className={`text-[11px] italic ${textMuted}`}>“Actions below are generated from the current shortfall diagnosis.”</span>
               </div>
 
               {/* RECOMMENDED ACTIONS & PRIORITY SUMMARY GRID */}
@@ -2125,21 +2125,21 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                             <span className={`px-2.5 py-0.5 rounded text-[10px] font-black uppercase ${act.priority === 'HIGH' ? 'bg-[#B03A2E]/20 text-[#B03A2E]' : 'bg-[#D97706]/20 text-[#D97706]'}`}>{act.priority} PRIORITY</span>
                             <h4 className={`font-headline font-black text-lg uppercase ${textPrimary}`}>{act.title}</h4>
                           </div>
-                          <span className="px-3 py-1 rounded-full text-xs font-black uppercase text-[#D97706] border border-[#D97706]/40">â— {act.status}</span>
+                          <span className="px-3 py-1 rounded-full text-xs font-black uppercase text-[#D97706] border border-[#D97706]/40">● {act.status}</span>
                         </div>
                         <p className={`text-xs font-medium ${textSecondary}`}>Problem: {act.problem}</p>
                         <div className={`p-3.5 rounded-lg border flex items-center justify-between text-xs font-bold ${nestedBg}`}>
-                          <span>Current: <strong className={textPrimary}>{act.currentValue}</strong> â†’ Target: <strong className="text-emerald-500">{act.targetValue}</strong></span>
+                          <span>Current: <strong className={textPrimary}>{act.currentValue}</strong> → Target: <strong className="text-emerald-500">{act.targetValue}</strong></span>
                           <span className={`text-[11px] font-mono ${textMuted}`}>Impact: {act.expectedImpact}</span>
                         </div>
                         <div className={`flex items-center justify-between pt-2 border-t ${borderDivider}`}>
                           <button onClick={() => handleToggleActionStatus(act.id)} className="px-4 py-2 rounded-lg bg-[#0E7C7B] hover:bg-[#0C6A69] text-white text-xs font-black uppercase cursor-pointer transition-all shadow-sm">[ MARK AS ACTIONED ]</button>
-                          <button onClick={() => setExpandedActionId(isExpanded ? null : act.id)} className="text-xs text-[#0E7C7B] font-bold hover:underline cursor-pointer">{isExpanded ? 'Hide Details â–²' : 'View Details â–¼'}</button>
+                          <button onClick={() => setExpandedActionId(isExpanded ? null : act.id)} className="text-xs text-[#0E7C7B] font-bold hover:underline cursor-pointer">{isExpanded ? 'Hide Details ▲' : 'View Details ▼'}</button>
                         </div>
                         {isExpanded && (
                           <div className={`p-4 rounded-lg border space-y-2 text-xs ${nestedBg}`}>
                             <p><strong className={textPrimary}>Cause:</strong> {act.cause}</p>
-                            <p><strong className={textPrimary}>Reason:</strong> â€œ{act.reason}â€</p>
+                            <p><strong className={textPrimary}>Reason:</strong> "{act.reason}"</p>
                             <p><strong className={textPrimary}>Created:</strong> {act.createdTime}</p>
                           </div>
                         )}
@@ -2178,17 +2178,17 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
 
                     <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-500 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span>â— ALERT MONITORING ACTIVE</span>
+                      <span>● ALERT MONITORING ACTIVE</span>
                     </span>
                   </div>
                   <p className={`text-xs font-medium ${textSecondary}`}>
-                    â€œAutomated shortfall and risk notifications across mine operations.â€
+                    "Automated shortfall and risk notifications across mine operations." 
                   </p>
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
                   <button className={`px-3.5 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-2 cursor-pointer ${nestedBg} ${textPrimary}`}>
-                    <span>{mineProfile.mineName} â–¾</span>
+                    <span>{mineProfile.mineName} ▾</span>
                   </button>
                 </div>
               </div>
@@ -2295,7 +2295,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                                   : 'bg-[#D97706] text-white'
                               }`}
                             >
-                              <span>{isHigh ? 'ðŸ”´' : 'ðŸŸ¡'} {alt.risk} RISK</span>
+                              <span>{isHigh ? '🔴' : '🟡'} {alt.risk} RISK</span>
                             </span>
 
                             <div>
@@ -2303,7 +2303,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                                 {alt.title}
                               </span>
                               <span className="text-[11px] font-mono text-[#D97706] font-bold">
-                                {alt.zone} â€¢ {mineProfile.mineName}
+                                {alt.zone} • {mineProfile.mineName}
                               </span>
                             </div>
                           </div>
@@ -2320,10 +2320,10 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                             >
                               <span>
                                 {alt.status === 'UNACKNOWLEDGED'
-                                  ? 'â— UNACKNOWLEDGED'
+                                  ? '● UNACKNOWLEDGED'
                                   : alt.status === 'ACKNOWLEDGED'
-                                  ? 'âœ“ ACKNOWLEDGED'
-                                  : 'â— MONITORING'}
+                                  ? '✓ ACKNOWLEDGED'
+                                  : '● MONITORING'}
                               </span>
                             </span>
                             {alt.acknowledgedBy && (
@@ -2365,7 +2365,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                               onClick={() => setActiveTab('shortfall-diagnosis')}
                               className={`px-3.5 py-2 rounded-lg border text-xs font-bold uppercase transition-all cursor-pointer ${nestedBg} ${textPrimary}`}
                             >
-                              [ VIEW DIAGNOSIS â†’ ]
+                              [ VIEW DIAGNOSIS → ]
                             </button>
                           </div>
 
@@ -2373,7 +2373,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                             onClick={() => setExpandedAlertId(isExpanded ? null : alt.id)}
                             className="text-xs text-[#0E7C7B] font-bold hover:underline cursor-pointer flex items-center gap-1"
                           >
-                            <span>{isExpanded ? 'Hide Details â–²' : 'View Alert Details & Audit Timeline â–¼'}</span>
+                            <span>{isExpanded ? 'Hide Details ▲' : 'View Alert Details & Audit Timeline ▼'}</span>
                           </button>
                         </div>
 
@@ -2387,7 +2387,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                               <div><strong className={textPrimary}>Alert ID:</strong> {alt.alertId}</div>
                               <div><strong className={textPrimary}>Trigger:</strong> Production forecast crossed High-risk threshold</div>
                               <div><strong className={textPrimary}>Recipients:</strong> {alt.recipients.join(', ')}</div>
-                              <div><strong className={textPrimary}>Delivery Status:</strong> âœ“ Sent (Automated)</div>
+                              <div><strong className={textPrimary}>Delivery Status:</strong> ✓ Sent (Automated)</div>
                             </div>
 
                             <div className={`space-y-2 pt-2 border-t ${borderDivider}`}>
@@ -2471,7 +2471,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                       ALERT AUTOMATION ENGINE
                     </h4>
                     <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-500 font-mono text-[10px] font-bold">
-                      â— ACTIVE
+                      â—● ACTIVE
                     </span>
                   </div>
                   <div className={`space-y-1.5 text-xs font-medium ${textSecondary}`}>
@@ -2491,7 +2491,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                       onClick={() => alert('Threshold configuration interface is restricted to Administrator role.')}
                       className="text-[10px] text-[#0E7C7B] font-bold hover:underline cursor-pointer"
                     >
-                      [ Configure thresholds â†’ ]
+                      [ Configure thresholds → ]
                     </button>
                   </div>
                   <div className={`space-y-1.5 text-xs font-medium ${textSecondary}`}>
