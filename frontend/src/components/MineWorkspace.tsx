@@ -7,11 +7,10 @@ import { MineSiteVisualizer } from './MineSiteVisualizer';
 import { PortfolioView } from './PortfolioView';
 import { ShaderCard } from './ui/ShaderCard';
 import Beams from './ui/Beams';
-import { GlowCard } from './ui/spotlight-card';
-import FeatureCard from './ui/binaural-glow-feature-card';
 import { ThemeToggleSwitch } from './ui/ThemeToggleSwitch';
 import { CustomerView } from './CustomerView';
 import { ProspectivityView } from './ProspectivityView';
+import { RecentActivityCard } from './RecentActivityCard';
 import {
   getMineProductionProfile,
   MINE_PRODUCTION_PROFILES,
@@ -719,12 +718,12 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                 <Beams
                   beamWidth={3.5}
                   beamHeight={25}
-                  beamNumber={18}
+                  beamNumber={8}
                   lightColor="#FFC107"
                   beamColor="#185a9d"
                   backgroundColor="#020914"
-                  speed={2.2}
-                  noiseIntensity={1.8}
+                  speed={1.5}
+                  noiseIntensity={1.2}
                   scale={0.22}
                   rotation={20}
                 />
@@ -816,429 +815,713 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                   <MineSiteVisualizer mineId={selectedMineId} themeMode={themeMode} />
                 </div>
 
-                {/* CURRENT STATUS CARD (5 COLS) WITH ELEGANT BINAURAL GLOW EFFECT */}
-                <FeatureCard
-                  glowColors="from-amber-500/70 via-blue-600/50 via-teal-500/60 to-amber-500/70"
-                  className="lg:col-span-5 h-full"
-                  isDark={isDark}
-                >
-                  <div className="flex flex-col justify-between h-full space-y-5">
+                {/* CURRENT STATUS CARD (5 COLS) - RICHER DARKER BLUE THEME WITH INTEGRATED ARTWORK */}
+                <div className={`lg:col-span-5 rounded-3xl border-2 p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden transition-all duration-300 shadow-xl group min-h-[420px] ${
+                  isDark
+                    ? 'bg-gradient-to-br from-[#081524] via-[#0E2036] to-[#142C4B] border-blue-900/50 text-white'
+                    : 'bg-gradient-to-br from-[#0C3466] via-[#14498C] to-[#1C5EB3] border-[#1C5EB3]/50 text-white'
+                }`}>
+                  {/* Background Artwork Layer (Blended Integration) */}
+                  <div
+                    className={`absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none ${
+                      isDark ? 'opacity-40 mix-blend-screen' : 'opacity-55 mix-blend-multiply'
+                    }`}
+                    style={{
+                      backgroundImage: `url('/assets/status_editorial_collage.jpg')`,
+                    }}
+                  />
+
+                  {/* Soft Vignette Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#001026]/75 via-transparent to-transparent pointer-events-none" />
+
+                  {/* Top Header Content */}
+                  <div className="space-y-3 relative z-10">
+                    <div className="flex items-start justify-between">
+                      <span className="font-mono text-3xl font-extralight tracking-tighter text-sky-300 drop-shadow-sm">
+                        01
+                      </span>
+                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs border bg-amber-400/20 border-amber-400/40 text-amber-300 backdrop-blur-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                        <span>ACTIVE MONITORING</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h2 className="font-headline font-black text-xl sm:text-2xl uppercase tracking-tight leading-tight text-white drop-shadow-sm">
+                        CURRENT STATUS: <br className="hidden sm:inline" />
+                        <span className="text-[#FEA619]">MEDIUM RISK</span>
+                      </h2>
+                      <p className="text-[11px] font-medium mt-1 uppercase tracking-wider text-blue-100/90">
+                        Active operational telemetry &amp; extraction shortfall tracking
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Bottom Docked Recommendation Module (Transparent Editorial Section) */}
+                  <div className="mt-6 pt-4 border-t border-white/20 space-y-3.5 relative z-10">
+                    <div>
+                      <span className="text-[9px] font-mono font-black uppercase tracking-[0.25em] block mb-0.5 text-sky-300">
+                        HOW TO PROCEED
+                      </span>
+                      <h3 className="font-serif italic text-lg tracking-wide font-normal text-white">
+                        RECOMMENDATION
+                      </h3>
+                    </div>
+
+                    <p className="text-xs leading-relaxed font-medium text-blue-100">
+                      “Production is currently being monitored against monthly target. Initiate bench throughput optimization.”
+                    </p>
+
+                    {/* Telemetry Checklist */}
+                    <div className="grid grid-cols-1 gap-1.5 pt-2.5 border-t border-white/15 text-[11px] font-semibold text-slate-100">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-xs shadow-emerald-400/80 shrink-0" />
+                        <span>Fleet &amp; Equipment Operational</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-xs shadow-emerald-400/80 shrink-0" />
+                        <span>Production Monitoring Active</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-sky-400 shadow-xs shadow-sky-400/80 shrink-0" />
+                        <span>Forecast &amp; Grade Telemetry Sync</span>
+                      </div>
+                    </div>
+
+                    {/* CTA Button */}
+                    <button
+                      onClick={() => setActiveTab('shortfall-diagnosis')}
+                      className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#FDE047] via-[#FACC15] to-[#EAB308] hover:from-[#FEF08A] hover:to-[#FACC15] text-slate-950 font-headline font-black text-xs uppercase tracking-wider shadow-md shadow-yellow-500/20 border border-yellow-200/40 flex items-center justify-center gap-2 transition-all transform active:scale-98 cursor-pointer mt-1"
+                    >
+                      <span>View Shortfall Diagnosis</span>
+                      <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* ========================================================================= */}
+              {/* KEY PERFORMANCE INDICATORS (BLUE HERO STRIP + CLEAN SUBTLE CARDS)        */}
+              {/* ========================================================================= */}
+              <div className={`p-6 sm:p-7 rounded-3xl border relative overflow-hidden shadow-xl transition-all duration-300 ${
+                isDark
+                  ? 'bg-gradient-to-r from-[#141820] via-[#181D27] to-[#141820] border-white/10'
+                  : 'bg-gradient-to-r from-[#002452] via-[#0E3870] to-[#194E96] border-[#002452]/30 text-white'
+              }`}>
+                {/* Subtle Geometric Background Motif */}
+                <div className="absolute inset-0 pointer-events-none opacity-10">
+                  <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <pattern id="kpiBlueGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+                        <path d="M 32 0 L 0 0 0 32" fill="none" stroke="currentColor" strokeWidth="1" />
+                      </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#kpiBlueGrid)" />
+                  </svg>
+                </div>
+
+                {/* Section Header Inside Blue Banner */}
+                <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 border-b pb-4 border-white/15">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#FEA619] shadow-sm shadow-amber-500/50" />
+                      <h2 className="font-headline font-black text-sm uppercase tracking-wider text-white flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[#FEA619] text-base">bar_chart</span>
+                        KEY PERFORMANCE INDICATORS
+                      </h2>
+                    </div>
+                    <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-blue-100/85'}`}>
+                      Live monthly production output, target allocations, and risk diagnostics
+                    </p>
+                  </div>
+
+                  <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full shrink-0 self-start sm:self-auto border ${
+                    isDark
+                      ? 'bg-white/5 border-white/10 text-slate-300'
+                      : 'bg-white/15 border-white/25 text-white backdrop-blur-xs'
+                  }`}>
+                    CYCLE: {new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase()}
+                  </span>
+                </div>
+
+                {/* 4 Clean Subtle Tinted Cards */}
+                <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  {/* CARD 1: CURRENT PRODUCTION (SUBTLE SAGE/MINT TINT) */}
+                  <div className={`p-5 rounded-2xl border flex flex-col justify-between space-y-3.5 transition-all duration-300 hover:-translate-y-1 ${
+                    isDark
+                      ? 'bg-[#062419]/60 border-emerald-500/30 shadow-lg hover:border-emerald-400/50 text-emerald-50'
+                      : 'bg-[#EEF9F2] border-[#C2E8D2] shadow-md shadow-blue-950/10 hover:shadow-lg hover:border-emerald-300 text-slate-900'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] font-mono font-black uppercase tracking-wider ${
+                        isDark ? 'text-emerald-300' : 'text-[#0E6245]'
+                      }`}>
+                        CURRENT PRODUCTION
+                      </span>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shadow-xs ${
+                        isDark ? 'bg-white/10 text-emerald-300' : 'bg-white text-blue-600 border border-blue-100'
+                      }`}>
+                        <span className="material-symbols-outlined text-[13px]">trending_up</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-baseline">
+                        <span className={`font-headline font-black text-3xl sm:text-4xl ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          4,100
+                        </span>
+                        <span className={`text-xs font-bold ml-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>t</span>
+                      </div>
+
+                      {/* Mini Sparkline Indicator */}
+                      <svg width="68" height="26" viewBox="0 0 68 26" fill="none" className="shrink-0 overflow-visible">
+                        <path
+                          d="M 2 18 C 16 18, 22 14, 34 15 C 46 16, 52 7, 64 4"
+                          stroke={isDark ? '#34D399' : '#059669'}
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                        />
+                        <circle cx="64" cy="4" r="3" fill={isDark ? '#34D399' : '#059669'} />
+                      </svg>
+                    </div>
+
+                    <div className="space-y-1.5 pt-1">
+                      <div className="flex justify-between items-center text-[10px] font-bold">
+                        <span className={`flex items-center gap-1 ${isDark ? 'text-emerald-400' : 'text-[#065F46]'}`}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          <span>82% of target</span>
+                        </span>
+                        <span className={`font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>4,100 / 5,000 t</span>
+                      </div>
+                      <div className={`w-full h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-emerald-950/60' : 'bg-emerald-200/60'}`}>
+                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: '82%' }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CARD 2: TARGET ALLOCATION (SUBTLE ICE BLUE TINT) */}
+                  <div className={`p-5 rounded-2xl border flex flex-col justify-between space-y-3.5 transition-all duration-300 hover:-translate-y-1 ${
+                    isDark
+                      ? 'bg-[#0B213D]/60 border-blue-500/30 shadow-lg hover:border-blue-400/50 text-blue-50'
+                      : 'bg-[#EEF5FC] border-[#C3DCF9] shadow-md shadow-blue-950/10 hover:shadow-lg hover:border-blue-300 text-slate-900'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] font-mono font-black uppercase tracking-wider ${
+                        isDark ? 'text-blue-300' : 'text-[#1E40AF]'
+                      }`}>
+                        TARGET ALLOCATION
+                      </span>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shadow-xs ${
+                        isDark ? 'bg-white/10 text-blue-300' : 'bg-white text-blue-600 border border-blue-100'
+                      }`}>
+                        <span className="material-symbols-outlined text-[13px]">flag</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-baseline">
+                        <span className={`font-headline font-black text-3xl sm:text-4xl ${isDark ? 'text-blue-300' : 'text-slate-900'}`}>
+                          5,000
+                        </span>
+                        <span className={`text-xs font-bold ml-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>t</span>
+                      </div>
+
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-black uppercase tracking-wider border shrink-0 ${
+                        isDark ? 'bg-blue-500/20 text-blue-300 border-blue-400/40' : 'bg-white/90 text-blue-800 border-blue-200'
+                      }`}>
+                        FIXED QUOTA
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[10px] pt-1">
+                      <span className={`font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                        Current month allocation
+                      </span>
+                      <span className={`px-2 py-0.5 rounded font-mono font-extrabold border ${
+                        isDark ? 'bg-blue-900/40 text-blue-200 border-blue-700/40' : 'bg-white/90 text-slate-800 border-blue-100'
+                      }`}>
+                        161.2 t/day
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* CARD 3: PROSPECTIVITY (SUBTLE WARM AMBER TINT) */}
+                  <div className={`p-5 rounded-2xl border flex flex-col justify-between space-y-3.5 transition-all duration-300 hover:-translate-y-1 ${
+                    isDark
+                      ? 'bg-[#291B07]/60 border-amber-500/30 shadow-lg hover:border-amber-400/50 text-amber-50'
+                      : 'bg-[#FEF8EC] border-[#FCE4B6] shadow-md shadow-blue-950/10 hover:shadow-lg hover:border-amber-300 text-slate-900'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] font-mono font-black uppercase tracking-wider ${
+                        isDark ? 'text-amber-300' : 'text-[#92400E]'
+                      }`}>
+                        PROSPECTIVITY
+                      </span>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shadow-xs ${
+                        isDark ? 'bg-white/10 text-amber-300' : 'bg-white text-blue-600 border border-blue-100'
+                      }`}>
+                        <span className="material-symbols-outlined text-[13px]">layers</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={`font-headline font-black text-3xl sm:text-4xl ${isDark ? 'text-amber-300' : 'text-slate-900'}`}>
+                        82%
+                      </span>
+
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border shrink-0 ${
+                        isDark ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40' : 'bg-[#DCFCE7] text-[#15803D] border-emerald-300'
+                      }`}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        <span>HIGH CONFIDENCE</span>
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[10px] pt-1">
+                      <span className={`font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                        Highest potential:
+                      </span>
+                      <span className={`px-2 py-0.5 rounded font-bold border ${
+                        isDark ? 'bg-amber-900/40 text-amber-200 border-amber-700/40' : 'bg-white/90 text-amber-950 border-amber-200'
+                      }`}>
+                        Zone 14
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* CARD 4: ACTIVE ALERTS (SUBTLE BLUSH ROSE TINT) */}
+                  <div className={`p-5 rounded-2xl border flex flex-col justify-between space-y-3.5 transition-all duration-300 hover:-translate-y-1 ${
+                    isDark
+                      ? 'bg-[#2B0E14]/60 border-rose-500/30 shadow-lg hover:border-rose-400/50 text-rose-50'
+                      : 'bg-[#FDF1F0] border-[#FBCFD0] shadow-md shadow-blue-950/10 hover:shadow-lg hover:border-rose-300 text-slate-900'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] font-mono font-black uppercase tracking-wider ${
+                        isDark ? 'text-rose-300' : 'text-[#9F1239]'
+                      }`}>
+                        ACTIVE ALERTS
+                      </span>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shadow-xs ${
+                        isDark ? 'bg-white/10 text-rose-300' : 'bg-white text-blue-600 border border-blue-100'
+                      }`}>
+                        <span className="material-symbols-outlined text-[13px]">notifications</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={`font-headline font-black text-3xl sm:text-4xl ${isDark ? 'text-rose-300' : 'text-slate-900'}`}>
+                        2
+                      </span>
+
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-black uppercase tracking-wider border shrink-0 ${
+                        isDark ? 'bg-rose-500/20 text-rose-300 border-rose-400/40' : 'bg-white/90 text-[#BE123C] border-rose-200'
+                      }`}>
+                        ACTION REQUIRED
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 pt-1">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-extrabold border ${
+                        isDark ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-white/90 text-rose-800 border-rose-200'
+                      }`}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                        <span>1 High Risk</span>
+                      </span>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-extrabold border ${
+                        isDark ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-white/90 text-amber-800 border-amber-200'
+                      }`}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                        <span>1 Med Risk</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* MANGANESE CORE OPERATIONS & TELEMETRY HUB (UNIFIED CONTAINER) */}
+              <div className={`p-5 sm:p-6 lg:p-7 rounded-3xl border space-y-6 transition-all relative ${
+                isDark
+                  ? 'bg-gradient-to-b from-[#12161E] via-[#0E1217] to-[#0A0D12] border-slate-700/80 shadow-2xl'
+                  : 'bg-gradient-to-b from-[#D4DEEB] via-[#C6D2E2] to-[#B8C6D7] border-slate-400/90 shadow-lg'
+              }`}>
+                {/* Subtle Manganese Ore Shimmer / Metallic Grain Glow */}
+                <div className="absolute inset-0 pointer-events-none rounded-3xl bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-400/15 via-transparent to-transparent" />
+
+                {/* ROW 1: OPERATIONAL HEALTH & PROSPECTIVITY SNAPSHOT */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch relative z-10">
+                  <div className={`lg:col-span-7 p-6 rounded-2xl border-2 space-y-4 ${
+                    isDark
+                      ? 'bg-[#20170B] border-amber-500/30 shadow-xl text-white'
+                      : 'bg-[#FEF8EC] border-[#FCE4B6] shadow-sm text-[#1B1B1C]'
+                  }`}>
+                    <div className={`flex items-center justify-between border-b pb-3.5 ${
+                      isDark ? 'border-white/10' : 'border-amber-200/70'
+                    }`}>
+                      <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
+                        <span className="material-symbols-outlined text-[#0E7C7B] text-base">health_metrics</span>
+                        OPERATIONAL HEALTH
+                      </h2>
+                      <span className={`text-[10px] font-mono uppercase ${textMuted}`}>
+                        HIGH-LEVEL SNAPSHOT
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className={`p-4 rounded-xl border-2 space-y-1 transition-all ${
+                        isDark
+                          ? 'bg-[#072422]/60 border-teal-500/60 shadow-lg shadow-black/20'
+                          : 'bg-[#EEF9F7] border-[#0E7C7B] shadow-xs'
+                      }`}>
+                        <span className={`text-[10px] font-bold uppercase block ${isDark ? 'text-teal-300' : 'text-teal-800'}`}>
+                          EQUIPMENT AVAILABILITY
+                        </span>
+                        <span className={`font-headline font-black text-2xl block ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          80%
+                        </span>
+                        <span className={`text-[10px] font-bold block ${isDark ? 'text-teal-400' : 'text-[#0E7C7B]'}`}>Fleet operational</span>
+                      </div>
+
+                      <div className={`p-4 rounded-xl border-2 space-y-1 transition-all ${
+                        isDark
+                          ? 'bg-[#291B07]/60 border-amber-500/60 shadow-lg shadow-black/20'
+                          : 'bg-[#FEF8EC] border-[#D97706] shadow-xs'
+                      }`}>
+                        <span className={`text-[10px] font-bold uppercase block ${isDark ? 'text-amber-300' : 'text-amber-800'}`}>
+                          BLASTING STATUS
+                        </span>
+                        <span className={`font-headline font-black text-2xl block ${isDark ? 'text-amber-400' : 'text-[#D97706]'}`}>
+                          2 days delay
+                        </span>
+                        <span className={`text-[10px] font-bold block ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>Bench clearance</span>
+                      </div>
+
+                      <div className={`p-4 rounded-xl border-2 space-y-1 transition-all ${
+                        isDark
+                          ? 'bg-[#062419]/60 border-emerald-500/60 shadow-lg shadow-black/20'
+                          : 'bg-[#EEF9F2] border-[#059669] shadow-xs'
+                      }`}>
+                        <span className={`text-[10px] font-bold uppercase block ${isDark ? 'text-emerald-300' : 'text-emerald-800'}`}>
+                          PRODUCTION EFFICIENCY
+                        </span>
+                        <span className={`font-headline font-black text-2xl block ${isDark ? 'text-emerald-400' : 'text-[#059669]'}`}>
+                          82%
+                        </span>
+                        <span className={`text-[10px] font-bold block ${isDark ? 'text-emerald-400' : 'text-[#059669]'}`}>Throughput rate</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={`lg:col-span-5 p-6 rounded-2xl border-2 flex flex-col justify-between space-y-4 ${
+                    isDark
+                      ? 'bg-[#101C2E] border-blue-500/30 shadow-xl text-white'
+                      : 'bg-[#EFF6FF] border-[#002452]/20 shadow-sm text-[#1B1B1C]'
+                  }`}>
                     <div className="space-y-4">
-                      <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
-                        <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                          <span className="material-symbols-outlined text-[#D97706] text-base">verified</span>
-                          CURRENT STATUS
-                        </h2>
-                        <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
-                          isDark ? 'text-[#D97706]' : 'text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded border border-amber-300'
+                      <div className={`flex items-center justify-between border-b pb-3.5 ${
+                        isDark ? 'border-white/10' : 'border-[#002452]/15'
+                      }`}>
+                        <h2 className={`font-headline font-bold text-base uppercase tracking-wide flex items-center gap-2 ${
+                          isDark ? 'text-white' : 'text-[#002452]'
                         }`}>
-                          ACTIVE MONITORING
+                          <span className={`material-symbols-outlined text-lg ${isDark ? 'text-blue-400' : 'text-[#002452]'}`}>layers</span>
+                          PROSPECTIVITY SNAPSHOT
+                        </h2>
+                        <span className={`text-xs font-mono font-bold uppercase ${
+                          isDark ? 'text-blue-400' : 'text-[#002452]/80'
+                        }`}>
+                          SPATIAL MODEL
                         </span>
                       </div>
 
-                      <div className={`p-4 rounded-xl flex items-center justify-between gap-4 ${
-                        isDark 
-                          ? 'bg-[#D97706]/15 border border-[#D97706]/40' 
-                          : 'bg-gradient-to-r from-amber-500/15 via-amber-50 to-amber-500/10 border border-amber-300 shadow-sm'
-                      }`}>
-                        <div>
-                          <span className={`text-[10px] font-extrabold uppercase tracking-wider block ${
-                            isDark ? 'text-[#D97706]' : 'text-amber-800 font-black'
-                          }`}>
-                            RISK ASSESSMENT STATE
+                      <div className="grid grid-cols-2 gap-3.5">
+                        <div className={`p-3.5 rounded-xl border transition-all ${
+                          isDark
+                            ? 'bg-[#0A2548] border-blue-400/20 text-white'
+                            : 'bg-[#002452] border-[#002452] text-white shadow-xs'
+                        }`}>
+                          <span className="text-[11px] font-medium uppercase tracking-wider text-blue-200 block mb-1">
+                            Overall Score
                           </span>
-                          <span className={`font-headline text-3xl font-black block mt-0.5 ${
-                            isDark ? 'text-[#D97706]' : 'text-amber-700'
-                          }`}>
-                            MEDIUM RISK
+                          <span className="font-headline text-2xl font-black text-white block leading-none">
+                            82%
                           </span>
                         </div>
-                        <span className="w-3.5 h-3.5 rounded-full bg-[#D97706] animate-pulse shrink-0 shadow-md shadow-amber-500/50" />
-                      </div>
 
-                      <p className={`text-sm leading-relaxed font-semibold ${isDark ? textSecondary : 'text-slate-700'}`}>
-                        “Production is currently being monitored against the monthly target.”
-                      </p>
+                        <div className={`p-3.5 rounded-xl border transition-all ${
+                          isDark
+                            ? 'bg-[#103565] border-blue-400/20 text-white'
+                            : 'bg-[#0F3B7A] border-[#0F3B7A] text-white shadow-xs'
+                        }`}>
+                          <span className="text-[11px] font-medium uppercase tracking-wider text-blue-200 block mb-1">
+                            Highest Potential
+                          </span>
+                          <span className="font-headline text-2xl font-black text-white block leading-none">
+                            Zone 14
+                          </span>
+                        </div>
 
-                      <div className={`space-y-2.5 pt-1 border-t text-xs font-bold ${borderDivider} ${isDark ? textSecondary : 'text-slate-800'}`}>
-                        <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
-                          <span>Operational</span>
+                        <div className={`p-3.5 rounded-xl border transition-all ${
+                          isDark
+                            ? 'bg-[#154682] border-blue-400/20 text-white'
+                            : 'bg-[#18539E] border-[#18539E] text-white shadow-xs'
+                        }`}>
+                          <span className="text-[11px] font-medium uppercase tracking-wider text-blue-200 block mb-1">
+                            Accessible
+                          </span>
+                          <span className="font-headline text-2xl font-black text-white block leading-none">
+                            61%
+                          </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
-                          <span>Production Monitoring Active</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50" />
-                          <span>Forecast Monitoring Active</span>
+
+                        <div className={`p-3.5 rounded-xl border transition-all ${
+                          isDark
+                            ? 'bg-[#0D4B73] border-blue-400/20 text-white'
+                            : 'bg-[#0A6291] border-[#0A6291] text-white shadow-xs'
+                        }`}>
+                          <span className="text-[11px] font-medium uppercase tracking-wider text-blue-200 block mb-1">
+                            Recoverable
+                          </span>
+                          <span className="font-headline text-2xl font-black text-white block leading-none">
+                            44%
+                          </span>
                         </div>
                       </div>
                     </div>
 
                     <button
-                      onClick={() => setActiveTab('shortfall-diagnosis')}
-                      className={`w-full py-2.5 rounded-xl border text-xs font-extrabold uppercase tracking-wider transition-all text-center flex items-center justify-center gap-2 cursor-pointer ${
+                      onClick={() => setActiveTab('prospectivity')}
+                      className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all text-center flex items-center justify-center gap-2 cursor-pointer shadow-md ${
                         isDark
-                          ? 'border-[#D97706]/30 text-[#D97706] hover:bg-[#D97706]/15 hover:text-[#FEA619] bg-[#14171C]'
-                          : 'border-amber-400 bg-gradient-to-r from-amber-500 to-[#C77B00] hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20'
+                          ? 'bg-[#D97706] hover:bg-[#F59E0B] text-slate-950 shadow-amber-500/10'
+                          : 'bg-[#D97706] hover:bg-[#B45309] text-white shadow-amber-500/20'
                       }`}
                     >
-                      <span>View shortfall diagnosis</span>
-                      <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                      <span>Open Prospectivity Map</span>
+                      <span className="material-symbols-outlined text-sm">open_in_new</span>
                     </button>
                   </div>
-                </FeatureCard>
-              </div>
-
-              {/* KEY PERFORMANCE INDICATORS */}
-              <div className="space-y-3">
-                <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
-                  <span className="material-symbols-outlined text-[#0E7C7B] text-base">bar_chart</span>
-                  KEY PERFORMANCE INDICATORS
-                </h2>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  {/* CARD 1: CURRENT PRODUCTION (EMERALD GREEN GLOW) */}
-                  <GlowCard 
-                    glowColor="green" 
-                    customSize={true} 
-                    className={`relative p-5 rounded-2xl border flex flex-col justify-between space-y-4 overflow-hidden transition-all shadow-xl ${
-                      isDark ? 'border-emerald-500/30' : 'border-emerald-200 shadow-emerald-500/10'
-                    }`}
-                    style={{
-                      background: isDark
-                        ? 'radial-gradient(circle at 85% 15%, rgba(16, 185, 129, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)'
-                        : 'linear-gradient(135deg, #FFFFFF 0%, #ECFDF5 100%)',
-                    }}
-                  >
-                    <div className="flex items-center justify-between relative z-10">
-                      <span className={`text-[11px] font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-emerald-800'}`}>
-                        CURRENT PRODUCTION
-                      </span>
-                      <span className={`material-symbols-outlined text-lg ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>trending_up</span>
-                    </div>
-                    <span className={`font-headline font-black text-3xl sm:text-4xl block relative z-10 drop-shadow-md ${isDark ? 'text-white' : 'text-emerald-950'}`}>
-                      4,100 t
-                    </span>
-                    <div className="space-y-2 relative z-10">
-                      <div className="flex justify-between text-xs font-bold">
-                        <span className={isDark ? 'text-emerald-400' : 'text-emerald-700'}>82% of target</span>
-                        <span className={`font-mono ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>4,100 / 5,000 t</span>
-                      </div>
-                      <div className={`w-full h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-slate-800/80 border border-white/10' : 'bg-emerald-100 border border-emerald-200'}`}>
-                        <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.8)]" style={{ width: '82%' }} />
-                      </div>
-                    </div>
-                  </GlowCard>
-
-                  {/* CARD 2: TARGET (BLUE GLOW) */}
-                  <GlowCard 
-                    glowColor="blue" 
-                    customSize={true} 
-                    className={`relative p-5 rounded-2xl border flex flex-col justify-between space-y-4 overflow-hidden transition-all shadow-xl ${
-                      isDark ? 'border-blue-500/30' : 'border-blue-200 shadow-blue-500/10'
-                    }`}
-                    style={{
-                      background: isDark
-                        ? 'radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)'
-                        : 'linear-gradient(135deg, #FFFFFF 0%, #EFF6FF 100%)',
-                    }}
-                  >
-                    <div className="flex items-center justify-between relative z-10">
-                      <span className={`text-[11px] font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-blue-800'}`}>
-                        TARGET
-                      </span>
-                      <span className={`material-symbols-outlined text-lg ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>flag</span>
-                    </div>
-                    <span className={`font-headline font-black text-3xl sm:text-4xl block relative z-10 drop-shadow-md ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
-                      5,000 t
-                    </span>
-                    <span className={`text-xs font-semibold block relative z-10 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                      Current month allocation
-                    </span>
-                  </GlowCard>
-
-                  {/* CARD 3: PROSPECTIVITY (AMBER GOLD GLOW) */}
-                  <GlowCard 
-                    glowColor="orange" 
-                    customSize={true} 
-                    className={`relative p-5 rounded-2xl border flex flex-col justify-between space-y-4 overflow-hidden transition-all shadow-xl ${
-                      isDark ? 'border-amber-500/30' : 'border-amber-200 shadow-amber-500/10'
-                    }`}
-                    style={{
-                      background: isDark
-                        ? 'radial-gradient(circle at 85% 15%, rgba(245, 158, 11, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)'
-                        : 'linear-gradient(135deg, #FFFFFF 0%, #FFFBEB 100%)',
-                    }}
-                  >
-                    <div className="flex items-center justify-between relative z-10">
-                      <span className={`text-[11px] font-extrabold uppercase tracking-wider ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>
-                        PROSPECTIVITY
-                      </span>
-                      <span className={`material-symbols-outlined text-lg ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>layers</span>
-                    </div>
-                    <span className={`font-headline font-black text-3xl sm:text-4xl block relative z-10 drop-shadow-md ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
-                      82%
-                    </span>
-                    <span className={`text-xs font-semibold block relative z-10 ${isDark ? 'text-amber-300/90' : 'text-amber-900 font-bold'}`}>
-                      Highest potential: Zone 14
-                    </span>
-                  </GlowCard>
-
-                  {/* CARD 4: ACTIVE ALERTS (RED GLOW) */}
-                  <GlowCard 
-                    glowColor="red" 
-                    customSize={true} 
-                    className={`relative p-5 rounded-2xl border flex flex-col justify-between space-y-4 overflow-hidden transition-all shadow-xl ${
-                      isDark ? 'border-red-500/30' : 'border-rose-200 shadow-rose-500/10'
-                    }`}
-                    style={{
-                      background: isDark
-                        ? 'radial-gradient(circle at 85% 15%, rgba(239, 68, 68, 0.30) 0%, rgba(12, 20, 29, 0.95) 75%)'
-                        : 'linear-gradient(135deg, #FFFFFF 0%, #FFF1F2 100%)',
-                    }}
-                  >
-                    <div className="flex items-center justify-between relative z-10">
-                      <span className={`text-[11px] font-extrabold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-rose-800'}`}>
-                        ACTIVE ALERTS
-                      </span>
-                      <span className={`material-symbols-outlined text-lg ${isDark ? 'text-red-400' : 'text-rose-600'}`}>notifications</span>
-                    </div>
-                    <span className={`font-headline font-black text-3xl sm:text-4xl block relative z-10 drop-shadow-md ${isDark ? 'text-white' : 'text-rose-950'}`}>
-                      2
-                    </span>
-                    <div className="flex items-center gap-2 text-xs font-bold relative z-10">
-                      <span className={`px-2.5 py-0.5 rounded-full border ${isDark ? 'bg-red-500/25 text-red-300 border-red-500/40' : 'bg-rose-100 text-rose-800 border-rose-300 font-bold'}`}>
-                        1 High Risk
-                      </span>
-                      <span className={`px-2.5 py-0.5 rounded-full border ${isDark ? 'bg-amber-500/25 text-amber-300 border-amber-500/40' : 'bg-amber-100 text-amber-800 border-amber-300 font-bold'}`}>
-                        1 Medium Risk
-                      </span>
-                    </div>
-                  </GlowCard>
-                </div>
-              </div>
-
-              {/* OPERATIONAL HEALTH & PROSPECTIVITY SNAPSHOT */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                <div className={`lg:col-span-7 p-6 rounded-xl border space-y-4 ${cardBg}`}>
-                  <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
-                    <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
-                      <span className="material-symbols-outlined text-[#0E7C7B] text-base">health_metrics</span>
-                      OPERATIONAL HEALTH
-                    </h2>
-                    <span className={`text-[10px] font-mono uppercase ${textMuted}`}>
-                      HIGH-LEVEL SNAPSHOT
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className={`p-4 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'border-l-4 border-l-teal-500 bg-gradient-to-br from-teal-50/40 via-white to-white' : ''}`}>
-                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>
-                        EQUIPMENT AVAILABILITY
-                      </span>
-                      <span className={`font-headline font-black text-2xl block ${textPrimary}`}>
-                        80%
-                      </span>
-                      <span className={`text-[10px] font-bold block ${isDark ? 'text-emerald-500' : 'text-teal-700'}`}>Fleet operational</span>
-                    </div>
-
-                    <div className={`p-4 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'border-l-4 border-l-amber-500 bg-gradient-to-br from-amber-50/40 via-white to-white' : ''}`}>
-                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>
-                        BLASTING STATUS
-                      </span>
-                      <span className={`font-headline font-black text-2xl block ${isDark ? 'text-[#D97706]' : 'text-amber-700'}`}>
-                        2 days delay
-                      </span>
-                      <span className={`text-[10px] font-bold block ${isDark ? 'text-[#D97706]' : 'text-amber-800'}`}>Bench clearance</span>
-                    </div>
-
-                    <div className={`p-4 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'border-l-4 border-l-emerald-500 bg-gradient-to-br from-emerald-50/40 via-white to-white' : ''}`}>
-                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>
-                        PRODUCTION EFFICIENCY
-                      </span>
-                      <span className={`font-headline font-black text-2xl block ${isDark ? 'text-emerald-500' : 'text-emerald-700'}`}>
-                        82%
-                      </span>
-                      <span className={`text-[10px] font-bold block ${isDark ? 'text-emerald-500' : 'text-emerald-700'}`}>Throughput rate</span>
-                    </div>
-                  </div>
                 </div>
 
-                <div className={`lg:col-span-5 p-6 rounded-xl border flex flex-col justify-between space-y-4 ${
-                  isDark ? 'bg-[#20242D] border-[#D97706]/40' : 'bg-gradient-to-br from-white via-amber-50/20 to-white border-amber-300 shadow-md'
-                }`}>
-                  <div className="space-y-3">
-                    <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
-                      <h2 className="font-headline font-black text-sm uppercase tracking-wider text-[#D97706] flex items-center gap-2">
-                        <span className="material-symbols-outlined text-[#D97706] text-base">layers</span>
-                        PROSPECTIVITY SNAPSHOT
-                      </h2>
-                      <span className={`text-[10px] font-mono font-bold uppercase ${isDark ? 'text-[#D97706]' : 'text-amber-800'}`}>
-                        SPATIAL MODEL
-                      </span>
+                {/* ROW 2: ENVIRONMENTAL CONDITIONS & RECENT ACTIVITY */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch relative z-10">
+                  <div className={`lg:col-span-7 p-6 rounded-2xl border-2 relative overflow-hidden flex flex-col justify-between min-h-[340px] ${
+                    isDark
+                      ? 'border-white/10 shadow-xl text-white bg-[#181B20]'
+                      : 'border-slate-200/90 shadow-sm text-[#1B1B1C] bg-white'
+                  }`}>
+                    {/* Topographic Landscape Background with smooth gradient wash */}
+                    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+                      <img
+                        src="/assets/mine_environment_landscape.jpg"
+                        alt="Topographic Mine Landscape"
+                        className="w-full h-full object-cover object-bottom opacity-85 transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div
+                        className={`absolute inset-0 ${
+                          isDark
+                            ? 'bg-gradient-to-b from-[#181B20]/95 via-[#181B20]/80 to-[#181B20]/50'
+                            : 'bg-gradient-to-b from-white/95 via-white/80 to-white/35'
+                        }`}
+                      />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 text-xs font-bold">
-                      <div className={`p-2.5 rounded-lg border ${nestedBg} ${!isDark ? 'bg-amber-50/30 border-amber-200' : ''}`}>
-                        <span className={`text-[10px] uppercase block ${textMuted}`}>Overall Score</span>
-                        <span className={`font-headline text-xl font-black ${isDark ? 'text-[#D97706]' : 'text-amber-700'}`}>82%</span>
+                    {/* Foreground Content */}
+                    <div className="relative z-10 space-y-4">
+                      <div className={`flex items-center justify-between border-b pb-3.5 ${
+                        isDark ? 'border-white/15' : 'border-slate-300/80'
+                      }`}>
+                        <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${
+                          isDark ? 'text-white' : 'text-[#002452]'
+                        }`}>
+                          <span className="material-symbols-outlined text-[#0E7C7B] text-base">thermostat</span>
+                          ENVIRONMENTAL CONDITIONS
+                        </h2>
+                        <span className="text-[10px] font-mono uppercase font-bold flex items-center gap-1.5 text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          <span>{liveWeather?.lastUpdated || 'LIVE STREAM • OPENWEATHER API'}</span>
+                        </span>
                       </div>
-                      <div className={`p-2.5 rounded-lg border ${nestedBg} ${!isDark ? 'bg-slate-50/80 border-slate-200' : ''}`}>
-                        <span className={`text-[10px] uppercase block ${textMuted}`}>Highest Potential</span>
-                        <span className={`font-headline text-xl font-black ${textPrimary}`}>Zone 14</span>
-                      </div>
-                      <div className={`p-2.5 rounded-lg border ${nestedBg} ${!isDark ? 'bg-amber-50/30 border-amber-200' : ''}`}>
-                        <span className={`text-[10px] uppercase block ${textMuted}`}>Accessible</span>
-                        <span className={`font-headline text-xl font-black ${isDark ? 'text-[#D97706]' : 'text-amber-700'}`}>61%</span>
-                      </div>
-                      <div className={`p-2.5 rounded-lg border ${nestedBg} ${!isDark ? 'bg-emerald-50/30 border-emerald-200' : ''}`}>
-                        <span className={`text-[10px] uppercase block ${textMuted}`}>Recoverable</span>
-                        <span className={`font-headline text-xl font-black ${isDark ? 'text-emerald-500' : 'text-emerald-700'}`}>44%</span>
-                      </div>
-                    </div>
-                  </div>
 
-                  <button
-                    onClick={() => setActiveTab('prospectivity')}
-                    className={`w-full py-2.5 rounded-lg border text-xs font-black uppercase tracking-wider transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer ${
-                      isDark
-                        ? 'border-[#D97706]/40 text-[#D97706] hover:text-[#FEA619] bg-[#14171C] hover:bg-[#D97706]/20'
-                        : 'border-amber-400 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                    }`}
-                  >
-                    <span>Open Prospectivity Map</span>
-                    <span className="material-symbols-outlined text-sm">open_in_new</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* ENVIRONMENTAL CONDITIONS & RECENT ACTIVITY */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                <div className={`lg:col-span-7 p-6 rounded-xl border space-y-4 ${cardBg}`}>
-                  <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
-                    <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
-                      <span className="material-symbols-outlined text-[#0E7C7B] text-base">thermostat</span>
-                      ENVIRONMENTAL CONDITIONS
-                    </h2>
-                    <span className="text-[10px] font-mono uppercase font-bold flex items-center gap-1.5 text-emerald-500">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span>{liveWeather?.lastUpdated || 'LIVE STREAM • OPENWEATHER API'}</span>
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'bg-gradient-to-b from-blue-50/50 via-white to-white border-blue-200 shadow-xs' : ''}`}>
-                      <span className={`text-[10px] font-bold uppercase block ${isDark ? textMuted : 'text-blue-800'}`}>RAINFALL (MM)</span>
-                      <span className={`font-headline font-black text-xl block ${isDark ? 'text-blue-500' : 'text-blue-700'}`}>
-                        {liveWeather ? `${liveWeather.rainfallMm} mm` : '70%'}
-                      </span>
-                      <span className={`text-[9px] block ${textMuted}`}>
-                        {liveWeather?.isLive ? 'Live Station Rain' : 'IMD Precip Station'}
-                      </span>
-                    </div>
-
-                    <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'bg-gradient-to-b from-cyan-50/50 via-white to-white border-cyan-200 shadow-xs' : ''}`}>
-                      <span className={`text-[10px] font-bold uppercase block ${isDark ? textMuted : 'text-cyan-800'}`}>HUMIDITY</span>
-                      <span className={`font-headline font-black text-xl block ${isDark ? 'text-cyan-500' : 'text-cyan-700'}`}>
-                        {liveWeather ? `${liveWeather.humidity}%` : '68%'}
-                      </span>
-                      <span className={`text-[9px] block ${textMuted}`}>Ambient Air RH</span>
-                    </div>
-
-                    <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'bg-gradient-to-b from-amber-50/50 via-white to-white border-amber-200 shadow-xs' : ''}`}>
-                      <span className={`text-[10px] font-bold uppercase block ${isDark ? textMuted : 'text-amber-800'}`}>SOIL MOISTURE</span>
-                      <span className={`font-headline font-black text-xl block ${isDark ? 'text-amber-500' : 'text-amber-700'}`}>38%</span>
-                      <span className={`text-[9px] block ${textMuted}`}>Pit Bench Sensor</span>
-                    </div>
-
-                    <div className={`p-3.5 rounded-xl border space-y-1 ${nestedBg} ${!isDark ? 'bg-gradient-to-b from-orange-50/50 via-white to-white border-orange-200 shadow-xs' : ''}`}>
-                      <span className={`text-[10px] font-bold uppercase block ${isDark ? textMuted : 'text-orange-800'}`}>TEMPERATURE</span>
-                      <span className={`font-headline font-black text-xl block ${isDark ? 'text-white' : 'text-orange-700'}`}>
-                        {liveWeather ? `${liveWeather.temp}°C` : '31°C'}
-                      </span>
-                      <span className={`text-[9px] block ${textMuted}`}>
-                        {liveWeather ? `${liveWeather.weatherCondition} (${liveWeather.windSpeedKmh} km/h)` : 'Pit Station Temp'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className={`lg:col-span-5 p-6 rounded-xl border space-y-4 ${cardBg}`}>
-                  <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
-                    <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
-                      <span className="material-symbols-outlined text-[#D97706] text-base">history</span>
-                      RECENT ACTIVITY
-                    </h2>
-                    <span className={`text-[10px] font-mono uppercase ${textMuted}`}>
-                      LIVE LOG STREAM
-                    </span>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3 text-xs">
-                      <span className="w-2 h-2 rounded-full bg-[#B03A2E] mt-1.5 shrink-0" />
-                      <div className="flex-1">
-                        <div className={`flex justify-between items-center text-[10px] font-mono ${textMuted}`}>
-                          <span className="font-bold text-[#B03A2E]">09:14</span>
-                          <span>Today</span>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                        {/* RAINFALL */}
+                        <div className={`p-4 rounded-xl border space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${
+                          isDark
+                            ? 'bg-[#0B213D]/70 border-blue-500/30 hover:border-blue-400/60 shadow-sm text-blue-100'
+                            : 'bg-[#F4F9FD]/90 border-[#D0E2F5] hover:border-[#A8CCE8] shadow-xs text-slate-900'
+                        }`}>
+                          <div className="flex items-center justify-between">
+                            <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
+                              isDark ? 'text-blue-300/80' : 'text-[#1B4D85]'
+                            }`}>
+                              RAINFALL (MM)
+                            </span>
+                            <span className="material-symbols-outlined text-sm text-blue-500">rainy</span>
+                          </div>
+                          <span className={`font-headline font-black text-2xl block leading-tight ${
+                            isDark ? 'text-blue-300' : 'text-[#0B3B70]'
+                          }`}>
+                            {liveWeather ? `${liveWeather.rainfallMm} mm` : '4.2 mm'}
+                          </span>
+                          <span className={`text-[10px] block truncate ${
+                            isDark ? 'text-slate-300' : 'text-slate-600'
+                          }`}>
+                            {liveWeather?.isLive ? 'Live Station Rain' : 'IMD Precip Station'}
+                          </span>
                         </div>
-                        <p className={`font-bold mt-0.5 ${textPrimary}`}>High-risk shortfall detected</p>
-                        <p className={`text-[11px] ${textMuted}`}>Zone 14 shortfall probability raised to 78%</p>
+
+                        {/* HUMIDITY */}
+                        <div className={`p-4 rounded-xl border space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${
+                          isDark
+                            ? 'bg-[#08292E]/70 border-cyan-500/30 hover:border-cyan-400/60 shadow-sm text-cyan-100'
+                            : 'bg-[#F2FCFC]/90 border-[#C7EFF1] hover:border-[#9CE0E4] shadow-xs text-slate-900'
+                        }`}>
+                          <div className="flex items-center justify-between">
+                            <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
+                              isDark ? 'text-cyan-300/80' : 'text-[#0E707D]'
+                            }`}>
+                              HUMIDITY
+                            </span>
+                            <span className="material-symbols-outlined text-sm text-cyan-500">humidity_percentage</span>
+                          </div>
+                          <span className={`font-headline font-black text-2xl block leading-tight ${
+                            isDark ? 'text-cyan-300' : 'text-[#08636E]'
+                          }`}>
+                            {liveWeather ? `${liveWeather.humidity}%` : '68%'}
+                          </span>
+                          <span className={`text-[10px] block truncate ${
+                            isDark ? 'text-slate-300' : 'text-slate-600'
+                          }`}>
+                            Ambient Air RH
+                          </span>
+                        </div>
+
+                        {/* SOIL MOISTURE */}
+                        <div className={`p-4 rounded-xl border space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${
+                          isDark
+                            ? 'bg-[#291B07]/70 border-amber-500/30 hover:border-amber-400/60 shadow-sm text-amber-100'
+                            : 'bg-[#FEFBF4]/90 border-[#F8E8C8] hover:border-[#EDD49F] shadow-xs text-slate-900'
+                        }`}>
+                          <div className="flex items-center justify-between">
+                            <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
+                              isDark ? 'text-amber-300/80' : 'text-[#995C14]'
+                            }`}>
+                              SOIL MOISTURE
+                            </span>
+                            <span className="material-symbols-outlined text-sm text-amber-500">terrain</span>
+                          </div>
+                          <span className={`font-headline font-black text-2xl block leading-tight ${
+                            isDark ? 'text-amber-300' : 'text-[#8B500C]'
+                          }`}>
+                            38%
+                          </span>
+                          <span className={`text-[10px] block truncate ${
+                            isDark ? 'text-slate-300' : 'text-slate-600'
+                          }`}>
+                            Pit Bench Sensor
+                          </span>
+                        </div>
+
+                        {/* TEMPERATURE */}
+                        <div className={`p-4 rounded-xl border space-y-1.5 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-md ${
+                          isDark
+                            ? 'bg-[#2B1309]/70 border-orange-500/30 hover:border-orange-400/60 shadow-sm text-orange-100'
+                            : 'bg-[#FFF9F5]/90 border-[#FCE0D2] hover:border-[#FAC5AD] shadow-xs text-slate-900'
+                        }`}>
+                          <div className="flex items-center justify-between">
+                            <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${
+                              isDark ? 'text-orange-300/80' : 'text-[#A84318]'
+                            }`}>
+                              TEMPERATURE
+                            </span>
+                            <span className="material-symbols-outlined text-sm text-orange-500">thermostat</span>
+                          </div>
+                          <span className={`font-headline font-black text-2xl block leading-tight ${
+                            isDark ? 'text-orange-300' : 'text-[#9C3810]'
+                          }`}>
+                            {liveWeather ? `${liveWeather.temp}°C` : '31.4°C'}
+                          </span>
+                          <span className={`text-[10px] block truncate ${
+                            isDark ? 'text-slate-300' : 'text-slate-600'
+                          }`}>
+                            {liveWeather ? `${liveWeather.weatherCondition} (${liveWeather.windSpeedKmh} km/h)` : 'Partly Cloudy (14.5 km/h)'}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className={`flex items-start gap-3 text-xs pt-2 border-t ${borderDivider}`}>
-                      <span className="w-2 h-2 rounded-full bg-[#D97706] mt-1.5 shrink-0" />
-                      <div className="flex-1">
-                        <div className={`flex justify-between items-center text-[10px] font-mono ${textMuted}`}>
-                          <span className="font-bold text-[#D97706]">08:42</span>
-                          <span>Today</span>
-                        </div>
-                        <p className={`font-bold mt-0.5 ${textPrimary}`}>Production forecast updated</p>
-                        <p className={`text-[11px] ${textMuted}`}>Predicted output below monthly target</p>
+                    {/* Bottom Topographic Elevation & Sensor Status Strip */}
+                    <div className={`relative z-10 mt-4 pt-3 border-t flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono ${
+                      isDark ? 'border-white/10 text-zinc-300' : 'border-slate-200/80 text-slate-700'
+                    }`}>
+                      <div className="flex items-center gap-2 bg-white/70 dark:bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-inherit">
+                        <span className="font-bold">🏔️ PIT ELEVATION:</span>
+                        <span>Sump 680mRL • Bench 720mRL • Crest 760mRL</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 bg-white/70 dark:bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-inherit">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                        <span className="font-semibold">Station Precip Sync Active</span>
                       </div>
                     </div>
+                  </div>
 
-                    <div className={`flex items-start gap-3 text-xs pt-2 border-t ${borderDivider}`}>
-                      <span className="w-2 h-2 rounded-full bg-[#D97706] mt-1.5 shrink-0" />
-                      <div className="flex-1">
-                        <div className={`flex justify-between items-center text-[10px] font-mono ${textMuted}`}>
-                          <span className="font-bold">Yesterday</span>
-                        </div>
-                        <p className={`font-bold mt-0.5 ${textPrimary}`}>Zone 09 moved to Medium Risk</p>
-                        <p className={`text-[11px] ${textMuted}`}>Precipitation inflow affecting bench access</p>
-                      </div>
-                    </div>
+                  <div className="lg:col-span-5 flex flex-col">
+                    <RecentActivityCard
+                      themeMode={themeMode}
+                      mineName={mineProfile.mineName}
+                      onNavigateStream={() => {
+                        setActiveTab('alerts');
+                      }}
+                    />
                   </div>
                 </div>
               </div>
 
               {/* SITE PROFILE: {mineProfile.mineName} */}
-              <div className={`p-6 rounded-xl border mb-6 ${cardBg}`}>
-                <h3 className={`font-headline font-black text-sm uppercase tracking-wider mb-4 flex items-center gap-2 ${textPrimary}`}>
-                  <span className="material-symbols-outlined text-[#0E7C7B] text-lg">factory</span>
-                  SITE PROFILE: {mineProfile.mineName.toUpperCase()}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className={`p-4 rounded-lg border ${nestedBg}`}>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 block ${textMuted}`}>Beneficiation Plant</span>
-                    <p className={`font-medium text-sm ${textPrimary}`}>
-                      Integrated manganese ore beneficiation plant with 4 lakh tonnes/annum r.o.m. processing capacity.
-                    </p>
+              <div className="relative overflow-hidden p-6 rounded-2xl border mb-6 text-white border-[#1A5499]/40 shadow-lg group">
+                {/* Background Mine Photo Layer */}
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
+                  style={{
+                    backgroundImage: `url('/assets/site_profile_mine_bg.jpg')`,
+                  }}
+                />
+
+                {/* Subtle Blue Gradient Overlay (Dark to Light Blue) */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#00142E]/92 via-[#002452]/84 to-[#0B3A73]/78 backdrop-blur-[0.5px]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#001026]/80 via-transparent to-transparent pointer-events-none" />
+
+                {/* Foreground Content */}
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 text-white drop-shadow-sm">
+                      <span className="material-symbols-outlined text-[#38BDF8] text-lg">factory</span>
+                      SITE PROFILE: {mineProfile.mineName.toUpperCase()}
+                    </h3>
+                    <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-mono uppercase tracking-widest text-sky-200">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      ACTIVE LEASE &amp; PLANT
+                    </div>
                   </div>
-                  <div className={`p-4 rounded-lg border ${nestedBg}`}>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 block ${textMuted}`}>EMD Plant Capacity</span>
-                    <p className={`font-medium text-sm ${textPrimary}`}>
-                      Hosts MOIL's Electrolytic Manganese Dioxide (EMD) plant with a capacity of 1,500 tonnes/year.
-                    </p>
-                  </div>
-                  <div className={`p-4 rounded-lg border ${nestedBg}`}>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 block ${textMuted}`}>EMD Production Trend</span>
-                    <p className={`font-medium text-sm ${textPrimary}`}>
-                      992t (2018-19) → 1,100t (2022-23) → 1,413t (2023-24)
-                    </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 rounded-xl bg-slate-700/65 backdrop-blur-md border border-slate-400/30 text-white shadow-sm hover:border-slate-300/50 hover:bg-slate-700/80 transition-all">
+                      <span className="text-[10px] font-bold uppercase tracking-wider mb-1.5 block text-[#38BDF8]">Beneficiation Plant</span>
+                      <p className="font-medium text-sm text-slate-100 leading-relaxed">
+                        Integrated manganese ore beneficiation plant with 4 lakh tonnes/annum r.o.m. processing capacity.
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-slate-700/65 backdrop-blur-md border border-slate-400/30 text-white shadow-sm hover:border-slate-300/50 hover:bg-slate-700/80 transition-all">
+                      <span className="text-[10px] font-bold uppercase tracking-wider mb-1.5 block text-[#38BDF8]">EMD Plant Capacity</span>
+                      <p className="font-medium text-sm text-slate-100 leading-relaxed">
+                        Hosts MOIL's Electrolytic Manganese Dioxide (EMD) plant with a capacity of 1,500 tonnes/year.
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-slate-700/65 backdrop-blur-md border border-slate-400/30 text-white shadow-sm hover:border-slate-300/50 hover:bg-slate-700/80 transition-all">
+                      <span className="text-[10px] font-bold uppercase tracking-wider mb-1.5 block text-[#38BDF8]">EMD Production Trend</span>
+                      <p className="font-medium text-sm text-slate-100 leading-relaxed">
+                        992t (2018-19) → 1,100t (2022-23) → 1,413t (2023-24)
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
