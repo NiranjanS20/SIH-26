@@ -103,10 +103,10 @@ export const MineSelectionPage: React.FC<MineSelectionPageProps> = ({
         {/* 1. PAGE INTRODUCTION */}
         {/* ========================================================================= */}
         <div
-          className={`p-6 sm:p-8 rounded-2xl border transition-colors ${
+          className={`p-6 sm:p-8 rounded-2xl border-2 transition-all ${
             isDark
-              ? 'bg-[#242830] border-white/10 shadow-xl'
-              : 'border-[#E2E8F0] border-b pb-6 bg-transparent'
+              ? 'bg-[#242830] border-[#002452] shadow-xl'
+              : 'bg-white border-[#002452] shadow-sm'
           }`}
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -167,16 +167,6 @@ export const MineSelectionPage: React.FC<MineSelectionPageProps> = ({
                 </span>
               </div>
 
-              {/* National Geospatial Reserve Mapping CTA Button */}
-              <button
-                onClick={() => onNavigate('reserve-mapping')}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider transition-all shadow-md cursor-pointer"
-                title="Open Interactive Geospatial Reserve Mapping Map of India"
-              >
-                <span className="text-sm">🗺️</span>
-                <span>National Reserve Mapping</span>
-              </button>
-
               {/* Sleek Theme Toggle Pill Switch */}
               {onToggleTheme && (
                 <ThemeToggleSwitch
@@ -189,390 +179,329 @@ export const MineSelectionPage: React.FC<MineSelectionPageProps> = ({
         </div>
 
         {/* ========================================================================= */}
-        {/* 2. FILTER BAR */}
+        {/* UNIFIED OPERATIONAL DIRECTORY PANEL (Subtle Relevant Blue Container) */}
         {/* ========================================================================= */}
         <div
-          className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-3.5 md:p-4 rounded-xl border shadow-md transition-colors ${
-            isDark ? 'bg-[#242830] border-[#363B46]' : 'bg-[#F1F5F9] border-[#CBD5E1]'
+          className={`p-4 sm:p-6 md:p-7 rounded-3xl border-2 sm:border-[3px] transition-all duration-300 shadow-2xl space-y-6 ${
+            isDark
+              ? 'bg-gradient-to-b from-[#101824] via-[#0C131D] to-[#080E16] border-[#2B3990]'
+              : 'bg-gradient-to-b from-[#D4E4F5] via-[#C7DBF0] to-[#BCCEE5] border-[#002452]'
           }`}
         >
-          {/* Left Category Filters */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span
-              className={`text-xs font-black uppercase tracking-wider mr-2 hidden md:inline-block ${
-                isDark ? 'text-[#D97706]' : 'text-[#002452]'
-              }`}
-            >
-              Filter by Type:
-            </span>
-            {['ALL MINES', 'OPEN CAST', 'UNDERGROUND', 'ACTIVE'].map((filter) => {
-              const isSelected = selectedFilter === filter;
-              return (
-                <button
-                  key={filter}
-                  onClick={() => setSelectedFilter(filter)}
-                  className={`px-4 py-2 rounded-lg text-xs font-body font-bold transition-all duration-200 cursor-pointer ${
-                    isSelected
-                      ? isDark
-                        ? 'bg-[#D97706] text-[#181B20] font-black shadow-md border border-[#D97706]'
-                        : 'bg-[#002452] text-white shadow-md border border-[#002452]'
-                      : isDark
-                      ? 'bg-[#2E333E] text-white hover:bg-[#383E4B] border border-white/10'
-                      : 'bg-white text-[#002452] hover:bg-[#002452] hover:text-white border border-[#CBD5E1]'
-                  }`}
-                >
-                  {filter}
-                  {filter === 'ALL MINES' && ` (${totalCount})`}
-                  {filter === 'OPEN CAST' && ` (${openCastCount})`}
-                  {filter === 'UNDERGROUND' && ` (${undergroundCount})`}
-                  {filter === 'ACTIVE' && ` (${activeCount})`}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Right State Selector */}
+          {/* ========================================================================= */}
+          {/* 2. CATEGORY & STATE FILTER BAR (Panoramic MOIL Strata Hero Banner) */}
+          {/* ========================================================================= */}
           <div
-            className={`flex items-center gap-1.5 p-1.5 rounded-lg border w-full sm:w-auto overflow-x-auto ${
-              isDark ? 'bg-[#181B20] border-white/15' : 'bg-white border-[#CBD5E1]'
-            }`}
+            className="relative overflow-hidden rounded-2xl border border-white/20 shadow-2xl transition-all p-7 sm:p-9 md:p-10 lg:p-12 min-h-[290px] sm:min-h-[330px] md:min-h-[360px] flex flex-col justify-between gap-8 md:gap-12"
           >
-            <span
-              className={`text-[11px] font-black uppercase tracking-wider px-2 shrink-0 ${
-                isDark ? 'text-[#D97706]' : 'text-[#002452]'
-              }`}
-            >
-              State:
-            </span>
-            {['ALL INDIA', 'MAHARASHTRA', 'MADHYA PRADESH'].map((stateName) => {
-              const isSelected = selectedState === stateName;
-              return (
-                <button
-                  key={stateName}
-                  onClick={() => setSelectedState(stateName)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-body font-bold transition-all duration-200 shrink-0 cursor-pointer ${
-                    isSelected
-                      ? isDark
-                        ? 'bg-[#D97706] text-[#181B20] font-black shadow-xs'
-                        : 'bg-[#002452] text-white shadow-xs'
-                      : isDark
-                      ? 'text-white/80 hover:bg-white/10 hover:text-white'
-                      : 'text-[#334155] hover:bg-[#F1F5F9] hover:text-[#002452]'
-                  }`}
-                >
-                  {stateName}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+            {/* Panoramic Mining Landscape Background Image - High Visibility */}
+            <img
+              src="/assets/filter_bar_mining_bg.jpg"
+              alt="MOIL Mining Strata"
+              className="absolute inset-0 w-full h-full object-cover object-[center_42%] opacity-90 select-none pointer-events-none transition-opacity duration-300 scale-100 hover:scale-[1.02] transition-transform duration-700"
+            />
 
-        {/* ========================================================================= */}
-        {/* 3. MAIN TWO-COLUMN CONTENT LAYOUT */}
-        {/* ========================================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* LEFT COLUMN: Large Interactive Map of India (7 Cols on desktop) */}
-          <div className="lg:col-span-7 space-y-3">
+            {/* Subtle Contrast Gradient Overlay (Preserves panoramic visibility in center) */}
             <div
-              className={`flex items-center justify-between p-3 rounded-lg border flex-wrap gap-2 ${
-                isDark ? 'bg-[#242830] border-white/10' : 'bg-[#F1F5F9] border-[#CBD5E1]'
+              className={`absolute inset-0 transition-colors ${
+                isDark
+                  ? 'bg-gradient-to-b from-[#07172B]/85 via-[#002452]/35 to-[#051120]/90'
+                  : 'bg-gradient-to-b from-[#001D42]/80 via-[#002452]/30 to-[#001428]/85'
               }`}
-            >
-              <div className="flex items-center gap-3">
-                <h2
-                  className={`font-headline text-base font-extrabold uppercase tracking-wide flex items-center gap-2 ${
-                    isDark ? 'text-white' : 'text-[#002452]'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[#D97706] text-xl">map</span>
-                  Operational Footprint & Location Map
-                </h2>
-                <span className={`text-xs font-bold hidden sm:inline ${isDark ? 'text-[#CBD5E1]' : 'text-[#44474F]'}`}>
-                  State Focus:{' '}
-                  <strong className={isDark ? 'text-[#D97706]' : 'text-[#002452]'}>
-                    {selectedState}
-                  </strong>
+            />
+
+            {/* Top Row: Enterprise Header & Sector Status */}
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-white">
+              <div>
+                <h3 className="font-headline text-lg sm:text-xl md:text-2xl font-extrabold text-white tracking-tight">
+                  Manganese Ore Mining Sectors & Digital Telemetry
+                </h3>
+              </div>
+
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-black/40 text-white/90 border border-white/20 backdrop-blur-md flex items-center gap-1.5 shadow-sm">
+                  <span className="material-symbols-outlined text-sm text-emerald-400">sensors</span>
+                  Central Telemetry Live
+                </span>
+              </div>
+            </div>
+
+            {/* Bottom Row: Category Filters (Left) & State Selector (Right) */}
+            <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pt-2">
+              {/* Left Category Filters */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-bold uppercase tracking-wider text-white/90 mr-1 hidden md:inline-flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[16px] text-[#FEA619]">tune</span>
+                  Filter by Type:
+                </span>
+                {[
+                  { id: 'ALL MINES', count: totalCount },
+                  { id: 'OPEN CAST', count: openCastCount },
+                  { id: 'UNDERGROUND', count: undergroundCount },
+                  { id: 'ACTIVE', count: activeCount },
+                ].map(({ id, count }) => {
+                  const isSelected = selectedFilter === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => setSelectedFilter(id)}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-body transition-all duration-200 cursor-pointer flex items-center gap-2 ${
+                        isSelected
+                          ? 'bg-white text-[#002452] font-black shadow-lg border border-white ring-2 ring-[#FEA619]/40'
+                          : 'bg-black/40 text-white hover:bg-black/60 hover:text-white border border-white/20 backdrop-blur-md font-semibold'
+                      }`}
+                    >
+                      <span>{id}</span>
+                      <span
+                        className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold transition-colors ${
+                          isSelected
+                            ? 'bg-[#002452]/15 text-[#002452]'
+                            : 'bg-white/25 text-white'
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Right State Selector */}
+              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/50 backdrop-blur-md border border-white/20 w-full lg:w-auto overflow-x-auto shadow-md">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 shrink-0 text-[#FEA619]">
+                  State:
+                </span>
+                {['ALL INDIA', 'MAHARASHTRA', 'MADHYA PRADESH'].map((stateName) => {
+                  const isSelected = selectedState === stateName;
+                  return (
+                    <button
+                      key={stateName}
+                      onClick={() => setSelectedState(stateName)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-body transition-all duration-200 shrink-0 cursor-pointer ${
+                        isSelected
+                          ? 'bg-white text-[#002452] font-black shadow-xs'
+                          : 'text-white/80 hover:text-white hover:bg-white/15 font-medium'
+                      }`}
+                    >
+                      {stateName}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* 3. MAIN TWO-COLUMN CONTENT LAYOUT */}
+          {/* ========================================================================= */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* LEFT COLUMN: Large Interactive Map of India (7 Cols on desktop) */}
+            <div className="lg:col-span-7 space-y-3">
+              <div
+                className={`flex items-center justify-between p-3 rounded-lg border flex-wrap gap-2 ${
+                  isDark ? 'bg-[#242830] border-white/10' : 'bg-[#F1F5F9] border-[#CBD5E1]'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <h2
+                    className={`font-headline text-base font-extrabold uppercase tracking-wide flex items-center gap-2 ${
+                      isDark ? 'text-white' : 'text-[#002452]'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[#D97706] text-xl">map</span>
+                    Operational Footprint & Location Map
+                  </h2>
+                  <span className={`text-xs font-bold hidden sm:inline ${isDark ? 'text-[#CBD5E1]' : 'text-[#44474F]'}`}>
+                    State Focus:{' '}
+                    <strong className={isDark ? 'text-[#D97706]' : 'text-[#002452]'}>
+                      {selectedState}
+                    </strong>
+                  </span>
+                </div>
+              </div>
+
+              {/* Interactive Leaflet Geospatial Map of India */}
+              <div className="border border-white/10 rounded-lg overflow-hidden shadow-sm">
+                <OperationalFootprintMap
+                  selectedState={activeStateFilter}
+                  selectedFilter={selectedFilter}
+                  hoveredMineId={hoveredMineId}
+                  onSelectMine={(geoMine) => {
+                    const match = MOIL_MINES.find((m) => m.id === geoMine.id);
+                    if (match) handleSelectMine(match);
+                  }}
+                  onHoverMine={(id) => setHoveredMineId(id)}
+                  onSelectState={(st) => setSelectedState(st.toUpperCase())}
+                  themeMode={themeMode}
+                  onLaunchWorkspace={(mineId) => onNavigate(`workspace/${mineId}` as PortalRoute)}
+                />
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN: Filtered Mines Directory Cards (5 Cols on desktop) */}
+            <div className="lg:col-span-5 space-y-3">
+              {/* Directory Header Bar */}
+              <div
+                className={`flex items-center justify-between p-3 rounded-lg border shadow-xs ${
+                  isDark
+                    ? 'bg-[#242830] border-[#002452] text-white'
+                    : 'bg-[#002452] border-[#001D42] text-white'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#D97706] text-xl">domain</span>
+                  <div>
+                    <h2 className="font-headline text-base font-extrabold uppercase tracking-wide">
+                      MOIL Mines
+                    </h2>
+                    <p className="text-[10px] text-white/70 font-medium">
+                      Showing {displayedMines.length} of {MOIL_MINES.length} operational mine leases
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-full text-xs font-black bg-[#D97706] text-[#181B20]">
+                  {displayedMines.length} {displayedMines.length === 1 ? 'Mine' : 'Mines'}
                 </span>
               </div>
 
-              {/* Dedicated Button for Full View of National Reserve Mapping */}
-              <button
-                onClick={() => onNavigate('reserve-mapping')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#D97706] hover:bg-[#B45309] text-white font-bold text-xs shadow-md transition-all cursor-pointer shrink-0 border border-[#D97706]"
-                title="Open Full-Screen Space-Tech GIS Platform"
-              >
-                <span>🗺️</span>
-                <span>National Reserve Mapping (Full View) ↗</span>
-              </button>
-            </div>
-
-            {/* Interactive Leaflet Geospatial Map of India */}
-            <OperationalFootprintMap
-              selectedState={activeStateFilter}
-              selectedFilter={selectedFilter}
-              hoveredMineId={hoveredMineId}
-              onSelectMine={(geoMine) => {
-                const match = MOIL_MINES.find((m) => m.id === geoMine.id);
-                if (match) handleSelectMine(match);
-              }}
-              onHoverMine={(id) => setHoveredMineId(id)}
-              onSelectState={(st) => setSelectedState(st.toUpperCase())}
-              themeMode={themeMode}
-              onLaunchWorkspace={(mineId) => onNavigate(`workspace/${mineId}` as PortalRoute)}
-            />
-          </div>
-
-          {/* RIGHT COLUMN: Formally Structured Mine List (5 Cols on desktop) */}
-          <div className="lg:col-span-5 space-y-3">
-            <div className="flex items-center justify-between bg-[#242830] text-white px-5 py-3.5 rounded-xl shadow-md border-b-4 border-[#D97706] border-t border-x border-white/10">
-              <div>
-                <h3 className="font-headline font-extrabold text-lg uppercase tracking-wider flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[#D97706] text-xl">domain</span>
-                  MOIL MINES
-                </h3>
-                <p className="text-[11px] text-[#CBD5E1] font-medium">
-                  Showing {displayedMines.length} of {totalCount} operational mine leases
-                </p>
+              {/* Table Column Labels */}
+              <div className="flex justify-between items-center text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider px-2 pt-1">
+                <span>Mine / Location</span>
+                <span>Workspace Action</span>
               </div>
-              <span className="px-3 py-1 rounded-full bg-[#D97706] text-[#181B20] font-black text-xs tracking-wider shadow-xs">
-                {totalCount} {totalCount === 1 ? 'MINE' : 'MINES'}
-              </span>
-            </div>
 
-            {/* Structured Table Column Header Row */}
-            <div
-              className={`hidden sm:flex items-center justify-between px-4 py-2 text-[10px] font-black uppercase tracking-wider border-b ${
-                isDark ? 'text-[#94A3B8] border-white/10' : 'text-[#64748B] border-[#CBD5E1]'
-              }`}
-            >
-              <span>Mine / Location</span>
-              <span>Workspace Action</span>
-            </div>
-
-            {/* Mine Entries Table/Structured List */}
-            <div className="space-y-3 max-h-[560px] overflow-y-auto pr-1">
-              {displayedMines.length === 0 ? (
-                <div
-                  className={`p-8 text-center rounded-xl border ${
-                    isDark
-                      ? 'bg-[#242830] border-white/10 text-[#CBD5E1]'
-                      : 'bg-[#F1F5F9] border-[#CBD5E1] text-[#334155]'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-3xl mb-2 text-[#94A3B8]">
-                    search_off
-                  </span>
-                  <p className="font-bold text-sm">No operational leases match current filters</p>
-                  <button
-                    onClick={() => {
-                      setSelectedState('MAHARASHTRA');
-                      setSelectedFilter('ALL MINES');
-                    }}
-                    className={`mt-3 text-xs font-black underline cursor-pointer ${
-                      isDark ? 'text-[#D97706]' : 'text-[#002452]'
+              {/* List of Mines */}
+              <div className="space-y-3 max-h-[560px] overflow-y-auto pr-1">
+                {displayedMines.length === 0 ? (
+                  <div
+                    className={`p-8 rounded-xl border text-center ${
+                      isDark ? 'bg-[#242830] border-white/10' : 'bg-white border-[#CBD5E1]'
                     }`}
                   >
-                    Reset Filters to Maharashtra
-                  </button>
-                </div>
-              ) : (
-                displayedMines.map((mine) => {
-                  const isHovered = hoveredMineId === mine.id;
-                  const isDongriBuzurg = mine.isImplemented;
+                    <p className={`font-bold ${isDark ? 'text-white' : 'text-[#002452]'}`}>
+                      No mines match the selected filters.
+                    </p>
+                    <p className="text-xs text-[#94A3B8] mt-1">
+                      Try selecting "All India" or another filter category.
+                    </p>
+                  </div>
+                ) : (
+                  displayedMines.map((mine) => {
+                    const isPilot = mine.isImplemented;
+                    const isHovered = hoveredMineId === mine.id;
 
-                  return (
-                    <div
-                      key={mine.id}
-                      onMouseEnter={() => setHoveredMineId(mine.id)}
-                      onMouseLeave={() => setHoveredMineId(null)}
-                      className={`p-4 rounded-xl transition-all duration-200 flex items-center justify-between gap-4 ${
-                        isDongriBuzurg
-                          ? isDark
-                            ? isHovered
-                              ? 'bg-gradient-to-r from-[#2C323D] via-[#242830] to-[#3B3327] border-l-4 border-l-[#D97706] border-t border-r border-b border-[#D97706] shadow-xl scale-[1.01]'
-                              : 'bg-gradient-to-r from-[#282D37] via-[#242830] to-[#342D24] border-l-4 border-l-[#D97706] border-t border-r border-b border-[#D97706]/40 shadow-lg'
-                            : isHovered
-                            ? 'bg-gradient-to-r from-[#E6F0FA] via-[#F4F8FD] to-[#FFF8EA] border-l-4 border-l-[#D97706] border-t border-r border-b border-[#002452]/40 shadow-lg scale-[1.01]'
-                            : 'bg-gradient-to-r from-[#EDF5FE] via-[#F6F9FD] to-[#FFFBF2] border-l-4 border-l-[#002452] border-t border-r border-b border-[#002452]/30 shadow-md'
-                          : isDark
-                          ? isHovered
-                            ? 'bg-[#2E333E] border-white/20 shadow-md'
-                            : 'bg-[#242830] border border-white/10 hover:border-white/20'
-                          : isHovered
-                          ? 'bg-[#EAEFF5] border-[#94A3B8] shadow-sm'
-                          : 'bg-[#F1F5F9] border border-[#CBD5E1]'
-                      }`}
-                    >
-                      {/* Left Mine Info */}
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`w-2.5 h-2.5 rounded-full ${
-                              isDongriBuzurg ? 'bg-[#D97706] animate-pulse' : 'bg-emerald-500'
-                            }`}
-                          ></span>
-                          <h4
-                            className={`font-headline font-extrabold text-base tracking-tight uppercase ${
-                              isDark ? 'text-white' : 'text-[#002452]'
-                            }`}
-                          >
-                            {mine.name}
-                          </h4>
-                          {isDongriBuzurg && (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-black bg-[#D97706] text-[#181B20] uppercase tracking-wider shadow-xs">
-                              PILOT WORKSPACE
-                            </span>
-                          )}
-                        </div>
+                    return (
+                      <div
+                        key={mine.id}
+                        onMouseEnter={() => setHoveredMineId(mine.id)}
+                        onMouseLeave={() => setHoveredMineId(null)}
+                        className={`p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
+                          isHovered
+                            ? isDark
+                              ? 'bg-[#2E2417] border-[#FEA619] shadow-md -translate-y-0.5'
+                              : 'bg-[#FFFDF5] border-[#2B3990] shadow-md -translate-y-0.5'
+                            : isDark
+                            ? 'bg-[#241E15] border-[#2B3990] hover:border-[#FEA619]'
+                            : 'bg-[#FEF9EE] border-[#2B3990] hover:border-[#FEA619]'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <div
+                                className={`w-2 h-2 rounded-full ${
+                                  isPilot ? 'bg-emerald-400' : 'bg-amber-400'
+                                }`}
+                              />
+                              <h3
+                                className={`font-headline text-sm font-black uppercase tracking-wide truncate ${
+                                  isDark ? 'text-white' : 'text-[#002452]'
+                                }`}
+                              >
+                                {mine.name}
+                              </h3>
+                              {isPilot && (
+                                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-[#D97706]/20 text-[#D97706] border border-[#D97706]/40">
+                                  Pilot Workspace
+                                </span>
+                              )}
+                            </div>
 
-                        {/* Location & Type */}
-                        <div
-                          className={`flex items-center gap-3 text-xs font-body ${
-                            isDark ? 'text-[#CBD5E1]' : 'text-[#1E293B]'
-                          }`}
-                        >
-                          <span className="flex items-center gap-1 font-semibold">
-                            <span
-                              className={`material-symbols-outlined text-sm ${
-                                isDark ? 'text-[#D97706]' : 'text-[#002452]'
+                            <p
+                              className={`text-xs mt-1 flex items-center gap-1 font-medium ${
+                                isDark ? 'text-[#CBD5E1]' : 'text-[#44474F]'
                               }`}
                             >
-                              location_on
-                            </span>
-                            {mine.location}
-                          </span>
-                          <span className={isDark ? 'text-white/30' : 'text-[#94A3B8]'}>|</span>
-                          <span
-                            className={`font-extrabold px-2 py-0.5 rounded border ${
-                              isDark
-                                ? 'bg-[#2E333E] text-slate-200 border-white/10'
-                                : 'bg-white text-[#002452] border-[#CBD5E1]'
-                            }`}
-                          >
-                            {mine.type}
-                          </span>
-                        </div>
+                              <span className="material-symbols-outlined text-sm shrink-0 text-[#FEA619]">
+                                location_on
+                              </span>
+                              <span>
+                                {mine.district}, {mine.state}
+                              </span>
+                              <span className="mx-1 text-[#94A3B8]">•</span>
+                              <span
+                                className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                                  isDark
+                                    ? 'bg-[#2E333E] text-white/90'
+                                    : 'bg-[#E2E8F0] text-[#002452]'
+                                }`}
+                              >
+                                {mine.type}
+                              </span>
+                            </p>
 
-                        {/* Status Badge */}
-                        <div className="flex items-center gap-1.5 pt-0.5">
-                          <span
-                            className={`inline-flex items-center gap-1.5 text-[11px] font-extrabold px-2 py-0.5 rounded border ${
-                              isDongriBuzurg
-                                ? isDark
-                                  ? 'bg-amber-950/60 text-[#D97706] border-[#D97706]/40'
-                                  : 'bg-amber-50 text-[#002452] border-amber-200'
-                                : isDark
-                                ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40'
-                                : 'bg-emerald-100/90 text-emerald-900 border-emerald-300'
-                            }`}
-                          >
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full ${
-                                isDongriBuzurg ? 'bg-[#D97706]' : 'bg-emerald-500'
-                              }`}
-                            ></span>
-                            <span>
-                              {isDongriBuzurg
-                                ? '● Active Telemetry Hub'
-                                : '● Active Operational Lease'}
-                            </span>
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Right Action Button */}
-                      <div className="shrink-0">
-                        {isDongriBuzurg ? (
-                          <button
-                            onClick={() => handleSelectMine(mine)}
-                            className={`px-4 py-2.5 rounded-lg text-xs font-body font-extrabold uppercase tracking-wider transition-all shadow-md hover:shadow-xl flex items-center gap-1.5 cursor-pointer border group ${
-                              isDark
-                                ? 'bg-[#D97706] hover:bg-[#B45309] text-[#181B20] border-[#D97706]'
-                                : 'bg-[#002452] hover:bg-[#1B3A6B] text-white border-[#D97706]/50'
-                            }`}
-                          >
-                            <span>Open Workspace</span>
-                            <span
-                              className={`material-symbols-outlined text-sm transition-transform group-hover:translate-x-1 ${
-                                isDark ? 'text-[#181B20]' : 'text-[#D97706]'
+                            <p
+                              className={`text-[11px] mt-1.5 flex items-center gap-1 font-medium ${
+                                isPilot
+                                  ? isDark
+                                    ? 'text-[#FEA619]'
+                                    : 'text-[#D97706]'
+                                  : isDark
+                                  ? 'text-slate-400'
+                                  : 'text-slate-500'
                               }`}
                             >
-                              arrow_forward
-                            </span>
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleSelectMine(mine)}
-                            className={`px-3 py-1.5 rounded-lg text-[11px] font-body font-bold cursor-not-allowed border flex items-center gap-1 shadow-2xs ${
-                              isDark
-                                ? 'bg-white/10 text-white/70 border-white/15 hover:bg-white/15'
-                                : 'bg-[#CBD5E1]/90 text-[#1E293B] border-[#94A3B8]/70'
-                            }`}
-                            title="Telemetry integration pending for Phase II"
-                          >
-                            <span>Phase II Onboarding</span>
-                            <span className="material-symbols-outlined text-xs">lock</span>
-                          </button>
-                        )}
+                              <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                              {isPilot
+                                ? 'Active Telemetry Hub'
+                                : 'Active Operational Lease'}
+                            </p>
+                          </div>
+
+                          <div className="shrink-0 flex items-center gap-2">
+                            {isPilot ? (
+                              <button
+                                onClick={() => handleSelectMine(mine)}
+                                className="px-4 py-2 rounded-lg text-xs font-bold cursor-pointer transition-all flex items-center gap-1.5 bg-[#002452] hover:bg-[#2B3990] text-white shadow-sm border border-[#002452]"
+                              >
+                                <span>Open Workspace</span>
+                                <span className="material-symbols-outlined text-sm">
+                                  arrow_forward
+                                </span>
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleSelectMine(mine)}
+                                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium cursor-not-allowed border flex items-center gap-1.5 ${
+                                  isDark
+                                    ? 'border-amber-500/25 bg-[#2B2317]/60 text-amber-300/60'
+                                    : 'border-amber-200/80 bg-white/70 text-slate-500'
+                                }`}
+                                title="Telemetry integration pending for Phase II"
+                              >
+                                <span>Phase II Onboarding</span>
+                                <span className="material-symbols-outlined text-xs">lock</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })
-              )}
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* ========================================================================= */}
-        {/* 4. BOTTOM OPERATIONAL NOTE */}
-        {/* ========================================================================= */}
-        <div
-          className={`p-5 rounded-xl border shadow-xs flex flex-col md:flex-row items-center justify-between gap-4 text-xs ${
-            isDark
-              ? 'bg-[#242830] border-white/15 text-white'
-              : 'bg-[#F1F5F9] border-[#CBD5E1] text-[#1E293B]'
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#181B20] flex items-center justify-center shrink-0 border border-white/20 shadow-xs">
-              <span className="material-symbols-outlined text-[#D97706]">shield_with_house</span>
-            </div>
-            <div>
-              <p
-                className={`font-extrabold uppercase tracking-wider text-xs ${
-                  isDark ? 'text-[#D97706]' : 'text-[#002452]'
-                }`}
-              >
-                MOIL Enterprise Digital Network Architecture
-              </p>
-              <p
-                className={`text-xs font-medium mt-0.5 ${
-                  isDark ? 'text-[#CBD5E1]' : 'text-[#334155]'
-                }`}
-              >
-                Dongri Buzurg manganese mine serves as the active pilot for real-time 3D seam
-                telemetry and production dispatch models.
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => onNavigate('workspace/dongri-buzurg' as PortalRoute)}
-            className={`px-5 py-2.5 rounded-lg text-xs font-extrabold uppercase tracking-wider shrink-0 cursor-pointer shadow-sm flex items-center gap-2 border ${
-              isDark
-                ? 'bg-[#D97706] hover:bg-[#B45309] text-[#181B20] border-[#D97706]'
-                : 'bg-[#002452] hover:bg-[#1B3A6B] text-white border-[#D97706]/40'
-            }`}
-          >
-            <span>Enter Dongri Buzurg Workspace</span>
-            <span
-              className={`material-symbols-outlined text-sm ${
-                isDark ? 'text-[#181B20]' : 'text-[#D97706]'
-              }`}
-            >
-              arrow_forward
-            </span>
-          </button>
         </div>
       </div>
     </div>

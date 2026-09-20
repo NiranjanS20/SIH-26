@@ -26,12 +26,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, onNavigate }) => {
 
   const portalRoute: PortalRoute = user?.role === 'industry_viewer' ? 'industry-viewer' : 'mine-selection';
 
+  const isLanding = currentRoute === 'landing';
+  const navBackground = isLanding
+    ? (scrolled
+        ? 'bg-[#002452]/95 backdrop-blur-md border-b border-white/10 shadow-lg py-1'
+        : 'bg-transparent border-none shadow-none py-2')
+    : (scrolled
+        ? 'bg-[#002452] backdrop-blur-md border-b border-white/10 shadow-lg py-1'
+        : 'bg-[#002452] border-b border-white/10 shadow-md py-2');
+
   return (
-    <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-      scrolled 
-        ? 'bg-[#002452]/90 backdrop-blur-md border-b border-white/10 shadow-lg py-1' 
-        : 'bg-transparent border-none shadow-none py-2'
-    }`}>
+    <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${navBackground}`}>
       <div className="relative flex justify-between items-center max-w-[1440px] mx-auto px-4 md:px-12 h-20">
         
         {/* Left: Official MOIL Logo */}
@@ -140,16 +145,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, onNavigate }) => {
                 </button>
               </div>
             )
-          ) : (
-            // Not logged in: show Login button
-            <button
-              onClick={() => onNavigate && onNavigate('login')}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#D97706] to-[#B45309] text-white font-bold text-sm shadow-md hover:from-[#F59E0B] hover:to-[#D97706] transition-all cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-base">login</span>
-              Login
-            </button>
-          )}
+          ) : null}
         </div>
 
       </div>
