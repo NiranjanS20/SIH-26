@@ -16,15 +16,27 @@ import { MineSelectionPage } from './components/MineSelectionPage';
 import { MineWorkspace } from './components/MineWorkspace';
 import { ReserveMappingPage } from './components/ReserveMappingPage';
 import { LoginPage } from './components/LoginPage';
+import { IndustryViewerDashboard } from './components/IndustryViewerDashboard';
 
 // Inner app that has access to AuthContext
 function AppInner() {
   const [currentRoute, setCurrentRoute] = useState<PortalRoute>('landing');
-  const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark');
+  const [themeMode, setThemeMode] = useState<'dark' | 'light'>('light');
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [selectedMine, setSelectedMine] = useState<any | null>(null);
 
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
+
+  // Handle unauthorized event globally
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      logout();
+      setCurrentRoute('login');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
+  }, [logout]);
 
   // Setup Intersection Observer for smooth section fade-in animations
   useEffect(() => {
@@ -67,6 +79,7 @@ function AppInner() {
   const isFullScreenWorkspace =
     currentRoute.startsWith('workspace/') ||
     currentRoute === 'reserve-mapping' ||
+    currentRoute === 'industry-viewer' ||
     currentRoute === 'login';
 
   return (
@@ -130,6 +143,15 @@ function AppInner() {
             onToggleTheme={handleToggleTheme}
             initialMineId={currentRoute.replace('workspace/', '')}
             userRole={user?.role ?? 'site_manager'}
+          />
+        )}
+
+        {/* INDUSTRY VIEWER DASHBOARD */}
+        {currentRoute === 'industry-viewer' && (
+          <IndustryViewerDashboard
+            onNavigate={handleNavigate}
+            themeMode={themeMode}
+            onToggleTheme={handleToggleTheme}
           />
         )}
 

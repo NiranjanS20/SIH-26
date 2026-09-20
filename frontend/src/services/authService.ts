@@ -5,7 +5,7 @@ const TOKEN_KEY = 'moil_auth_token';
 export interface AuthUser {
   sub: string;
   name: string;
-  role: 'admin' | 'site_manager';
+  role: 'admin' | 'site_manager' | 'industry_viewer';
   display_name: string;
   exp: number;
 }

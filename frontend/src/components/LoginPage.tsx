@@ -22,8 +22,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
     try {
       const user = await loginUser(username.trim(), password);
       setUser(user);
-      // Both roles land on mine-selection page
-      onNavigate('mine-selection');
+      // Industry viewers get their own read-only dashboard; operational roles go to mine-selection
+      if (user.role === 'industry_viewer') {
+        onNavigate('industry-viewer');
+      } else {
+        onNavigate('mine-selection');
+      }
     } catch (err: any) {
       const msg = err.message || 'Authentication failed';
       setError(msg === 'Failed to fetch' ? 'Unable to connect to the authentication server.' : msg);
@@ -32,46 +36,49 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
     }
   };
 
-  const fillDemo = (role: 'admin' | 'site_manager') => {
+  const fillDemo = (role: 'admin' | 'site_manager' | 'industry_viewer') => {
     if (role === 'admin') {
       setUsername('admin');
       setPassword('admin123');
-    } else {
+    } else if (role === 'site_manager') {
       setUsername('sitemanager');
       setPassword('site123');
+    } else {
+      setUsername('industry');
+      setPassword('industry123');
     }
     setError(null);
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0E14] flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen bg-[#FCF9F8] flex items-center justify-center relative overflow-hidden">
       {/* Ambient background glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[#D97706]/8 rounded-full blur-[120px]" />
+        <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[#D97706]/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#0E7C7B]/10 rounded-full blur-[100px]" />
         {/* Subtle grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:40px_40px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
       </div>
 
       <div className="relative z-10 w-full max-w-md px-4">
         {/* Back to landing */}
         <button
           onClick={() => onNavigate('landing')}
-          className="mb-8 flex items-center gap-2 text-slate-400 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+          className="mb-8 flex items-center gap-2 text-slate-500 hover:text-slate-800 text-xs font-semibold transition-colors cursor-pointer"
         >
           <span className="material-symbols-outlined text-sm">arrow_back</span>
           Back to Home
         </button>
 
         {/* Card */}
-        <div className="bg-[#13171E]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl shadow-black/60">
+        <div className="bg-white/90 backdrop-blur-xl border border-slate-200 rounded-2xl p-8 shadow-2xl shadow-slate-200/50">
           {/* Logo & branding */}
           <div className="mb-8 text-center">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-[#D97706] to-[#92400E] mb-4 shadow-lg shadow-amber-900/40">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-[#D97706] to-[#92400E] mb-4 shadow-lg shadow-amber-900/20">
               <span className="material-symbols-outlined text-white text-2xl">landslide</span>
             </div>
-            <h1 className="text-2xl font-black text-white tracking-tight">MOIL Intelligence</h1>
-            <p className="text-slate-400 text-sm mt-1 font-medium">
+            <h1 className="text-2xl font-black text-[#1B1B1C] tracking-tight">MOIL Intelligence</h1>
+            <p className="text-slate-500 text-sm mt-1 font-medium">
               Operational Portal — Secure Access
             </p>
           </div>
@@ -80,11 +87,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Username */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Username
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-500 text-sm">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-sm">
                   person
                 </span>
                 <input
@@ -94,18 +101,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
                   placeholder="Enter your username"
                   required
                   autoComplete="username"
-                  className="w-full pl-9 pr-4 py-3 bg-[#1C2130] border border-white/10 rounded-xl text-white text-sm placeholder-slate-600 focus:outline-none focus:border-[#D97706] focus:ring-1 focus:ring-[#D97706]/40 transition-all"
+                  className="w-full pl-9 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-[#D97706] focus:ring-1 focus:ring-[#D97706]/40 transition-all"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Password
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-500 text-sm">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-sm">
                   lock
                 </span>
                 <input
@@ -115,12 +122,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
                   placeholder="Enter your password"
                   required
                   autoComplete="current-password"
-                  className="w-full pl-9 pr-10 py-3 bg-[#1C2130] border border-white/10 rounded-xl text-white text-sm placeholder-slate-600 focus:outline-none focus:border-[#D97706] focus:ring-1 focus:ring-[#D97706]/40 transition-all"
+                  className="w-full pl-9 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-[#D97706] focus:ring-1 focus:ring-[#D97706]/40 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-sm">
                     {showPassword ? 'visibility_off' : 'visibility'}
@@ -154,11 +161,40 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
             </button>
           </form>
 
+          {/* Demo Login Buttons */}
+          <div className="mt-6 pt-6 border-t border-slate-200">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center mb-3">
+              Fast-fill Demo Accounts
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => fillDemo('admin')}
+                className="py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                Admin
+              </button>
+              <button
+                type="button"
+                onClick={() => fillDemo('site_manager')}
+                className="py-2 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                Site Manager
+              </button>
+              <button
+                type="button"
+                onClick={() => fillDemo('industry_viewer')}
+                className="py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                Industry Viewer
+              </button>
+            </div>
+          </div>
 
         </div>
 
         {/* Footer note */}
-        <p className="mt-6 text-center text-slate-600 text-xs font-medium">
+        <p className="mt-6 text-center text-slate-400 text-xs font-medium">
           MOIL Intelligent Operations Platform
         </p>
       </div>

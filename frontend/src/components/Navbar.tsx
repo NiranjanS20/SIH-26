@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
-export type PortalRoute = 'landing' | 'login' | 'mine-selection' | 'reserve-mapping' | `workspace/${string}`;
+export type PortalRoute = 'landing' | 'login' | 'mine-selection' | 'reserve-mapping' | 'industry-viewer' | `workspace/${string}`;
 
 interface NavbarProps {
   currentRoute?: PortalRoute;
   onNavigate?: (route: PortalRoute) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentRoute, onNavigate }) => {
   const [scrolled, setScrolled] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
 
@@ -23,6 +23,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const portalRoute: PortalRoute = user?.role === 'industry_viewer' ? 'industry-viewer' : 'mine-selection';
 
   return (
     <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
@@ -100,30 +102,42 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
         {/* Right: Login / User Info */}
         <div className="flex items-center gap-2">
           {isAuthenticated && user ? (
-            // Logged in: show role badge + logout
-            <div className="flex items-center gap-2">
-              <span className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border ${
-                user.role === 'admin'
-                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-                  : 'bg-teal-500/10 border-teal-500/30 text-teal-400'
-              }`}>
-                <span className="material-symbols-outlined text-sm">
-                  {user.role === 'admin' ? 'shield' : 'badge'}
-                </span>
-                {user.role === 'admin' ? 'Admin' : 'Site Manager'}
-              </span>
+            currentRoute === 'landing' ? (
               <button
-                onClick={() => {
-                  logout();
-                  if (onNavigate) onNavigate('landing');
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 hover:text-white text-xs font-semibold transition-all cursor-pointer"
-                title="Logout"
+                onClick={() => onNavigate && onNavigate(portalRoute)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#002452] text-white font-bold text-sm shadow-md hover:bg-[#003070] transition-all cursor-pointer border border-white/20"
               >
-                <span className="material-symbols-outlined text-sm">logout</span>
-                <span className="hidden sm:inline">Logout</span>
+                Go to Portal
+                <span className="material-symbols-outlined text-base">arrow_forward</span>
               </button>
-            </div>
+            ) : (
+              // Logged in: show role badge + logout
+              <div className="flex items-center gap-2">
+                <span className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                  user.role === 'admin'
+                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                    : user.role === 'industry_viewer'
+                      ? 'bg-purple-500/10 border-purple-500/30 text-purple-400'
+                      : 'bg-teal-500/10 border-teal-500/30 text-teal-400'
+                }`}>
+                  <span className="material-symbols-outlined text-sm">
+                    {user.role === 'admin' ? 'shield' : user.role === 'industry_viewer' ? 'visibility' : 'badge'}
+                  </span>
+                  {user.role === 'admin' ? 'Admin' : user.role === 'industry_viewer' ? 'Industry Viewer' : 'Site Manager'}
+                </span>
+                <button
+                  onClick={() => {
+                    logout();
+                    if (onNavigate) onNavigate('landing');
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 hover:text-white text-xs font-semibold transition-all cursor-pointer"
+                  title="Logout"
+                >
+                  <span className="material-symbols-outlined text-sm">logout</span>
+                  <span className="hidden sm:inline">Logout</span>
+                </button>
+              </div>
+            )
           ) : (
             // Not logged in: show Login button
             <button

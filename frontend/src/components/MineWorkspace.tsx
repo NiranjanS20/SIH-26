@@ -22,7 +22,7 @@ interface MineWorkspaceProps {
   themeMode?: 'dark' | 'light';
   onToggleTheme?: () => void;
   initialMineId?: string;
-  userRole?: 'admin' | 'site_manager';
+  userRole?: 'admin' | 'site_manager' | 'industry_viewer';
 }
 
 export type OverviewTab =
@@ -1842,6 +1842,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
               </div>
 
               {/* WHAT-IF SIMULATION */}
+              {userRole === 'admin' && (
               <div className={`p-6 rounded-xl border space-y-5 ${cardBg}`}>
                 <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 ${borderDivider}`}>
                   <div>
@@ -1901,6 +1902,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                   </button>
                 </div>
               </div>
+              )}
             </div>
           )}
 
@@ -1925,7 +1927,9 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                 <div className="flex items-center gap-3 flex-wrap">
                   <div className={`flex items-center p-1 rounded-lg border ${nestedBg}`}>
                     <button onClick={() => setDiagnosisViewMode('SUMMARY')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${diagnosisViewMode === 'SUMMARY' ? 'bg-[#B03A2E] text-white' : textMuted}`}>Summary</button>
-                    <button onClick={() => setDiagnosisViewMode('CAUSE_ANALYSIS')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${diagnosisViewMode === 'CAUSE_ANALYSIS' ? 'bg-[#B03A2E] text-white' : textMuted}`}>Cause Analysis</button>
+                    {userRole === 'admin' && (
+                      <button onClick={() => setDiagnosisViewMode('CAUSE_ANALYSIS')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${diagnosisViewMode === 'CAUSE_ANALYSIS' ? 'bg-[#B03A2E] text-white' : textMuted}`}>Cause Analysis</button>
+                    )}
                   </div>
                 </div>
               </div>

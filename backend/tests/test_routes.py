@@ -5,55 +5,77 @@ from app.core.security import generate_demo_token
 
 client = TestClient(app)
 
-def get_auth_headers(role: str = "Mine Officer"):
-    token = generate_demo_token(role)
+def get_auth_headers(role: str, name: str):
+    token = generate_demo_token(role, name)
     return {"Authorization": f"Bearer {token}"}
 
 def test_health_check():
     response = client.get("/api/v1/health")
     assert response.status_code == 200
-    data = response.json()
-    assert data["status"] == "ok"
-    # Note: models/data might not be loaded in simple test context without lifespan triggering manually,
-    # but the route should return 200 regardless.
 
+# LOGIN TESTS
+def test_admin_login():
+    response = client.post("/api/v1/auth/login", json={"username": "admin", "password": "admin123"})
+    assert response.status_code == 200
+    assert response.json()["role"] == "admin"
+
+def test_site_manager_login():
+    response = client.post("/api/v1/auth/login", json={"username": "sitemanager", "password": "site123"})
+    assert response.status_code == 200
+    assert response.json()["role"] == "site_manager"
+
+def test_industry_login():
+    response = client.post("/api/v1/auth/login", json={"username": "industry", "password": "industry123"})
+    assert response.status_code == 200
+    assert response.json()["role"] == "industry_viewer"
+
+def test_invalid_credentials():
+    response = client.post("/api/v1/auth/login", json={"username": "admin", "password": "wrongpassword"})
+    assert response.status_code == 401
+
+def test_invalid_token():
+    response = client.get("/api/v1/mines/dongri-buzurg/workspace", headers={"Authorization": "Bearer invalid.token.here"})
+    assert response.status_code == 401
+
+# AUTHORIZATION TESTS
 def test_workspace_no_auth():
     response = client.get("/api/v1/mines/dongri-buzurg/workspace")
-    assert response.status_code == 403 # Missing token
+    assert response.status_code == 401 # Should be 401 Unauthorized, not 403
 
-def test_workspace_with_auth():
-    # If the workspace cache isn't built during test due to TestClient lifespan behavior, this might 404.
-    # We use TestClient with context manager to trigger lifespan
+def test_admin_cause_analysis():
     with TestClient(app) as client_with_lifespan:
         response = client_with_lifespan.get(
-            "/api/v1/mines/dongri-buzurg/workspace",
-            headers=get_auth_headers()
+            "/api/v1/mines/dongri-buzurg/cause-analysis",
+            headers=get_auth_headers("admin", "Admin User")
         )
-        # Ideally 200, but if model files don't exist in test environment, lifespan might fail or 404.
-        # We assert it's a valid HTTP response and not a 500 error.
         assert response.status_code in [200, 404]
-        
-def test_whatif_auth_roles():
+
+def test_site_manager_denial_cause_analysis():
     with TestClient(app) as client_with_lifespan:
+        response = client_with_lifespan.get(
+            "/api/v1/mines/dongri-buzurg/cause-analysis",
+            headers=get_auth_headers("site_manager", "Site Manager User")
+        )
+        assert response.status_code == 403
+
+def test_industry_viewer_denial_operational():
+    with TestClient(app) as client_with_lifespan:
+        # Industry viewer should be denied from workspace (operational endpoint)
+        response = client_with_lifespan.get(
+            "/api/v1/mines/dongri-buzurg/workspace",
+            headers=get_auth_headers("industry_viewer", "Industry User")
+        )
+        assert response.status_code == 403
+
+        # Also denied from whatif
         payload = {
             "equipment_availability_pct": 85.0,
             "blasting_delay_days": 1.0,
             "precipitation_mm": 50.0
         }
-        
-        # Unauthorized (Industry Viewer not allowed for whatif according to our RBAC logic)
         resp_denied = client_with_lifespan.post(
-            "/api/v1/whatif/simulate",
+            "/api/v1/whatif/dongri-buzurg/simulate",
             json=payload,
-            headers=get_auth_headers(role="Industry Viewer")
+            headers=get_auth_headers("industry_viewer", "Industry User")
         )
         assert resp_denied.status_code == 403
-        
-        # Authorized
-        resp_allowed = client_with_lifespan.post(
-            "/api/v1/whatif/simulate",
-            json=payload,
-            headers=get_auth_headers(role="Mine Officer")
-        )
-        # Assuming model loads, it returns 200. Otherwise 500.
-        assert resp_allowed.status_code in [200, 500]

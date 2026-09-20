@@ -21,6 +21,12 @@ DEMO_USERS = {
         "name": "Priya Sharma (Site Manager)",
         "display_name": "Priya Sharma",
     },
+    "industry": {
+        "password": "industry123",
+        "role": "industry_viewer",
+        "name": "Industry Partner (Viewer)",
+        "display_name": "Industry Partner",
+    },
 }
 
 

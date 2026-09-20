@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import { type AuthUser, getStoredUser, logoutUser } from '../services/authService';
 
 interface AuthContextValue {
@@ -8,6 +8,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isSiteManager: boolean;
+  isIndustryViewer: boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -31,6 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
     isSiteManager: user?.role === 'site_manager',
+    isIndustryViewer: user?.role === 'industry_viewer',
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
