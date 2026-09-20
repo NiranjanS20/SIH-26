@@ -36,19 +36,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
     }
   };
 
-  const fillDemo = (role: 'admin' | 'site_manager' | 'industry_viewer') => {
-    if (role === 'admin') {
-      setUsername('admin');
-      setPassword('admin123');
-    } else if (role === 'site_manager') {
-      setUsername('sitemanager');
-      setPassword('site123');
-    } else {
-      setUsername('industry');
-      setPassword('industry123');
-    }
-    setError(null);
-  };
+
 
   return (
     <div className="min-h-screen bg-[#FCF9F8] flex items-center justify-center relative overflow-hidden">
@@ -161,35 +149,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
             </button>
           </form>
 
-          {/* Demo Login Buttons */}
-          <div className="mt-6 pt-6 border-t border-slate-200">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center mb-3">
-              Fast-fill Demo Accounts
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => fillDemo('admin')}
-                className="py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
-              >
-                Admin
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemo('site_manager')}
-                className="py-2 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
-              >
-                Site Manager
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemo('industry_viewer')}
-                className="py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
-              >
-                Industry Viewer
-              </button>
-            </div>
-          </div>
+
 
         </div>
 
