@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
-export type PortalRoute = 'landing' | 'login' | 'mine-selection' | 'reserve-mapping' | 'industry-viewer' | `workspace/${string}`;
+export type PortalRoute = 'landing' | 'login' | 'mine-selection' | 'reserve-mapping' | 'industry-viewer' | 'admin-control-center' | `workspace/${string}`;
 
 interface NavbarProps {
   currentRoute?: PortalRoute;
@@ -24,7 +24,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentRoute, onNavigate }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const portalRoute: PortalRoute = user?.role === 'industry_viewer' ? 'industry-viewer' : 'mine-selection';
+  const portalRoute: PortalRoute = 
+    user?.role === 'admin' 
+      ? 'admin-control-center' 
+      : user?.role === 'industry_viewer' 
+        ? 'industry-viewer' 
+        : 'mine-selection';
 
   const isLanding = currentRoute === 'landing';
   const navBackground = isLanding

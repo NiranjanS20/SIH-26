@@ -87,3 +87,27 @@ def test_industry_viewer_denial_operational():
             headers=get_auth_headers(role="admin")
         )
         assert resp_allowed.status_code in [200, 500]
+
+def test_admin_endpoints_rbac():
+    with TestClient(app) as client_with_lifespan:
+        # Admin allowed
+        admin_resp = client_with_lifespan.get(
+            "/api/v1/admin/overview",
+            headers=get_auth_headers("admin", "Admin User")
+        )
+        assert admin_resp.status_code == 200
+        assert admin_resp.json()["success"] is True
+
+        # Site manager denied from admin overview
+        sm_resp = client_with_lifespan.get(
+            "/api/v1/admin/overview",
+            headers=get_auth_headers("site_manager", "Site Manager User")
+        )
+        assert sm_resp.status_code == 403
+
+        # Industry viewer denied from admin overview
+        ind_resp = client_with_lifespan.get(
+            "/api/v1/admin/overview",
+            headers=get_auth_headers("industry_viewer", "Industry User")
+        )
+        assert ind_resp.status_code == 403
