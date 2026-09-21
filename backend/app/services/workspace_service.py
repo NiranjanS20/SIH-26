@@ -500,6 +500,108 @@ def precompute_workspace_data():
     }
     _workspace_cache["balaghat"] = MineWorkspaceData(**workspace_data_balaghat)
     
+    # --- Precompute Ukwa Underground ---
+    actual_prod_ukwa = 113946.0
+    target_prod_ukwa = 113470.0
+    
+    workspace_data_ukwa = {
+        "mineInfo": {
+            "id": "ukwa",
+            "name": "Ukwa Mine",
+            "location": "Balaghat, Madhya Pradesh",
+            "district": "Balaghat District",
+            "state": "Madhya Pradesh",
+            "type": "Underground Manganese Mine",
+            "leaseId": "MOIL-LEASE-UK-08",
+            "status": "Active Digital Telemetry Hub",
+            "dgmsStatus": "DGMS Safety Approved",
+            "ibmRegistration": "IBM/4281/UK-01"
+        },
+        "operationalSummary": {
+            "headline": "Ukwa Underground Operations Center",
+            "riskState": "LOW",
+            "dynamicStatement": "TARGET EXCEEDED: Production surpassed planned targets with zero violations reported.",
+            "coreValueMessage": "Underground manual cut and fill operations successfully balancing high production with safe hydraulic sand stowing.",
+            "complianceStandard": "DGMS & IBM Regulatory Standards Compliant",
+            "lastUpdated": "Live Stream"
+        },
+        "production": {
+            "actual": actual_prod_ukwa,
+            "target": target_prod_ukwa,
+            "forecast": 115000.0,
+            "gap": 476.0,
+            "unit": "tonnes",
+            "isSynthetic": False,
+            "oreGradeBreakdown": {
+                "highGradeMn": round(actual_prod_ukwa * 0.40, 0),
+                "mediumGradeMn": round(actual_prod_ukwa * 0.45, 0),
+                "lowGradeMn": round(actual_prod_ukwa * 0.15, 0)
+            },
+            "monthlyTrend": monthly_trend
+        },
+        "shortfallRisk": {
+            "probability": 15.0,
+            "expectedProduction": 115000.0,
+            "target": target_prod_ukwa,
+            "expectedGap": 476.0,
+            "riskLevel": "LOW"
+        },
+        "accessibleOre": {
+            "geologicalPotential": 12500000.0,
+            "accessiblePotential": 2266516.0,
+            "operationallyRecoverable": 1092329.0,
+            "estimatedVolumeTons": 1092329.0
+        },
+        "gisZones": [
+            {
+                "id": "UK-SL1750", "name": "Sub-Level Stope 1750'L", "prospectivityScore": "High",
+                "geologicalPotential": 85.0, "accessiblePotential": 75.0, "recoverablePotential": 65.0,
+                "estimatedContributionTons": 113946.0, "mnGradePct": "42.5% Mn",
+                "coords": {"x": 55.0, "y": 48.0, "width": 20.0, "height": 20.0}
+            }
+        ],
+        "modelInputs": [
+            {"category": "Geology", "label": "3D Geological Wireframe Assays", "status": "LIVE", "source": "MOIL Core Drilling"},
+            {"category": "Remote Sensing", "label": "Multi-spectral Satellite Imagery", "status": "LIVE", "source": "Sentinel-2 / Landsat"},
+            {"category": "Production", "label": "MCDR Audited Reports (FY23-24)", "status": "VERIFIED", "source": "IBM Jabalpur Regional Office"}
+        ],
+        "riskContributors": [
+            {"factor": "Shaft Hoist & Winder Availability", "importancePct": 38.0, "description": "Hoist cycles constrained by downtime.", "mitigationStrategy": "Schedule preventative maintenance."},
+            {"factor": "Deep Level Stope Ventilation", "importancePct": 22.0, "description": "Airflow constraints limit simultaneous operations.", "mitigationStrategy": "Commission auxiliary fans."},
+            {"factor": "Underground Dewatering Capacity", "importancePct": 16.0, "description": "Seasonal seepage.", "mitigationStrategy": "Increase pumping hours."},
+            {"factor": "Hydraulic Sand Stowing Rate", "importancePct": 14.0, "description": "Backfill delays limit stope turnaround.", "mitigationStrategy": "Increase slurry concentration."},
+            {"factor": "Ore Body Dip & Wall Stability", "importancePct": 10.0, "description": "Geotechnical instability.", "mitigationStrategy": "Increase rock bolting density."}
+        ],
+        "futureSourceZone": {
+            "id": "UK-EXT",
+            "name": "Decline Extension Below 1750'L",
+            "prospectivity": "HIGH",
+            "estimatedPotentialContributionTons": 25000.0,
+            "description": "Next phase underground development."
+        },
+        "recommendation": {
+            "instruction": "Maintain current cut and fill cycle rates to sustain positive production surplus.",
+            "currentParams": {
+                "equipmentAvailability": "92%",
+                "blastingDelay": "0 days",
+                "expectedGap": "+476 t"
+            },
+            "recommendedParams": {
+                "equipmentAvailability": "92%",
+                "blastingDelay": "0 days",
+                "expectedGap": "0 t (Target Achieved)"
+            }
+        },
+        "alerts": [
+            {
+                "id": "ALT-UK-1", "priority": "LOW", "title": "SUBSIDENCE MONITORING",
+                "mine": "Ukwa", "triggeredCondition": "Max predicted subsidence 45mm (Safe limit 60mm)",
+                "affectedZone": "Forest Land BP-77(II)", "timestamp": "Today, 09:15 IST"
+            }
+        ]
+    }
+    _workspace_cache["ukwa"] = MineWorkspaceData(**workspace_data_ukwa)
+    
     print("  Workspace data precomputed and cached.")
 
 

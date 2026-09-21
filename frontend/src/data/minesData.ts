@@ -104,7 +104,7 @@ export const MOIL_MINES: MineItem[] = [
     state: 'Madhya Pradesh',
     type: 'Underground',
     status: 'Active',
-    isImplemented: false,
+    isImplemented: true,
     mapCoords: { x: 54.8, y: 51.5 },
     shortCode: 'UK-08',
   },
