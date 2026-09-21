@@ -89,19 +89,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
         </div>
       </div>
 
-      {/* Scroll Down Indicator */}
-      <div 
-        onClick={handleExplore}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 text-white/70 hover:text-white flex flex-col items-center gap-1 cursor-pointer group transition-colors"
-        title="Scroll to explore operations"
-      >
-        <span className="text-[10px] font-body font-bold uppercase tracking-[0.25em] text-white/80 group-hover:text-white">
-          Scroll to Explore
-        </span>
-        <span className="material-symbols-outlined text-2xl animate-bounce text-[#F59E0B]">
-          keyboard_arrow_down
-        </span>
-      </div>
 
       {/* Decorative Bottom Bar Accent */}
       <div className="absolute bottom-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#F59E0B] to-transparent z-20 opacity-60"></div>
