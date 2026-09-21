@@ -8,6 +8,7 @@ from app.api.v1.forecasting import router as forecasting_router
 from app.api.v1.shortfall import router as shortfall_router
 from app.api.v1.cause_analysis import router as cause_analysis_router
 from app.api.v1.corrective_action import router as corrective_action_router
+from app.api.v1.admin import router as admin_router
 
 api_router = APIRouter()
 
@@ -20,3 +21,4 @@ api_router.include_router(shortfall_router, prefix="/mines", tags=["Feature 3: S
 api_router.include_router(cause_analysis_router, prefix="/mines", tags=["Feature 4: SHAP Analysis"])
 api_router.include_router(corrective_action_router, prefix="/mines", tags=["Feature 5: Corrective Actions"])
 api_router.include_router(whatif_router, prefix="/whatif", tags=["Feature 6: What-If Simulation"])
+api_router.include_router(admin_router, prefix="/admin", tags=["Admin Governance"])

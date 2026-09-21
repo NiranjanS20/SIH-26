@@ -17,6 +17,7 @@ import { MineWorkspace } from './components/MineWorkspace';
 import { ReserveMappingPage } from './components/ReserveMappingPage';
 import { LoginPage } from './components/LoginPage';
 import { IndustryViewerDashboard } from './components/IndustryViewerDashboard';
+import { AdminControlCenter } from './components/AdminControlCenter';
 
 // Inner app that has access to AuthContext
 function AppInner() {
@@ -76,10 +77,18 @@ function AppInner() {
     setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
+  const getRoleLandingRoute = (): PortalRoute => {
+    if (!isAuthenticated) return 'login';
+    if (user?.role === 'admin') return 'admin-control-center';
+    if (user?.role === 'industry_viewer') return 'industry-viewer';
+    return 'mine-selection';
+  };
+
   const isFullScreenWorkspace =
     currentRoute.startsWith('workspace/') ||
     currentRoute === 'reserve-mapping' ||
     currentRoute === 'industry-viewer' ||
+    currentRoute === 'admin-control-center' ||
     currentRoute === 'login';
 
   return (
@@ -109,20 +118,19 @@ function AppInner() {
         {currentRoute === 'landing' && (
           <>
             <Hero
-              onExploreClick={() => handleNavigate(isAuthenticated ? 'mine-selection' : 'login')}
+              onExploreClick={() => handleNavigate(getRoleLandingRoute())}
             />
             <ValuePropSection />
             <DataSourcesSection />
             <WhatWeAreSolvingSection />
             <MineCardSection
               onOpenMineModal={() => {
-                // Any mine click → login if not authenticated, mine-selection if authenticated
-                handleNavigate(isAuthenticated ? 'mine-selection' : 'login');
+                handleNavigate(getRoleLandingRoute());
               }}
             />
             <ServicesSection onSelectService={(service) => setSelectedService(service)} />
             <UpdatesSection />
-            <CTASection onCTAClick={() => handleNavigate(isAuthenticated ? 'mine-selection' : 'login')} />
+            <CTASection onCTAClick={() => handleNavigate(getRoleLandingRoute())} />
           </>
         )}
 
@@ -166,6 +174,15 @@ function AppInner() {
         {/* RESERVE MAPPING */}
         {currentRoute === 'reserve-mapping' && (
           <ReserveMappingPage
+            onNavigate={handleNavigate}
+            themeMode={themeMode}
+            onToggleTheme={handleToggleTheme}
+          />
+        )}
+
+        {/* ADMIN CONTROL CENTER */}
+        {currentRoute === 'admin-control-center' && (
+          <AdminControlCenter
             onNavigate={handleNavigate}
             themeMode={themeMode}
             onToggleTheme={handleToggleTheme}

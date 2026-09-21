@@ -24,7 +24,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
     try {
       const user = await loginUser(username.trim(), password);
       setUser(user);
-      if (user.role === 'industry_viewer') {
+      if (user.role === 'admin') {
+        onNavigate('admin-control-center');
+      } else if (user.role === 'industry_viewer') {
         onNavigate('industry-viewer');
       } else {
         onNavigate('mine-selection');

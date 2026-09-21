@@ -70,6 +70,7 @@ export interface AlertItem {
 const SITE_MANAGER_TABS: OverviewTab[] = [
   'overview',
   'prospectivity',
+  'production-forecast',
   'shortfall-diagnosis',
   'corrective-actions',
   'alerts',
