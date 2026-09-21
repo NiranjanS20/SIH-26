@@ -57,7 +57,7 @@ export const MineSelectionPage: React.FC<MineSelectionPageProps> = ({
 
   const handleSelectMine = (mine: MineItem) => {
     const id = mine.id;
-    if (id === 'dongri-buzurg' || id === 'tirodi' || id === 'sitapatore') {
+    if (id === 'dongri-buzurg' || id === 'tirodi' || id === 'sitapatore' || id === 'balaghat') {
       onNavigate(`workspace/${id}` as PortalRoute);
     } else {
       setToastMessage(

@@ -358,7 +358,7 @@ def precompute_workspace_data():
             {
                 "id": "SP-06", "name": "Pit 6 (Active)", "prospectivityScore": "High",
                 "geologicalPotential": 85.0, "accessiblePotential": 75.0, "recoverablePotential": 65.0,
-                "estimatedContributionTons": 16985.0, "mnGradePct": "35.0% Mn",
+                "estimatedContributionTons": 16966.98, "mnGradePct": "35.0% Mn",
                 "coords": {"x": 25.0, "y": 30.0, "width": 35.0, "height": 30.0}
             }
         ],
@@ -397,6 +397,108 @@ def precompute_workspace_data():
         ]
     }
     _workspace_cache["sitapatore"] = MineWorkspaceData(**workspace_data_sitapatore)
+    
+    # --- Precompute Balaghat Underground ---
+    actual_prod_balaghat = 32500.0
+    target_prod_balaghat = 35000.0
+    
+    workspace_data_balaghat = {
+        "mineInfo": {
+            "id": "balaghat",
+            "name": "Balaghat",
+            "location": "Balaghat, Madhya Pradesh",
+            "district": "Balaghat District",
+            "state": "Madhya Pradesh",
+            "type": "Underground Manganese Mine",
+            "leaseId": "MOIL-LEASE-BG-07",
+            "status": "Active Digital Telemetry Hub",
+            "dgmsStatus": "DGMS Safety Approved",
+            "ibmRegistration": "IBM/4281/BG-01"
+        },
+        "operationalSummary": {
+            "headline": "Bharweli Underground Operations Center",
+            "riskState": "MEDIUM",
+            "dynamicStatement": "STEADY PRODUCTION: Forecast tracking 5% below planned extraction targets.",
+            "coreValueMessage": "Underground operations leveraging processed beneficiation and shaft capacity optimization.",
+            "complianceStandard": "DGMS & IBM Regulatory Standards Compliant",
+            "lastUpdated": "Live Stream"
+        },
+        "production": {
+            "actual": actual_prod_balaghat,
+            "target": target_prod_balaghat,
+            "forecast": 33200.0,
+            "gap": -1800.0,
+            "unit": "tonnes",
+            "isSynthetic": False,
+            "oreGradeBreakdown": {
+                "highGradeMn": round(actual_prod_balaghat * 0.60, 0),
+                "mediumGradeMn": round(actual_prod_balaghat * 0.40, 0),
+                "lowGradeMn": 0.0 # Processed logic excludes lowest tier
+            },
+            "monthlyTrend": monthly_trend
+        },
+        "shortfallRisk": {
+            "probability": 42.0,
+            "expectedProduction": 33200.0,
+            "target": target_prod_balaghat,
+            "expectedGap": -1800.0,
+            "riskLevel": "MEDIUM"
+        },
+        "accessibleOre": {
+            "geologicalPotential": 4500000.0,
+            "accessiblePotential": 2800000.0,
+            "operationallyRecoverable": 1500000.0,
+            "estimatedVolumeTons": 1500000.0
+        },
+        "gisZones": [
+            {
+                "id": "BG-SL400", "name": "Sub-Level Stope 400RL", "prospectivityScore": "High",
+                "geologicalPotential": 85.0, "accessiblePotential": 75.0, "recoverablePotential": 65.0,
+                "estimatedContributionTons": 32500.0, "mnGradePct": "48.5% Mn",
+                "coords": {"x": 50.0, "y": 45.0, "width": 20.0, "height": 20.0}
+            }
+        ],
+        "modelInputs": [
+            {"category": "Geology", "label": "3D Geological Wireframe Assays", "status": "LIVE", "source": "MOIL Core Drilling"},
+            {"category": "Remote Sensing", "label": "Multi-spectral Satellite Imagery", "status": "LIVE", "source": "Sentinel-2 / Landsat"},
+            {"category": "Production", "label": "Historical Underground Assays", "status": "VERIFIED", "source": "Internal MCDR 2020"}
+        ],
+        "riskContributors": [
+            {"factor": "Shaft Hoist & Winder Availability", "importancePct": 36.0, "description": "Hoist cycles constrained by downtime.", "mitigationStrategy": "Schedule preventative maintenance."},
+            {"factor": "Deep Level Stope Ventilation", "importancePct": 24.0, "description": "Airflow constraints limit simultaneous operations.", "mitigationStrategy": "Commission auxiliary fans."},
+            {"factor": "Underground Dewatering Capacity", "importancePct": 18.0, "description": "Seasonal seepage at -150m level.", "mitigationStrategy": "Increase pumping hours."},
+            {"factor": "Continuous Miner Utilization", "importancePct": 14.0, "description": "Extract delays.", "mitigationStrategy": "Optimize shift crossovers."},
+            {"factor": "Ore Body Dip & Wall Stability", "importancePct": 8.0, "description": "Geotechnical instability limits advance rate.", "mitigationStrategy": "Increase rock bolting density."}
+        ],
+        "futureSourceZone": {
+            "id": "BG-SL500",
+            "name": "Decline Extension (500RL)",
+            "prospectivity": "HIGH",
+            "estimatedPotentialContributionTons": 15000.0,
+            "description": "Next phase underground development driven by 189 identified high-prospectivity geo-labels in a 5km buffer."
+        },
+        "recommendation": {
+            "instruction": "Increase Hoist & Winder availability and clear stope ventilation bottlenecks.",
+            "currentParams": {
+                "equipmentAvailability": "88%",
+                "blastingDelay": "1 day",
+                "expectedGap": "1800 t"
+            },
+            "recommendedParams": {
+                "equipmentAvailability": "95%",
+                "blastingDelay": "0 days",
+                "expectedGap": "0 t (Target Achieved)"
+            }
+        },
+        "alerts": [
+            {
+                "id": "ALT-BG-1", "priority": "HIGH", "title": "HOIST DOWNTIME",
+                "mine": "Balaghat", "triggeredCondition": "Main shaft skip delayed by 45 mins",
+                "affectedZone": "Main Shaft", "timestamp": "Today, 09:15 IST"
+            }
+        ]
+    }
+    _workspace_cache["balaghat"] = MineWorkspaceData(**workspace_data_balaghat)
     
     print("  Workspace data precomputed and cached.")
 

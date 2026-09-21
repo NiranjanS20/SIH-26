@@ -1,0 +1,26 @@
+{
+  "site_id": "sitapatore",
+  "inspection_date": "2023-07-20",
+  "inspecting_officer": "Sudip Ranjan Mazumdar",
+  "violations": [
+    {
+      "rule": "Rule 12(4)",
+      "description": "36 boreholes drilled vs 32 proposed, but in wrong locations. Full lease not explored to G1 level within the required 5-year window.",
+      "penalty": "₹5,00,000 fine"
+    },
+    {
+      "rule": "Rule 45(7)",
+      "description": "307-tonne reporting discrepancy between monthly returns (17,273.98t, Apr-Jul 2022) and the annual return (16,966.98t)."
+    },
+    {
+      "rule": "General",
+      "description": "Subgrade-mineral reject went unreported entirely."
+    }
+  ],
+  "operational_notes": [
+    "Pit 3 was never put into production. Development only from Pit 6 and a different part of the dump."
+  ],
+  "production_data": {
+    "annual_return_2022_23_rom": 16966.98
+  }
+}

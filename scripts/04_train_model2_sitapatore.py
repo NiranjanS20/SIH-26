@@ -41,7 +41,7 @@ def train_model2_sitapatore():
     df['fy'] = df.apply(lambda row: f"{row['year']}-{str(row['year']+1)[-2:]}" if row['month'] >= 4 else f"{row['year']-1}-{str(row['year'])[-2:]}", axis=1)
     
     # Sitapatore Baseline Calculations
-    annual_target = 16985  # ROM from 43.353 Ha lease
+    annual_target = 16966.98  # ROM from 43.353 Ha lease
     operating_days = 313    # 365 - 52 Sundays
     base_daily_prod = annual_target / operating_days  # ~54 t/day
     
