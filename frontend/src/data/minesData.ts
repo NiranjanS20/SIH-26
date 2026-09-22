@@ -132,16 +132,5 @@ export const MOIL_MINES: MineItem[] = [
     mapCoords: { x: 51.4, y: 54.4 },
     shortCode: 'SP-10',
   },
-  {
-    id: 'sukli',
-    name: 'Sukli',
-    location: 'Balaghat, Madhya Pradesh',
-    district: 'Balaghat',
-    state: 'Madhya Pradesh',
-    type: 'Underground',
-    status: 'Active',
-    isImplemented: false,
-    mapCoords: { x: 49.3, y: 53.2 },
-    shortCode: 'SK-11',
-  },
+
 ];

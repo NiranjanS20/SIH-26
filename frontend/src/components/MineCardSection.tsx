@@ -210,25 +210,7 @@ export const minesList: MineData[] = [
       { label: 'Safety Record', value: '880 Days LTI Free' }
     ]
   },
-  {
-    id: 'sukli',
-    name: 'SUKLI',
-    leaseId: 'MOIL-SK-11',
-    location: 'Balaghat District, Madhya Pradesh',
-    status: 'Operational',
-    type: 'Underground Mine',
-    mineral: 'Braunite Lens Ore',
-    annualOutput: '95,000 Tonnes',
-    depth: '130 Meters',
-    image: '/assets/mine_environment_landscape.jpg',
-    description: 'Sukli is an agile underground operation developing specialized lens-shaped high-manganese ore bodies with modern safety monitoring and mechanized drilling.',
-    kpis: [
-      { label: 'Daily Output', value: '320 TPD' },
-      { label: 'Ore Grade (Mn)', value: '39.0%' },
-      { label: 'Drill Rigs', value: '6 Electro-Hydraulic' },
-      { label: 'Safety Record', value: '640 Days LTI Free' }
-    ]
-  }
+
 ];
 
 export const MineCardSection: React.FC<MineCardSectionProps> = ({ onOpenMineModal }) => {
