@@ -61,6 +61,15 @@ function AppInner() {
     return () => observer.disconnect();
   }, [currentRoute, themeMode]);
 
+  // Sync HTML document root class with themeMode for Tailwind class-based dark mode
+  useEffect(() => {
+    if (themeMode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [themeMode]);
+
   const handleNavigate = (route: PortalRoute) => {
     // Guard: any route that's not landing or login requires authentication
     const publicRoutes: PortalRoute[] = ['landing', 'login'];
@@ -94,6 +103,8 @@ function AppInner() {
   return (
     <div
       className={`min-h-screen font-body transition-colors duration-300 ${
+        themeMode === 'dark' ? 'dark' : ''
+      } ${
         themeMode === 'dark'
           ? 'bg-[#181B20] text-white selection:bg-[#F59E0B] selection:text-[#181B20]'
           : 'bg-[#FCF9F8] text-[#1B1B1C] selection:bg-[#FEA619] selection:text-[#1B1B1C]'
