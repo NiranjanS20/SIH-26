@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
-export type PortalRoute = 'landing' | 'login' | 'mine-selection' | 'reserve-mapping' | 'industry-viewer' | 'admin-control-center' | `workspace/${string}`;
+export type PortalRoute = 'landing' | 'login' | 'mine-selection' | 'industry-viewer' | 'admin-control-center' | `workspace/${string}`;
 
 interface NavbarProps {
   currentRoute?: PortalRoute;

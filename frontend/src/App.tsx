@@ -14,7 +14,6 @@ import { ServiceModal } from './components/ServiceModal';
 import { MineDetailModal } from './components/MineDetailModal';
 import { MineSelectionPage } from './components/MineSelectionPage';
 import { MineWorkspace } from './components/MineWorkspace';
-import { ReserveMappingPage } from './components/ReserveMappingPage';
 import { LoginPage } from './components/LoginPage';
 import { IndustryViewerDashboard } from './components/IndustryViewerDashboard';
 import { AdminControlCenter } from './components/AdminControlCenter';
@@ -95,7 +94,6 @@ function AppInner() {
 
   const isFullScreenWorkspace =
     currentRoute.startsWith('workspace/') ||
-    currentRoute === 'reserve-mapping' ||
     currentRoute === 'industry-viewer' ||
     currentRoute === 'admin-control-center' ||
     currentRoute === 'login';
@@ -176,15 +174,6 @@ function AppInner() {
         {/* INDUSTRY VIEWER DASHBOARD */}
         {currentRoute === 'industry-viewer' && (
           <IndustryViewerDashboard
-            onNavigate={handleNavigate}
-            themeMode={themeMode}
-            onToggleTheme={handleToggleTheme}
-          />
-        )}
-
-        {/* RESERVE MAPPING */}
-        {currentRoute === 'reserve-mapping' && (
-          <ReserveMappingPage
             onNavigate={handleNavigate}
             themeMode={themeMode}
             onToggleTheme={handleToggleTheme}
