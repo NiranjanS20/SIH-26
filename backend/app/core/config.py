@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Dongri Buzurg AI Backend"
     
     # comma separated string -> list
-    ALLOWED_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
+    ALLOWED_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:5175,http://127.0.0.1:5175,http://localhost:3000,http://127.0.0.1:3000"
     
     JWT_SECRET: str = "moil-sih-2026-super-secret-key-change-in-prod"
     JWT_ALGORITHM: str = "HS256"
