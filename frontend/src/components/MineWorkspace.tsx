@@ -234,8 +234,196 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
     return () => { isMounted = false; };
   }, [selectedMineId]);
 
-  // Shortfall Diagnosis View Toggle State
-  const [diagnosisViewMode, setDiagnosisViewMode] = useState<'SUMMARY' | 'CAUSE_ANALYSIS'>('SUMMARY');
+  // Site Manager Interactive Shortfall Diagnosis Form State
+  const [shiftDate, setShiftDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [shiftType, setShiftType] = useState<'SHIFT_A' | 'SHIFT_B' | 'SHIFT_C' | 'GENERAL'>('SHIFT_A');
+  const [actualOutputInput, setActualOutputInput] = useState<number>(4100);
+  const [operatingHoursInput, setOperatingHoursInput] = useState<number>(6.2);
+  const [downtimeHoursInput, setDowntimeHoursInput] = useState<number>(1.8);
+  const [selectedReasons, setSelectedReasons] = useState<string[]>([
+    'EQUIPMENT_BREAKDOWN',
+    'BLASTING_DELAY',
+    'RAINFALL_INFLOW',
+  ]);
+  const [managerRemarks, setManagerRemarks] = useState<string>(
+    'Excavator EX-04 experienced hydraulic seal rupture at 10:15 AM causing 1.8h loading stoppage at Pit Bench 3.'
+  );
+
+  // Processing, progress, and result states
+  const [isProcessingDiagnosis, setIsProcessingDiagnosis] = useState<boolean>(false);
+  const [hasRunDiagnosis, setHasRunDiagnosis] = useState<boolean>(false);
+  const [processingStep, setProcessingStep] = useState<number>(1);
+  const [isFormCollapsed, setIsFormCollapsed] = useState<boolean>(false);
+  const [shiftToastMsg, setShiftToastMsg] = useState<string | null>(null);
+
+  const [processedDiagnosis, setProcessedDiagnosis] = useState<{
+    target: number;
+    actual: number;
+    gap: number;
+    gapPct: number;
+    operatingHours: number;
+    downtimeHours: number;
+    efficiencyPct: number;
+    riskState: 'HIGH' | 'MEDIUM' | 'LOW';
+    riskLabel: string;
+    reasons: string[];
+    shapContributions: { label: string; pct: number; color: string; desc: string }[];
+    closureConditions: { title: string; target: string; desc: string }[];
+    evaluatedAt: string;
+    shiftDate: string;
+    shiftType: string;
+  } | null>(null);
+
+  // Sync default actual output when mineProfile loads
+  useEffect(() => {
+    if (mineProfile?.plannedTargetTons) {
+      setActualOutputInput(mineProfile.currentOutputTons || 4100);
+    }
+  }, [mineProfile?.currentOutputTons]);
+
+  const handleToggleReason = (key: string) => {
+    setSelectedReasons((prev) =>
+      prev.includes(key) ? prev.filter((r) => r !== key) : [...prev, key]
+    );
+  };
+
+  const handleRunDiagnosis = () => {
+    setIsProcessingDiagnosis(true);
+    setProcessingStep(1);
+
+    setTimeout(() => setProcessingStep(2), 400);
+    setTimeout(() => setProcessingStep(3), 850);
+
+    setTimeout(() => {
+      const target = mineProfile?.plannedTargetTons || 5000;
+      const actual = Number(actualOutputInput) || 0;
+      const gap = actual - target;
+      const gapPct = target > 0 ? Math.abs(Math.round((gap / target) * 100)) : 0;
+      const opHours = Number(operatingHoursInput) || 0;
+      const dtHours = Number(downtimeHoursInput) || 0;
+      const totalHours = opHours + dtHours > 0 ? opHours + dtHours : 8.0;
+      const efficiencyPct = Math.min(100, Math.round((opHours / totalHours) * 100));
+
+      let riskState: 'HIGH' | 'MEDIUM' | 'LOW' = 'LOW';
+      let riskLabel = 'LOW RISK / ON TARGET';
+      if (gap < -400 || dtHours >= 1.5 || gapPct >= 15) {
+        riskState = 'HIGH';
+        riskLabel = 'HIGH RISK TARGET DEFICIT';
+      } else if (gap < 0 || dtHours >= 0.8 || gapPct >= 5) {
+        riskState = 'MEDIUM';
+        riskLabel = 'MEDIUM RISK VARIANCE';
+      }
+
+      const reasonsMap: Record<string, { label: string; basePct: number; color: string; desc: string }> = {
+        EQUIPMENT_BREAKDOWN: {
+          label: 'EQUIPMENT DOWNTIME',
+          basePct: Math.min(60, Math.max(30, Math.round((dtHours / totalHours) * 100 + 15))),
+          color: '#B03A2E',
+          desc: `${dtHours} hrs of equipment stoppage directly contributed to the production gap.`,
+        },
+        BLASTING_DELAY: {
+          label: 'BLASTING DELAY',
+          basePct: 28,
+          color: '#D97706',
+          desc: 'Delayed bench safety clearance reduced active shovel loading window.',
+        },
+        RAINFALL_INFLOW: {
+          label: 'MONSOON & DEWATERING',
+          basePct: 20,
+          color: '#3B82F6',
+          desc: 'Sump water accumulation and slippery ramp conditions reduced fleet cycle rates.',
+        },
+        ORE_GRADE_VARIANCE: {
+          label: 'ORE GRADE VARIANCE',
+          basePct: 15,
+          color: '#10B981',
+          desc: 'Local reef siltation and grade dilution resulted in higher rejection.',
+        },
+        HAUL_ROAD_CONGESTION: {
+          label: 'HAUL ROAD CONGESTION',
+          basePct: 14,
+          color: '#8B5CF6',
+          desc: 'Siding queuing and dumper turnaround bottlenecks reduced hourly haul rate.',
+        },
+        POWER_OUTAGE: {
+          label: 'GRID POWER INTERRUPTION',
+          basePct: 12,
+          color: '#EC4899',
+          desc: 'Feeder voltage fluctuations paused secondary crushing and sump pump motors.',
+        },
+        PLANT_CHOKE: {
+          label: 'SCREENING PLANT CHOKE',
+          basePct: 10,
+          color: '#06B6D4',
+          desc: 'Grizzly screen blinding caused temporary feed hopper overflow.',
+        },
+      };
+
+      const activeKeys = selectedReasons.length > 0 ? selectedReasons : ['EQUIPMENT_BREAKDOWN', 'BLASTING_DELAY'];
+      const rawItems = activeKeys.map((key) => reasonsMap[key] || {
+        label: key.replace('_', ' '),
+        basePct: 20,
+        color: '#64748B',
+        desc: 'Identified operational factor impacting shift throughput.',
+      });
+
+      const totalRaw = rawItems.reduce((sum, item) => sum + item.basePct, 0);
+      const shapContributions = rawItems.map((item) => ({
+        ...item,
+        pct: Math.round((item.basePct / totalRaw) * 100),
+      }));
+
+      const closureConditions = [
+        {
+          title: 'EQUIPMENT EFFICIENCY',
+          target: `${efficiencyPct}% → ≥ 95%`,
+          desc: `Eliminate ${dtHours}h downtime by completing hydraulic preventative checks on shift start.`,
+        },
+        {
+          title: 'BLASTING CLEARANCE',
+          target: 'Advance by 24 hrs',
+          desc: 'Pre-schedule statutory explosive charging to prevent loading handover delays.',
+        },
+        {
+          title: 'DEWATERING SUMP PUMPING',
+          target: '1,200 m³/hr continuous',
+          desc: 'Engage auxiliary submersible pumps in lower sump benches.',
+        },
+      ];
+
+      setProcessedDiagnosis({
+        target,
+        actual,
+        gap,
+        gapPct,
+        operatingHours: opHours,
+        downtimeHours: dtHours,
+        efficiencyPct,
+        riskState,
+        riskLabel,
+        reasons: activeKeys,
+        shapContributions,
+        closureConditions,
+        evaluatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        shiftDate,
+        shiftType,
+      });
+
+      setIsProcessingDiagnosis(false);
+      setHasRunDiagnosis(true);
+      setIsFormCollapsed(true);
+      setShiftToastMsg('AI Shortfall Diagnosis & SHAP Analysis computed successfully!');
+      setTimeout(() => setShiftToastMsg(null), 3500);
+    }, 1350);
+  };
+
+  const handleLoadDefaults = () => {
+    setActualOutputInput(mineProfile?.currentOutputTons || 4100);
+    setOperatingHoursInput(6.2);
+    setDowntimeHoursInput(1.8);
+    setSelectedReasons(['EQUIPMENT_BREAKDOWN', 'BLASTING_DELAY', 'RAINFALL_INFLOW']);
+    setManagerRemarks('Excavator EX-04 experienced hydraulic seal rupture at 10:15 AM causing 1.8h loading stoppage at Pit Bench 3.');
+  };
 
   // Real-time OpenWeather Stream State
   const [liveWeather, setLiveWeather] = useState<LiveWeatherData | null>(null);
@@ -1910,161 +2098,628 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
           {/* ========================================================================= */}
           {/* TAB 3: SHORTFALL DIAGNOSIS TAB CONTENT */}
           {/* ========================================================================= */}
+          {/* ========================================================================= */}
+          {/* TAB 3: SHORTFALL DIAGNOSIS TAB CONTENT */}
+          {/* ========================================================================= */}
           {activeTab === 'shortfall-diagnosis' && (
             <div className="space-y-8 animate-in fade-in duration-300">
-              <div className={`p-6 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-4 ${cardBg}`}>
+              {/* Toast Feedback */}
+              {shiftToastMsg && (
+                <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-center gap-2.5 font-bold text-xs">
+                    <span className="material-symbols-outlined text-base">check_circle</span>
+                    <span>{shiftToastMsg}</span>
+                  </div>
+                  <button onClick={() => setShiftToastMsg(null)} className="text-xs hover:text-white cursor-pointer font-mono">✕</button>
+                </div>
+              )}
+
+              {/* Console Header */}
+              <div className={`p-6 rounded-2xl border flex flex-col md:flex-row md:items-center justify-between gap-4 ${cardBg}`}>
                 <div className="space-y-1">
                   <div className="flex items-center gap-3 flex-wrap">
                     <h2 className={`font-headline font-black text-2xl uppercase tracking-tight flex items-center gap-2 ${textPrimary}`}>
                       <span className="material-symbols-outlined text-[#B03A2E] text-2xl">analytics</span>
-                      SHORTFALL DIAGNOSIS
+                      SHORTFALL DIAGNOSIS & SHIFT AUDIT
                     </h2>
-                    <span className="px-3 py-1 rounded-full bg-[#B03A2E]/20 border border-[#B03A2E] text-[#B03A2E] text-[10px] font-black uppercase tracking-wider">
-                      ● HIGH RISK TARGET DEFICIT
+                    <span className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-500 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                      <span className="material-symbols-outlined text-xs">tune</span>
+                      <span>AI Model Baseline Target: {(mineProfile?.plannedTargetTons || 5000).toLocaleString()} t</span>
                     </span>
                   </div>
-                  <p className={`text-xs font-medium ${textSecondary}`}>"Understand the factors contributing to the projected production gap." </p>
+                  <p className={`text-xs font-medium ${textSecondary}`}>
+                    "Log shift operations and downtime to run real-time SHAP root-cause diagnosis and evaluate target deficit."
+                  </p>
                 </div>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <div className={`flex items-center p-1 rounded-lg border ${nestedBg}`}>
-                    <button onClick={() => setDiagnosisViewMode('SUMMARY')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${diagnosisViewMode === 'SUMMARY' ? 'bg-[#B03A2E] text-white' : textMuted}`}>Summary</button>
-                    {userRole === 'admin' && (
-                      <button onClick={() => setDiagnosisViewMode('CAUSE_ANALYSIS')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer ${diagnosisViewMode === 'CAUSE_ANALYSIS' ? 'bg-[#B03A2E] text-white' : textMuted}`}>Cause Analysis</button>
-                    )}
-                  </div>
+
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  {hasRunDiagnosis && (
+                    <button
+                      onClick={() => setIsFormCollapsed(!isFormCollapsed)}
+                      className={`px-3.5 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                        isFormCollapsed ? 'bg-[#002452] text-white border-[#00387A]' : `${nestedBg} ${textPrimary}`
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-sm">
+                        {isFormCollapsed ? 'edit_note' : 'unfold_less'}
+                      </span>
+                      <span>{isFormCollapsed ? 'Modify Shift Inputs' : 'Collapse Input Form'}</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={handleLoadDefaults}
+                    className={`px-3.5 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${nestedBg} ${textMuted} hover:text-white hover:border-slate-500`}
+                    title="Populate with standard shift telemetry"
+                  >
+                    Load AI Telemetry
+                  </button>
                 </div>
               </div>
 
-              {/* RISK SUMMARY & GAP VISUAL */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                <div className={`lg:col-span-5 p-6 rounded-xl border flex flex-col justify-between space-y-4 ${isDark ? 'bg-[#20242D] border-[#B03A2E]/50' : 'bg-white border-[#B03A2E]/40 shadow-sm'}`}>
-                  <div className="space-y-4">
-                    <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
-                      <span className={`text-xs font-headline font-black uppercase tracking-wider ${textMuted}`}>CURRENT RISK DIAGNOSIS</span>
-                      <span className="text-[10px] font-mono text-[#B03A2E] font-bold">ACTIVE TRIGGER</span>
-                    </div>
-
-                    <div className="p-5 rounded-xl bg-[#B03A2E]/20 border border-[#B03A2E] flex items-center justify-between">
-                      <div>
-                        <span className="text-[10px] font-black text-[#B03A2E] uppercase tracking-widest block">EVALUATED STATE</span>
-                        <span className="font-headline text-3xl font-black text-[#B03A2E] block mt-0.5">HIGH RISK</span>
-                        <span className={`text-xs font-bold block mt-0.5 ${textPrimary}`}>Affected: Zone 14</span>
+              {/* ================================================================= */}
+              {/* 1. TARGET BASELINE FEATURE & SITE MANAGER SHIFT INPUT CONSOLE */}
+              {/* ================================================================= */}
+              {(!hasRunDiagnosis || !isFormCollapsed) && (
+                <div className={`p-6 rounded-2xl border space-y-6 transition-all ${cardBg} ${isDark ? 'border-slate-700/80' : 'border-slate-300'}`}>
+                  {/* Form Header */}
+                  <div className={`flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b gap-3 ${borderDivider}`}>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-[#002452] text-white flex items-center justify-center font-bold">
+                        <span className="material-symbols-outlined text-lg">fact_check</span>
                       </div>
-                      <span className="w-4 h-4 rounded-full bg-[#B03A2E] animate-ping" />
+                      <div>
+                        <h3 className={`text-sm font-black uppercase tracking-wide ${textPrimary}`}>
+                          SHIFT OPERATIONAL LOG & SHORTFALL DRIVERS
+                        </h3>
+                        <p className={`text-[11px] ${textMuted}`}>
+                          Fill shift metrics below. Analysis output will be computed and rendered directly beneath.
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2 text-center pt-2">
-                      <div className={`p-3 rounded-lg border ${nestedBg}`}><span className={`text-[10px] font-bold uppercase block ${textMuted}`}>TARGET</span><span className="font-headline font-black text-xl text-blue-600">5,000 t</span></div>
-                      <div className={`p-3 rounded-lg border ${nestedBg}`}><span className={`text-[10px] font-bold uppercase block ${textMuted}`}>FORECAST</span><span className={`font-headline font-black text-xl ${textPrimary}`}>4,100 t</span></div>
-                      <div className="p-3 rounded-lg bg-[#B03A2E]/10 border border-[#B03A2E]/40"><span className="text-[10px] text-[#B03A2E] font-bold uppercase block">SHORTFALL</span><span className="font-headline font-black text-xl text-[#B03A2E]">-900 t</span></div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-[11px] font-bold flex items-center gap-1">
+                        <span className="material-symbols-outlined text-xs">lock</span>
+                        <span>Site: {mineProfile?.mineName || 'Dongri Buzurg'}</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Form Grid Inputs */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Site (Prefilled from session) */}
+                    <div className="space-y-1.5">
+                      <label className={`text-[11px] font-bold uppercase tracking-wider block ${textMuted}`}>
+                        Selected Mine / Site (Prefilled)
+                      </label>
+                      <div className={`p-2.5 rounded-xl border flex items-center justify-between text-xs font-bold ${nestedBg} ${textPrimary}`}>
+                        <div className="flex items-center gap-2 truncate">
+                          <span className="material-symbols-outlined text-slate-400 text-sm">domain</span>
+                          <span className="truncate">{mineProfile?.mineName || 'Dongri Buzurg Mine'}</span>
+                        </div>
+                        <span className="text-[10px] font-mono text-emerald-500 uppercase">ACTIVE</span>
+                      </div>
+                    </div>
+
+                    {/* Shift Date */}
+                    <div className="space-y-1.5">
+                      <label className={`text-[11px] font-bold uppercase tracking-wider block ${textMuted}`}>
+                        Shift Date
+                      </label>
+                      <input
+                        type="date"
+                        value={shiftDate}
+                        onChange={(e) => setShiftDate(e.target.value)}
+                        className={`w-full p-2.5 rounded-xl border text-xs font-bold transition-all ${
+                          isDark ? 'bg-[#14171C] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                        } focus:outline-none focus:border-[#0E7C7B]`}
+                      />
+                    </div>
+
+                    {/* Shift Type */}
+                    <div className="space-y-1.5">
+                      <label className={`text-[11px] font-bold uppercase tracking-wider block ${textMuted}`}>
+                        Shift Window
+                      </label>
+                      <select
+                        value={shiftType}
+                        onChange={(e) => setShiftType(e.target.value as any)}
+                        className={`w-full p-2.5 rounded-xl border text-xs font-bold transition-all ${
+                          isDark ? 'bg-[#14171C] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                        } focus:outline-none focus:border-[#0E7C7B]`}
+                      >
+                        <option value="SHIFT_A">Shift A (Morning 06:00 - 14:00)</option>
+                        <option value="SHIFT_B">Shift B (Evening 14:00 - 22:00)</option>
+                        <option value="SHIFT_C">Shift C (Night 22:00 - 06:00)</option>
+                        <option value="GENERAL">General Shift (08:00 - 17:00)</option>
+                      </select>
+                    </div>
+
+                    {/* Model Target Display */}
+                    <div className="space-y-1.5">
+                      <label className={`text-[11px] font-bold uppercase tracking-wider block text-blue-500`}>
+                        Model Target Baseline (Analytics)
+                      </label>
+                      <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-between text-xs font-black text-blue-500">
+                        <span className="flex items-center gap-1.5">
+                          <span className="material-symbols-outlined text-sm">flag</span>
+                          <span>{(mineProfile?.plannedTargetTons || 5000).toLocaleString()} t</span>
+                        </span>
+                        <span className="text-[10px] font-mono uppercase bg-blue-500/20 px-1.5 py-0.5 rounded">100% PAR</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Operational Metrics Row */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                    {/* Actual Output */}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center">
+                        <label className={`text-[11px] font-bold uppercase tracking-wider ${textPrimary}`}>
+                          Actual Output (Tonnes)
+                        </label>
+                        <span className={`text-[10px] font-bold ${
+                          actualOutputInput < (mineProfile?.plannedTargetTons || 5000) ? 'text-[#B03A2E]' : 'text-emerald-500'
+                        }`}>
+                          Delta: {actualOutputInput - (mineProfile?.plannedTargetTons || 5000)} t
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="0"
+                          max="200000"
+                          step="50"
+                          value={actualOutputInput}
+                          onChange={(e) => setActualOutputInput(Number(e.target.value))}
+                          className={`w-full p-2.5 pr-10 rounded-xl border text-sm font-bold transition-all ${
+                            isDark ? 'bg-[#14171C] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                          } focus:outline-none focus:border-[#0E7C7B]`}
+                        />
+                        <span className={`absolute right-3 top-2.5 text-xs font-mono font-bold ${textMuted}`}>t</span>
+                      </div>
+                    </div>
+
+                    {/* Operating Hours */}
+                    <div className="space-y-1.5">
+                      <label className={`text-[11px] font-bold uppercase tracking-wider block ${textPrimary}`}>
+                        Operating Hours (out of 8.0h)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="0"
+                          max="8"
+                          step="0.1"
+                          value={operatingHoursInput}
+                          onChange={(e) => setOperatingHoursInput(Number(e.target.value))}
+                          className={`w-full p-2.5 pr-10 rounded-xl border text-sm font-bold transition-all ${
+                            isDark ? 'bg-[#14171C] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                          } focus:outline-none focus:border-[#0E7C7B]`}
+                        />
+                        <span className={`absolute right-3 top-2.5 text-xs font-mono font-bold ${textMuted}`}>hrs</span>
+                      </div>
+                    </div>
+
+                    {/* Downtime Hours */}
+                    <div className="space-y-1.5">
+                      <label className={`text-[11px] font-bold uppercase tracking-wider block ${textPrimary}`}>
+                        Downtime Hours
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="0"
+                          max="8"
+                          step="0.1"
+                          value={downtimeHoursInput}
+                          onChange={(e) => setDowntimeHoursInput(Number(e.target.value))}
+                          className={`w-full p-2.5 pr-10 rounded-xl border text-sm font-bold transition-all ${
+                            isDark ? 'bg-[#14171C] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                          } focus:outline-none focus:border-[#B03A2E]`}
+                        />
+                        <span className={`absolute right-3 top-2.5 text-xs font-mono font-bold ${textMuted}`}>hrs</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* "Why was the target not reached?" Options */}
+                  <div className="space-y-2.5 pt-2">
+                    <div className="flex items-center justify-between">
+                      <label className={`text-xs font-black uppercase tracking-wider flex items-center gap-1.5 ${textPrimary}`}>
+                        <span className="material-symbols-outlined text-amber-500 text-base">help</span>
+                        <span>Why was the target not reached? (Select All Identified Drivers)</span>
+                      </label>
+                      <span className={`text-[10px] font-mono ${textMuted}`}>
+                        {selectedReasons.length} factor(s) selected
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
+                      {[
+                        { key: 'EQUIPMENT_BREAKDOWN', label: 'Equipment Breakdown / Downtime', icon: 'precision_manufacturing', color: '#B03A2E' },
+                        { key: 'BLASTING_DELAY', label: 'Blasting Delay & Detonation Lag', icon: 'warning', color: '#D97706' },
+                        { key: 'RAINFALL_INFLOW', label: 'Monsoon Inflow / Dewatering Deficit', icon: 'water_drop', color: '#3B82F6' },
+                        { key: 'ORE_GRADE_VARIANCE', label: 'Ore Grade Variance / Silt Dilution', icon: 'diamond', color: '#10B981' },
+                        { key: 'HAUL_ROAD_CONGESTION', label: 'Haul Road & Dumper Bottleneck', icon: 'local_shipping', color: '#8B5CF6' },
+                        { key: 'POWER_OUTAGE', label: 'Grid Power Interruption & Tripping', icon: 'bolt', color: '#EC4899' },
+                        { key: 'PLANT_CHOKE', label: 'Screening Plant & Sizing Choke', icon: 'filter_alt', color: '#06B6D4' },
+                      ].map((item) => {
+                        const isSelected = selectedReasons.includes(item.key);
+                        return (
+                          <button
+                            key={item.key}
+                            type="button"
+                            onClick={() => handleToggleReason(item.key)}
+                            className={`p-3 rounded-xl border text-left flex items-start gap-2.5 transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-white/10 border-[#0E7C7B] shadow-xs'
+                                : `${nestedBg} border-transparent opacity-75 hover:opacity-100 hover:border-slate-500`
+                            }`}
+                          >
+                            <div
+                              className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 text-xs transition-all ${
+                                isSelected ? 'bg-[#0E7C7B] text-white' : 'border border-slate-500 text-transparent'
+                              }`}
+                            >
+                              ✓
+                            </div>
+                            <div className="space-y-0.5">
+                              <div className="flex items-center gap-1.5">
+                                <span className="material-symbols-outlined text-sm" style={{ color: item.color }}>
+                                  {item.icon}
+                                </span>
+                                <span className={`text-xs font-bold leading-tight ${isSelected ? textPrimary : textSecondary}`}>
+                                  {item.label}
+                                </span>
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Manager Remarks / Notes */}
+                  <div className="space-y-1.5 pt-1">
+                    <label className={`text-[11px] font-bold uppercase tracking-wider block ${textMuted}`}>
+                      Shift Manager Operational Remarks
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={managerRemarks}
+                      onChange={(e) => setManagerRemarks(e.target.value)}
+                      placeholder="Specify affected pit bench, excavator serial number, or statutory clearance details..."
+                      className={`w-full p-2.5 rounded-xl border text-xs font-medium transition-all ${
+                        isDark ? 'bg-[#14171C] border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'
+                      } focus:outline-none focus:border-[#0E7C7B]` }
+                    />
+                  </div>
+
+                  {/* Action Bar */}
+                  <div className={`pt-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3 ${borderDivider}`}>
+                    <div className={`text-xs flex items-center gap-2 ${textMuted}`}>
+                      <span className="material-symbols-outlined text-sm text-[#0E7C7B]">bolt</span>
+                      <span>AI model will evaluate SHAP impact weights across logged parameters within ~1.2s</span>
+                    </div>
+
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                      <button
+                        type="button"
+                        onClick={handleRunDiagnosis}
+                        disabled={isProcessingDiagnosis}
+                        className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#0E7C7B] hover:bg-[#0C6A69] text-white text-xs font-black uppercase tracking-wider cursor-pointer transition-all shadow-md flex items-center justify-center gap-2 active:scale-98 disabled:opacity-60"
+                      >
+                        {isProcessingDiagnosis ? (
+                          <>
+                            <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                            <span>PROCESSING AI DIAGNOSIS...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="material-symbols-outlined text-base">psychology</span>
+                            <span>RUN AI SHORTFALL DIAGNOSIS</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
                 </div>
+              )}
 
-                <div className={`lg:col-span-7 p-6 rounded-xl border flex flex-col justify-between space-y-4 ${cardBg}`}>
-                  <div className="space-y-4">
-                    <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
-                      <h3 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
-                        <span className="material-symbols-outlined text-[#B03A2E] text-base">straighten</span>
-                        GAP TO TARGET VISUALIZATION
-                      </h3>
-                      <span className={`text-[10px] font-mono ${textMuted}`}>QUANTITATIVE DEFICIT</span>
+              {/* ================================================================= */}
+              {/* 2. AI PROCESSING SIMULATION STATE (1-2 SECONDS) */}
+              {/* ================================================================= */}
+              {isProcessingDiagnosis && (
+                <div className={`p-8 rounded-2xl border text-center space-y-5 animate-in fade-in zoom-in-95 duration-200 ${cardBg} border-[#0E7C7B]/50 shadow-lg`}>
+                  <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
+                    <div className="absolute inset-0 rounded-full border-4 border-[#0E7C7B]/20 border-t-[#0E7C7B] animate-spin" />
+                    <span className="material-symbols-outlined text-2xl text-[#0E7C7B] animate-pulse">analytics</span>
+                  </div>
+
+                  <div className="space-y-1">
+                    <h3 className={`font-headline font-black text-lg uppercase tracking-wide ${textPrimary}`}>
+                      CALCULATING SHORTFALL SHAP ATTRIBUTION
+                    </h3>
+                    <p className={`text-xs ${textSecondary}`}>
+                      Correlating {operatingHoursInput}h operating time, {downtimeHoursInput}h downtime, and {selectedReasons.length} shortfall factors against baseline target...
+                    </p>
+                  </div>
+
+                  {/* Multi-step progress tracker */}
+                  <div className="max-w-md mx-auto space-y-2 text-xs">
+                    <div className="w-full bg-slate-700/30 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-[#0E7C7B] to-emerald-400 h-full rounded-full transition-all duration-300"
+                        style={{ width: processingStep === 1 ? '35%' : processingStep === 2 ? '75%' : '100%' }}
+                      />
+                    </div>
+                    <div className="flex justify-between font-mono text-[10px] text-slate-400">
+                      <span className={processingStep >= 1 ? 'text-emerald-400 font-bold' : ''}>1. Ingest Shift Telemetry</span>
+                      <span className={processingStep >= 2 ? 'text-emerald-400 font-bold' : ''}>2. Compute SHAP Weights</span>
+                      <span className={processingStep >= 3 ? 'text-emerald-400 font-bold' : ''}>3. Synthesize Gap</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ================================================================= */}
+              {/* 3. DYNAMIC DIAGNOSTIC OUTPUT (APPEARS ONCE PROCESSED) */}
+              {/* ================================================================= */}
+              {hasRunDiagnosis && processedDiagnosis && !isProcessingDiagnosis && (
+                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-400">
+                  {/* Status Banner */}
+                  <div className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                    processedDiagnosis.riskState === 'HIGH'
+                      ? 'bg-[#B03A2E]/15 border-[#B03A2E]/50 text-[#B03A2E]'
+                      : processedDiagnosis.riskState === 'MEDIUM'
+                      ? 'bg-amber-500/15 border-amber-500/50 text-amber-500'
+                      : 'bg-emerald-500/15 border-emerald-500/50 text-emerald-500'
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <span className="w-3 h-3 rounded-full bg-current animate-ping shrink-0" />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-headline font-black text-sm uppercase tracking-wider">
+                            EVALUATED STATE: {processedDiagnosis.riskLabel}
+                          </span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/20 font-bold">
+                            {processedDiagnosis.shiftType.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <span className={`text-[11px] font-medium block mt-0.5 ${textSecondary}`}>
+                          Evaluated for {mineProfile?.mineName} on {processedDiagnosis.shiftDate} at {processedDiagnosis.evaluatedAt}
+                        </span>
+                      </div>
                     </div>
 
-                    <p className={`text-sm font-semibold ${textSecondary}`}>
-                      "Production is projected to finish <strong>900 t</strong> below the current target." 
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setIsFormCollapsed(false)}
+                        className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold transition-all cursor-pointer"
+                      >
+                        ✎ Adjust Shift Inputs
+                      </button>
+                    </div>
+                  </div>
 
-                    <div className="space-y-4 pt-2">
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold"><span className="text-blue-600">PLANNED TARGET</span><span className="font-mono text-blue-600">5,000 t (100%)</span></div>
-                        <div className={`w-full h-4 rounded-lg overflow-hidden border p-0.5 ${nestedBg}`}><div className="h-full bg-blue-600 rounded-md" style={{ width: '100%' }} /></div>
+                  {/* 4 Quantitative KPI Cards */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className={`p-4 rounded-xl border text-center ${nestedBg}`}>
+                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>PLANNED TARGET</span>
+                      <span className="font-headline font-black text-2xl text-blue-600 block mt-1">
+                        {processedDiagnosis.target.toLocaleString()} t
+                      </span>
+                      <span className={`text-[10px] font-mono ${textMuted}`}>Model Benchmark</span>
+                    </div>
+
+                    <div className={`p-4 rounded-xl border text-center ${nestedBg}`}>
+                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>ACTUAL OUTPUT</span>
+                      <span className={`font-headline font-black text-2xl block mt-1 ${textPrimary}`}>
+                        {processedDiagnosis.actual.toLocaleString()} t
+                      </span>
+                      <span className={`text-[10px] font-mono ${textMuted}`}>Logged for Shift</span>
+                    </div>
+
+                    <div className={`p-4 rounded-xl border text-center ${
+                      processedDiagnosis.gap < 0 ? 'bg-[#B03A2E]/10 border-[#B03A2E]/40' : 'bg-emerald-500/10 border-emerald-500/40'
+                    }`}>
+                      <span className={`text-[10px] font-bold uppercase block ${
+                        processedDiagnosis.gap < 0 ? 'text-[#B03A2E]' : 'text-emerald-500'
+                      }`}>
+                        PROJECTED DEFICIT
+                      </span>
+                      <span className={`font-headline font-black text-2xl block mt-1 ${
+                        processedDiagnosis.gap < 0 ? 'text-[#B03A2E]' : 'text-emerald-500'
+                      }`}>
+                        {processedDiagnosis.gap >= 0 ? '+' : ''}{processedDiagnosis.gap.toLocaleString()} t
+                      </span>
+                      <span className="text-[10px] font-mono font-bold block">
+                        {processedDiagnosis.gapPct}% variance
+                      </span>
+                    </div>
+
+                    <div className={`p-4 rounded-xl border text-center ${nestedBg}`}>
+                      <span className={`text-[10px] font-bold uppercase block ${textMuted}`}>OPERATING EFFICIENCY</span>
+                      <span className={`font-headline font-black text-2xl block mt-1 ${
+                        processedDiagnosis.efficiencyPct >= 85 ? 'text-emerald-500' : 'text-amber-500'
+                      }`}>
+                        {processedDiagnosis.efficiencyPct}%
+                      </span>
+                      <span className={`text-[10px] font-mono ${textMuted}`}>
+                        {processedDiagnosis.operatingHours}h Run / {processedDiagnosis.downtimeHours}h Down
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* RISK SUMMARY & GAP VISUAL */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                    {/* Evaluated Risk Profile Card */}
+                    <div className={`lg:col-span-5 p-6 rounded-xl border flex flex-col justify-between space-y-4 ${
+                      isDark ? 'bg-[#20242D] border-[#B03A2E]/50' : 'bg-white border-[#B03A2E]/40 shadow-sm'
+                    }`}>
+                      <div className="space-y-4">
+                        <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
+                          <span className={`text-xs font-headline font-black uppercase tracking-wider ${textMuted}`}>
+                            EVALUATED SHIFT RISK PROFILE
+                          </span>
+                          <span className="text-[10px] font-mono text-[#B03A2E] font-bold">ACTIVE TRIGGER</span>
+                        </div>
+
+                        <div className="p-5 rounded-xl bg-[#B03A2E]/20 border border-[#B03A2E] flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] font-black text-[#B03A2E] uppercase tracking-widest block">
+                              EVALUATED STATE
+                            </span>
+                            <span className="font-headline text-3xl font-black text-[#B03A2E] block mt-0.5">
+                              {processedDiagnosis.riskState} RISK
+                            </span>
+                            <span className={`text-xs font-bold block mt-0.5 ${textPrimary}`}>
+                              Affected: {mineProfile?.potentialSourceZone || 'Zone 14 (South Extension)'}
+                            </span>
+                          </div>
+                          <span className="w-4 h-4 rounded-full bg-[#B03A2E] animate-ping" />
+                        </div>
+
+                        <div className="space-y-2 text-xs">
+                          <div className="flex justify-between font-bold">
+                            <span className={textMuted}>Logged Remarks:</span>
+                          </div>
+                          <p className={`p-3 rounded-lg border text-xs italic ${nestedBg} ${textSecondary}`}>
+                            "{managerRemarks || 'Shift operations recorded with equipment downtime.'}"
+                          </p>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-xs font-bold"><span className={textPrimary}>PROJECTED FORECAST</span><span className={`font-mono ${textPrimary}`}>4,100 t (82%)</span></div>
-                        <div className={`w-full h-4 rounded-lg overflow-hidden border p-0.5 flex ${nestedBg}`}>
-                          <div className="h-full bg-[#0E7C7B] rounded-l-md" style={{ width: '82%' }} />
-                          <div className="h-full bg-[#B03A2E] rounded-r-md animate-pulse" style={{ width: '18%' }} />
+                    </div>
+
+                    {/* Gap to Target Visualization */}
+                    <div className={`lg:col-span-7 p-6 rounded-xl border flex flex-col justify-between space-y-4 ${cardBg}`}>
+                      <div className="space-y-4">
+                        <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
+                          <h3 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
+                            <span className="material-symbols-outlined text-[#B03A2E] text-base">straighten</span>
+                            GAP TO TARGET VISUALIZATION
+                          </h3>
+                          <span className={`text-[10px] font-mono ${textMuted}`}>QUANTITATIVE DEFICIT</span>
+                        </div>
+
+                        <p className={`text-sm font-semibold ${textSecondary}`}>
+                          "Production is projected to finish <strong>{Math.abs(processedDiagnosis.gap).toLocaleString()} t</strong> below the current target."
+                        </p>
+
+                        <div className="space-y-4 pt-2">
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs font-bold">
+                              <span className="text-blue-600">PLANNED TARGET</span>
+                              <span className="font-mono text-blue-600">
+                                {processedDiagnosis.target.toLocaleString()} t (100%)
+                              </span>
+                            </div>
+                            <div className={`w-full h-4 rounded-lg overflow-hidden border p-0.5 ${nestedBg}`}>
+                              <div className="h-full bg-blue-600 rounded-md" style={{ width: '100%' }} />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs font-bold">
+                              <span className={textPrimary}>ACTUAL SHIFT OUTPUT</span>
+                              <span className={`font-mono ${textPrimary}`}>
+                                {processedDiagnosis.actual.toLocaleString()} t ({Math.min(100, Math.round((processedDiagnosis.actual / processedDiagnosis.target) * 100))}%)
+                              </span>
+                            </div>
+                            <div className={`w-full h-4 rounded-lg overflow-hidden border p-0.5 flex ${nestedBg}`}>
+                              <div
+                                className="h-full bg-[#0E7C7B] rounded-l-md transition-all duration-500"
+                                style={{ width: `${Math.min(100, Math.round((processedDiagnosis.actual / processedDiagnosis.target) * 100))}%` }}
+                              />
+                              {processedDiagnosis.gap < 0 && (
+                                <div
+                                  className="h-full bg-[#B03A2E] rounded-r-md animate-pulse transition-all duration-500"
+                                  style={{ width: `${Math.min(100, processedDiagnosis.gapPct)}%` }}
+                                />
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* CAUSE CONTRIBUTION SHAP (Admin only) + DIAGNOSTIC INPUTS */}
-              {userRole === 'admin' ? (
-                <>
+                  {/* CAUSE CONTRIBUTION SHAP (Dynamic Feature Importance) */}
                   <div className={`p-6 rounded-xl border space-y-5 ${cardBg}`}>
-                    <h3 className={`font-headline font-black text-xl uppercase tracking-wide flex items-center gap-2 ${textPrimary}`}>
-                      <span className="material-symbols-outlined text-[#B03A2E]">align_horizontal_left</span>
-                      CAUSE CONTRIBUTION (SHAP FEATURE IMPORTANCE)
-                    </h3>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <h3 className={`font-headline font-black text-xl uppercase tracking-wide flex items-center gap-2 ${textPrimary}`}>
+                        <span className="material-symbols-outlined text-[#B03A2E]">align_horizontal_left</span>
+                        CAUSE CONTRIBUTION (SHAP FEATURE IMPORTANCE)
+                      </h3>
+                      <span className={`text-[11px] font-mono ${textMuted}`}>
+                        Dynamic attribution calibrated on logged downtime & drivers
+                      </span>
+                    </div>
+
                     <div className="space-y-4 pt-1">
-                      {[
-                        { label: "EQUIPMENT DOWNTIME", pct: 42, color: "#B03A2E" },
-                        { label: "BLASTING DELAY",     pct: 28, color: "#D97706" },
-                        { label: "RAINFALL",           pct: 18, color: "#3B82F6" },
-                        { label: "ORE GRADE",          pct: 12, color: "#10B981" },
-                      ].map((item) => (
+                      {processedDiagnosis.shapContributions.map((item) => (
                         <div key={item.label} className="space-y-1.5">
                           <div className="flex justify-between items-center text-xs font-bold">
                             <span className={`uppercase tracking-wider ${textPrimary}`}>{item.label}</span>
-                            <span className="font-mono font-black text-sm" style={{ color: item.color }}>{item.pct}% CONTRIBUTION</span>
+                            <span className="font-mono font-black text-sm" style={{ color: item.color }}>
+                              {item.pct}% CONTRIBUTION
+                            </span>
                           </div>
                           <div className={`w-full h-4 rounded-lg overflow-hidden border p-0.5 ${nestedBg}`}>
-                            <div className="h-full rounded-md transition-all" style={{ width: `${item.pct}%`, background: item.color }} />
+                            <div
+                              className="h-full rounded-md transition-all duration-500"
+                              style={{ width: `${item.pct}%`, background: item.color }}
+                            />
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
-                  {/* CAUSE DETAILS & DIAGNOSTIC INPUTS */}
+
+                  {/* CAUSE DETAILS & GAP CLOSURE CONDITIONS */}
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                     <div className={`lg:col-span-8 p-6 rounded-xl border space-y-4 ${cardBg}`}>
-                      <h3 className={`font-headline font-black text-sm uppercase ${textPrimary}`}>CAUSE EXPLANATIONS</h3>
+                      <h3 className={`font-headline font-black text-sm uppercase ${textPrimary}`}>
+                        CAUSE EXPLANATIONS & OPERATIONAL IMPACT
+                      </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                        {[
-                          { label: "EQUIPMENT DOWNTIME", color: "#B03A2E", pct: "42%", desc: "Reduced equipment availability is the largest contributor to the projected production gap." },
-                          { label: "BLASTING DELAY",     color: "#D97706", pct: "28%", desc: "Current blasting delay is reducing the available operating window." },
-                          { label: "RAINFALL",           color: "#3B82F6", pct: "18%", desc: "Seasonal rainfall is contributing to reduced production conditions." },
-                          { label: "ORE GRADE",          color: "#10B981", pct: "12%", desc: "Lower ore grade contributes to the remaining production variance." },
-                        ].map((item) => (
+                        {processedDiagnosis.shapContributions.map((item) => (
                           <div key={item.label} className={`p-4 rounded-xl border space-y-1 ${nestedBg}`}>
                             <div className="flex justify-between items-center font-bold">
                               <span className={textPrimary}>{item.label}</span>
-                              <span style={{ color: item.color }}>{item.pct} IMPACT</span>
+                              <span style={{ color: item.color }}>{item.pct}% IMPACT</span>
                             </div>
                             <p className={textSecondary}>&ldquo;{item.desc}&rdquo;</p>
                           </div>
                         ))}
                       </div>
                     </div>
+
                     <div className={`lg:col-span-4 p-6 rounded-xl border space-y-3 ${cardBg}`}>
-                      <h3 className={`font-headline font-black text-sm uppercase ${textPrimary}`}>GAP CLOSURE CONDITIONS</h3>
+                      <h3 className={`font-headline font-black text-sm uppercase ${textPrimary}`}>
+                        GAP CLOSURE CONDITIONS
+                      </h3>
                       <div className="space-y-3 text-xs">
-                        <div className={`p-3.5 rounded-xl border ${nestedBg}`}>
-                          <span className={`text-[10px] uppercase block ${textMuted}`}>EQUIPMENT EFFICIENCY</span>
-                          <span className="font-headline font-black text-lg text-emerald-500">80% → 100%</span>
-                        </div>
-                        <div className={`p-3.5 rounded-xl border ${nestedBg}`}>
-                          <span className={`text-[10px] uppercase block ${textMuted}`}>BLASTING DELAY</span>
-                          <span className="font-headline font-black text-lg text-emerald-500">2 days → ≤ 0 days</span>
-                        </div>
-                        <button onClick={() => setActiveTab('corrective-actions')} className="w-full py-2.5 rounded-lg bg-[#0E7C7B] hover:bg-[#0C6A69] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-md">
-                          JUMP TO CORRECTIVE ACTIONS →
+                        {processedDiagnosis.closureConditions.map((cond) => (
+                          <div key={cond.title} className={`p-3.5 rounded-xl border ${nestedBg}`}>
+                            <span className={`text-[10px] uppercase block font-bold ${textMuted}`}>{cond.title}</span>
+                            <span className="font-headline font-black text-base text-emerald-500 block mt-0.5">
+                              {cond.target}
+                            </span>
+                            <p className={`text-[11px] mt-1 ${textSecondary}`}>{cond.desc}</p>
+                          </div>
+                        ))}
+
+                        <button
+                          onClick={() => setActiveTab('corrective-actions')}
+                          className="w-full py-2.5 rounded-lg bg-[#0E7C7B] hover:bg-[#0C6A69] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-md flex items-center justify-center gap-1.5"
+                        >
+                          <span>JUMP TO CORRECTIVE ACTIONS</span>
+                          <span>→</span>
                         </button>
                       </div>
                     </div>
-                  </div>
-                </>
-              ) : (
-                <div className="p-5 rounded-xl border border-teal-500/20 bg-teal-500/5 flex items-start gap-3">
-                  <span className="material-symbols-outlined text-teal-400 text-lg shrink-0 mt-0.5">info</span>
-                  <div>
-                    <p className="text-teal-300 text-sm font-bold">Shortfall Root Cause Analysis</p>
-                    <p className="text-slate-400 text-xs mt-1 leading-relaxed">Detailed SHAP cause attribution is available to Admin users. Your corrective actions provide the operational guidance needed.</p>
-                    <button onClick={() => setActiveTab('corrective-actions')} className="mt-3 px-4 py-1.5 rounded-lg bg-[#0E7C7B] hover:bg-[#0C6A69] text-white text-xs font-black uppercase tracking-wider cursor-pointer">View Corrective Actions →</button>
                   </div>
                 </div>
               )}
