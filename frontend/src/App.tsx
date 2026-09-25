@@ -20,7 +20,14 @@ import { AdminControlCenter } from './components/AdminControlCenter';
 
 // Inner app that has access to AuthContext
 function AppInner() {
-  const [currentRoute, setCurrentRoute] = useState<PortalRoute>('landing');
+  const [currentRoute, setCurrentRoute] = useState<PortalRoute>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const r = params.get('route');
+      if (r) return r as PortalRoute;
+    }
+    return 'landing';
+  });
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>('light');
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
   const [selectedMine, setSelectedMine] = useState<any | null>(null);

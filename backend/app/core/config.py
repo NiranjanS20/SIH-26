@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     WEATHER_ENABLED: bool = False
     OPENWEATHER_API_KEY: str = ""
 
+    # Google Gemini API Key for Geological Copilot
+    GEMINI_API_KEY: str = ""
+
     @property
     def cors_origins(self) -> List[str]:
         return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",") if origin.strip()]

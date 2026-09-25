@@ -111,3 +111,22 @@ def test_admin_endpoints_rbac():
             headers=get_auth_headers("industry_viewer", "Industry User")
         )
         assert ind_resp.status_code == 403
+
+    def test_gemini_interpret_endpoint(self, client_with_lifespan):
+        payload = {
+            "latitude": 21.5545,
+            "longitude": 79.7020,
+            "site_name": "Dongri Buzurg Mine",
+            "peak_grade_pct": 42.8,
+            "seam_center_m": 185,
+            "overburden_m": 45,
+            "boreholes": [
+                {"id": "BH-01", "dist": 100, "depth": 320, "dip": 85}
+            ]
+        }
+        resp = client_with_lifespan.post("/api/v1/prospectivity/gemini-interpret", json=payload)
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "interpretation" in data
+        assert len(data["interpretation"]) > 50
+

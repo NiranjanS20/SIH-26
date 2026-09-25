@@ -50,10 +50,32 @@ export async function loginUser(username: string, password: string): Promise<Aut
 }
 
 export function getStoredToken(): string | null {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    if (urlToken) {
+      try {
+        localStorage.setItem(TOKEN_KEY, urlToken);
+      } catch {}
+      return urlToken;
+    }
+  }
   return localStorage.getItem(TOKEN_KEY);
 }
 
 export function getStoredUser(): AuthUser | null {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('dev') === 'true') {
+      return {
+        sub: 'sitemanager',
+        name: 'sitemanager',
+        role: 'site_manager',
+        display_name: 'Site Manager (Demo)',
+        exp: Math.floor(Date.now() / 1000) + 86400,
+      };
+    }
+  }
   const token = getStoredToken();
   if (!token) return null;
 

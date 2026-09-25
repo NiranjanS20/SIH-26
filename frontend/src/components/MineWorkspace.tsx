@@ -87,7 +87,16 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
   initialMineId = 'dongri-buzurg',
   userRole = 'admin',
 }) => {
-  const [activeTab, setActiveTab] = useState<OverviewTab>('overview');
+  const [activeTab, setActiveTab] = useState<OverviewTab>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const t = params.get('tab') as OverviewTab;
+      if (t && SITE_MANAGER_TABS.includes(t)) {
+        return t;
+      }
+    }
+    return 'overview';
+  });
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [isMineDropdownOpen, setIsMineDropdownOpen] = useState<boolean>(false);
 
@@ -98,6 +107,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
   // Sync state if prop changes
   useEffect(() => {
     setSelectedMineId(initialMineId);
+    setMineProfile(getMineProductionProfile(initialMineId));
   }, [initialMineId]);
 
   useEffect(() => {
@@ -2422,6 +2432,15 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                         isDark ? 'bg-[#14171C] border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'
                       } focus:outline-none focus:border-blue-500`}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('prospectivity')}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-600/20 hover:bg-teal-600/30 text-teal-300 border border-teal-500/40 text-xs font-bold transition-all cursor-pointer shadow-sm shrink-0"
+                      title="Inspect active benches on the GIS Prospectivity Map"
+                    >
+                      <span className="material-symbols-outlined text-sm">satellite_alt</span>
+                      <span className="hidden sm:inline">GIS Prospectivity Map</span>
+                    </button>
                   </div>
                 </div>
 
@@ -2816,8 +2835,9 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
             <div className="space-y-8 animate-in fade-in duration-300">
               <ProspectivityView
                 isDark={isDark}
-                selectedMineName={mineProfile.mineName}
+                selectedMineName={selectedMineId}
                 onSendToForecast={() => setActiveTab('production-forecast')}
+                onNavigateToTab={(tab) => setActiveTab(tab as OverviewTab)}
               />
             </div>
           )}

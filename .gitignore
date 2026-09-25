@@ -50,6 +50,8 @@ data/processed/
 data/mine data/
 data/new data/
 data/satellite data and more/
+new data/
+new_data/
 *.csv
 *.json
 *.joblib
@@ -69,3 +71,9 @@ catboost_info/
 !frontend/package.json
 !frontend/tsconfig.json
 !package.json
+
+# Local inspection captures
+screenshots/
+sc.png
+test_*.png
+

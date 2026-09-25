@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import Silk from './ui/Silk';
 import { Sparkles } from 'lucide-react';
 import { apiGet } from '../services/apiClient';
+import MapLibreProspectivityCanvas from './MapLibreProspectivityCanvas';
+import CrossSectionDrawer from './CrossSectionDrawer';
+import { getMineBoundary } from '../lib/prospectivityMapConfig';
 
 interface ProspectivityViewProps {
   isDark?: boolean;
   onSendToForecast?: () => void;
+  onNavigateToTab?: (tab: string) => void;
   selectedMineName?: string;
 }
 
@@ -30,7 +34,7 @@ export interface ZoneData {
 // ─────────────────────────────────────────────────────────────────────────────
 // REALISTIC PROSPECTIVITY ZONES OVER DONGRI BUZURG PIT SATELLITE IMAGERY
 // ─────────────────────────────────────────────────────────────────────────────
-export const DONGRI_ZONES: ZoneData[] = [
+const DONGRI_ZONES: ZoneData[] = [
   {
     id: 'PZ-DB-14',
     code: 'Zone 14',
@@ -138,14 +142,25 @@ export const DONGRI_ZONES: ZoneData[] = [
 export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
   isDark = true,
   onSendToForecast,
+  onNavigateToTab,
   selectedMineName = 'Dongri Buzurg Mine',
 }) => {
   const [zones, setZones] = useState<ZoneData[]>(DONGRI_ZONES);
   const [selectedZone, setSelectedZone] = useState<ZoneData>(DONGRI_ZONES[0]);
 
   useEffect(() => {
+    // Reset to static zones whenever the selected mine changes
+    setZones(DONGRI_ZONES);
+    setSelectedZone(DONGRI_ZONES[0]);
+
     let isMounted = true;
-    apiGet<any>('/mines/dongri-buzurg/prospectivity')
+    // Derive mine ID from mine name for the API call
+    const mineId = selectedMineName
+      .toLowerCase()
+      .replace(' mine', '')
+      .replace(/\s+/g, '-');
+
+    apiGet<any>(`/mines/${mineId}/prospectivity`)
       .then((data) => {
         if (isMounted && data && data.gisZones) {
           const mergedZones = DONGRI_ZONES.map((staticZone, i) => {
@@ -164,9 +179,13 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
       })
       .catch((err) => console.error("Failed to fetch prospectivity:", err));
     return () => { isMounted = false; };
-  }, []);
+  }, [selectedMineName]);
+
 
   const [viewMode, setViewMode] = useState<'MAP' | 'LIST'>('MAP');
+  const [mapMode, setMapMode] = useState<'MAPLIBRE_GIS' | 'BENCH_SCHEMATIC'>('MAPLIBRE_GIS');
+  const [crossSectionActive, setCrossSectionActive] = useState<boolean>(false);
+  const [crossSectionPoint, setCrossSectionPoint] = useState<{ lat: number; lng: number; siteName?: string; zoneName?: string } | null>(null);
   const [showOreReef, setShowOreReef] = useState<boolean>(true);
   const [showPitPerimeter, setShowPitPerimeter] = useState<boolean>(true);
   const [showThermalOverlay, setShowThermalOverlay] = useState<boolean>(false);
@@ -385,196 +404,237 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
       {/* ========================================================================= */}
       {viewMode === 'MAP' ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          {/* SATELLITE MAP CANVAS (7 COLS) */}
+          {/* INTERACTIVE GIS MAP CANVAS (7 COLS) */}
           <div className={`lg:col-span-7 p-6 rounded-2xl border ${cardBg} space-y-4 flex flex-col justify-between shadow-xl`}>
             <div className={`flex flex-wrap items-center justify-between border-b pb-3 gap-3 ${borderDivider}`}>
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#0E7C7B] text-lg">satellite_alt</span>
                 <h2 className={`font-headline font-black text-sm uppercase tracking-wider ${textPrimary}`}>
-                  DONGRI BUZURG SATELLITE PIT MAP
+                  {selectedMineName.toUpperCase()} • GEOLOGICAL GIS & PROSPECTIVITY
                 </h2>
               </div>
 
-              {/* Minimal Clean Layer Toggles */}
-              <div className="flex items-center gap-2 text-xs">
-                <button
-                  onClick={() => setShowOreReef(!showOreReef)}
-                  className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 border text-[11px] ${
-                    showOreReef
-                      ? isDark
-                        ? 'bg-rose-950/80 border-rose-500/60 text-rose-300'
-                        : 'bg-rose-50 border-rose-300 text-rose-800 font-black shadow-xs'
-                      : isDark
-                      ? 'bg-black/40 border-white/10 text-slate-400 hover:text-white'
-                      : 'bg-slate-100 border-slate-300 text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <span className={`w-2 h-2 rounded-full ${showOreReef ? 'bg-rose-500 animate-pulse' : 'bg-slate-400'}`} />
-                  Ore Reef (Pink)
-                </button>
+              {/* Controls Header */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* When in schematic mode, show schematic layer toggles */}
+                {mapMode === 'BENCH_SCHEMATIC' && (
+                  <div className="flex items-center gap-2 text-xs">
+                    <button
+                      onClick={() => setShowOreReef(!showOreReef)}
+                      className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 border text-[11px] ${
+                        showOreReef
+                          ? isDark ? 'bg-rose-950/80 border-rose-500/60 text-rose-300' : 'bg-rose-50 border-rose-300 text-rose-800'
+                          : isDark ? 'bg-black/40 border-white/10 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-600'
+                      }`}
+                    >
+                      <span className={`w-2 h-2 rounded-full ${showOreReef ? 'bg-rose-500 animate-pulse' : 'bg-slate-400'}`} />
+                      Ore Reef
+                    </button>
+                    <button
+                      onClick={() => setShowPitPerimeter(!showPitPerimeter)}
+                      className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 border text-[11px] ${
+                        showPitPerimeter
+                          ? isDark ? 'bg-amber-950/80 border-amber-500/60 text-amber-300' : 'bg-amber-50 border-amber-300 text-amber-800'
+                          : isDark ? 'bg-black/40 border-white/10 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-600'
+                      }`}
+                    >
+                      <span className={`w-2 h-2 rounded-full ${showPitPerimeter ? 'bg-amber-500' : 'bg-slate-400'}`} />
+                      Pit Shell
+                    </button>
+                    <button
+                      onClick={() => setShowThermalOverlay(!showThermalOverlay)}
+                      className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 border text-[11px] ${
+                        showThermalOverlay
+                          ? isDark ? 'bg-teal-950/80 border-teal-500/60 text-teal-300' : 'bg-teal-50 border-teal-300 text-teal-800'
+                          : isDark ? 'bg-black/40 border-white/10 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-600'
+                      }`}
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      SWIR
+                    </button>
+                  </div>
+                )}
 
-                <button
-                  onClick={() => setShowPitPerimeter(!showPitPerimeter)}
-                  className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 border text-[11px] ${
-                    showPitPerimeter
-                      ? isDark
-                        ? 'bg-amber-950/80 border-amber-500/60 text-amber-300'
-                        : 'bg-amber-50 border-amber-300 text-amber-800 font-black shadow-xs'
-                      : isDark
-                      ? 'bg-black/40 border-white/10 text-slate-400 hover:text-white'
-                      : 'bg-slate-100 border-slate-300 text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <span className={`w-2 h-2 rounded-full ${showPitPerimeter ? 'bg-amber-500' : 'bg-slate-400'}`} />
-                  Pit Shell (Yellow)
-                </button>
-
-                <button
-                  onClick={() => setShowThermalOverlay(!showThermalOverlay)}
-                  className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 border text-[11px] ${
-                    showThermalOverlay
-                      ? isDark
-                        ? 'bg-teal-950/80 border-teal-500/60 text-teal-300'
-                        : 'bg-teal-50 border-teal-300 text-teal-800 font-black shadow-xs'
-                      : isDark
-                      ? 'bg-black/40 border-white/10 text-slate-400 hover:text-white'
-                      : 'bg-slate-100 border-slate-300 text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Sparkles className="w-3 h-3" />
-                  SWIR
-                </button>
+                {/* View Switcher: MapLibre GIS vs Bench Schematic */}
+                <div className={`flex items-center p-1 rounded-xl border text-xs ${
+                  isDark ? 'bg-black/40 border-white/10' : 'bg-slate-100 border-slate-300'
+                }`}>
+                  <button
+                    onClick={() => setMapMode('MAPLIBRE_GIS')}
+                    className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      mapMode === 'MAPLIBRE_GIS'
+                        ? 'bg-[#0E7C7B] text-white shadow-md'
+                        : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-sm">public</span>
+                    MapLibre GIS
+                  </button>
+                  <button
+                    onClick={() => setMapMode('BENCH_SCHEMATIC')}
+                    className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                      mapMode === 'BENCH_SCHEMATIC'
+                        ? 'bg-[#0E7C7B] text-white shadow-md'
+                        : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-sm">grid_view</span>
+                    Bench Schematic
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* ================================================================= */}
-            {/* CLEAN INTERACTIVE SATELLITE PIT DISPLAY CONTAINER */}
-            {/* ================================================================= */}
-            <div className="relative w-full h-[440px] sm:h-[480px] rounded-2xl overflow-hidden border border-white/15 bg-slate-950 shadow-2xl flex items-center justify-center group select-none">
-              {/* Actual High-Res Top-Down Satellite Photo of Dongri Buzurg Open Cast Mine */}
-              <img
-                src={selectedMineName?.toLowerCase().includes('tirodi') || selectedMineName?.toLowerCase().includes('sitapatore') ? "/tirodi_heatmap.png" : "/dongri_heatmap.png"}
-                alt={`${selectedMineName || 'Mine'} Heatmap Imagery`}
-                className="absolute inset-0 w-full h-full object-cover filter"
+            {/* Map Body: MapLibre Vector GIS OR Static Bench Schematic */}
+            {mapMode === 'MAPLIBRE_GIS' ? (
+              <MapLibreProspectivityCanvas
+                selectedMineName={selectedMineName}
+                isDark={isDark}
+                crossSectionActive={crossSectionActive}
+                onToggleCrossSection={() => {
+                  const nextActive = !crossSectionActive;
+                  setCrossSectionActive(nextActive);
+                  if (nextActive && !crossSectionPoint) {
+                    const mine = getMineBoundary(selectedMineName);
+                    setCrossSectionPoint({
+                      lat: mine.center[1],
+                      lng: mine.center[0],
+                      siteName: mine.name,
+                      zoneName: 'Main High-Grade Reef',
+                    });
+                  }
+                }}
+                selectedPoint={crossSectionPoint}
+                onSelectPoint={(pt) => {
+                  setCrossSectionPoint(pt);
+                  setCrossSectionActive(true);
+                }}
               />
+            ) : (
+              <div className="relative w-full h-[500px] rounded-2xl overflow-hidden border border-white/15 bg-slate-950 shadow-2xl flex items-center justify-center group select-none">
+                {/* Actual High-Res Top-Down Satellite Photo of Open Cast Mine */}
+                <img
+                  src={selectedMineName?.toLowerCase().includes('tirodi') || selectedMineName?.toLowerCase().includes('sitapatore') ? "/tirodi_heatmap.png" : "/dongri_heatmap.png"}
+                  alt={`${selectedMineName || 'Mine'} Heatmap Imagery`}
+                  className="absolute inset-0 w-full h-full object-cover filter"
+                />
 
-              {/* Subtle Dark Vignette for Premium Depth */}
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/80 via-transparent to-black/40" />
+                {/* Subtle Dark Vignette for Premium Depth */}
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/80 via-transparent to-black/40" />
 
-              {/* SVG Vector Zone Overlay mapped across the real pit */}
-              <svg viewBox="0 0 640 280" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-                <defs>
-                  <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
-                    <feGaussianBlur stdDeviation="3.5" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                  </filter>
+                {/* SVG Vector Zone Overlay mapped across the real pit */}
+                <svg viewBox="0 0 640 280" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+                  <defs>
+                    <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
+                      <feGaussianBlur stdDeviation="3.5" result="blur" />
+                      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
 
-                  <linearGradient id="oreReefGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#FB7185" />
-                    <stop offset="50%" stopColor="#F43F5E" />
-                    <stop offset="100%" stopColor="#E11D48" />
-                  </linearGradient>
-                </defs>
+                    <linearGradient id="oreReefGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#FB7185" />
+                      <stop offset="50%" stopColor="#F43F5E" />
+                      <stop offset="100%" stopColor="#E11D48" />
+                    </linearGradient>
+                  </defs>
 
-                {/* SWIR Thermal Multi-Spectral Heatmap Simulation */}
-                {showThermalOverlay && !selectedMineName?.toLowerCase().includes('tirodi') && !selectedMineName?.toLowerCase().includes('sitapatore') && (
-                  <circle cx="330" cy="140" r="130" fill="#F43F5E" fillOpacity="0.22" filter="url(#glowEffect)" />
-                )}
+                  {/* SWIR Thermal Multi-Spectral Heatmap Simulation */}
+                  {showThermalOverlay && !selectedMineName?.toLowerCase().includes('tirodi') && !selectedMineName?.toLowerCase().includes('sitapatore') && (
+                    <circle cx="330" cy="140" r="130" fill="#F43F5E" fillOpacity="0.22" filter="url(#glowEffect)" />
+                  )}
 
-                {/* Main Open Pit Shell (Yellow Perimeter) */}
-                {showPitPerimeter && !selectedMineName?.toLowerCase().includes('tirodi') && !selectedMineName?.toLowerCase().includes('sitapatore') && (
-                  <g>
-                    <path
-                      d="M 100 140 C 130 55 240 60 350 65 C 450 70 540 85 545 130 C 540 175 430 190 340 195 C 230 190 120 185 100 140 Z"
-                      fill="none"
-                      stroke="#FACC15"
-                      strokeWidth="2"
-                      strokeDasharray="5 3"
-                    />
-                  </g>
-                )}
-
-                {/* Manganese Ore Body Strike Line (Pink / Magenta Reef Line) */}
-                {showOreReef && !selectedMineName?.toLowerCase().includes('tirodi') && !selectedMineName?.toLowerCase().includes('sitapatore') && (
-                  <g filter="url(#glowEffect)">
-                    <path
-                      d="M 120 150 Q 270 145 380 135 T 510 120"
-                      fill="none"
-                      stroke="url(#oreReefGradient)"
-                      strokeWidth="5"
-                      strokeLinecap="round"
-                    />
-                    <text x="290" y="125" fill="#FFE4E6" fontSize="9.5" fontWeight="900" textAnchor="middle" className="drop-shadow-md">
-                      Manganese Ore Body Reef
-                    </text>
-                  </g>
-                )}
-
-                {/* Model 1 Prospectivity Zones (Distributed Naturally Across Pit Sectors) */}
-                {zones.map((zone) => {
-                  const isSelected = selectedZone.id === zone.id;
-                  const style = getProspectivityColor(zone.prospectivityClass);
-
-                  return (
-                    <g
-                      key={zone.id}
-                      className="cursor-pointer group/zone transition-all duration-200"
-                      onClick={() => setSelectedZone(zone)}
-                    >
-                      {/* Translucent Zone Polygon */}
+                  {/* Main Open Pit Shell (Yellow Perimeter) */}
+                  {showPitPerimeter && !selectedMineName?.toLowerCase().includes('tirodi') && !selectedMineName?.toLowerCase().includes('sitapatore') && (
+                    <g>
                       <path
-                        d={zone.svgPolygon}
-                        fill={style.fill}
-                        fillOpacity={isSelected ? 0.6 : 0.28}
-                        stroke={isSelected ? '#FFFFFF' : style.hex}
-                        strokeWidth={isSelected ? 3.5 : 1.8}
-                        strokeDasharray={isSelected ? undefined : '4 2'}
-                        className="transition-all duration-200 group-hover/zone:fill-opacity-50"
+                        d="M 100 140 C 130 55 240 60 350 65 C 450 70 540 85 545 130 C 540 175 430 190 340 195 C 230 190 120 185 100 140 Z"
+                        fill="none"
+                        stroke="#FACC15"
+                        strokeWidth="2"
+                        strokeDasharray="5 3"
                       />
-
-                      {/* Zone Center Label Pill */}
-                      <g transform={`translate(${zone.svgCenter.x}, ${zone.svgCenter.y})`}>
-                        <rect
-                          x="-42"
-                          y="-11"
-                          width="84"
-                          height="22"
-                          rx="6"
-                          fill={isSelected ? '#0F172A' : '#020617'}
-                          fillOpacity="0.88"
-                          stroke={isSelected ? '#FFFFFF' : style.hex}
-                          strokeWidth={isSelected ? 2 : 1}
-                        />
-                        <text
-                          x="0"
-                          y="4"
-                          fill="#FFFFFF"
-                          fontSize="9.5"
-                          fontWeight="900"
-                          textAnchor="middle"
-                          className="pointer-events-none select-none"
-                        >
-                          {zone.code} ({zone.predictedMnO}%)
-                        </text>
-                      </g>
                     </g>
-                  );
-                })}
-              </svg>
+                  )}
 
-              {/* Floating Bottom HUD Overlay */}
-              <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between px-3.5 py-2 rounded-xl bg-black/85 border border-white/15 text-[11px] font-mono text-white backdrop-blur-md">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="font-bold text-teal-300">
-                    Dongri Buzurg Pit Floor • Lat 21.5545°N, Long 79.7020°E
+                  {/* Manganese Ore Body Strike Line (Pink / Magenta Reef Line) */}
+                  {showOreReef && !selectedMineName?.toLowerCase().includes('tirodi') && !selectedMineName?.toLowerCase().includes('sitapatore') && (
+                    <g filter="url(#glowEffect)">
+                      <path
+                        d="M 120 150 Q 270 145 380 135 T 510 120"
+                        fill="none"
+                        stroke="url(#oreReefGradient)"
+                        strokeWidth="5"
+                        strokeLinecap="round"
+                      />
+                      <text x="290" y="125" fill="#FFE4E6" fontSize="9.5" fontWeight="900" textAnchor="middle" className="drop-shadow-md">
+                        Manganese Ore Body Reef
+                      </text>
+                    </g>
+                  )}
+
+                  {/* Model 1 Prospectivity Zones */}
+                  {zones.map((zone) => {
+                    const isSelected = selectedZone.id === zone.id;
+                    const style = getProspectivityColor(zone.prospectivityClass);
+
+                    return (
+                      <g
+                        key={zone.id}
+                        className="cursor-pointer group/zone transition-all duration-200"
+                        onClick={() => setSelectedZone(zone)}
+                      >
+                        <path
+                          d={zone.svgPolygon}
+                          fill={style.fill}
+                          fillOpacity={isSelected ? 0.6 : 0.28}
+                          stroke={isSelected ? '#FFFFFF' : style.hex}
+                          strokeWidth={isSelected ? 3.5 : 1.8}
+                          strokeDasharray={isSelected ? undefined : '4 2'}
+                          className="transition-all duration-200 group-hover/zone:fill-opacity-50"
+                        />
+
+                        <g transform={`translate(${zone.svgCenter.x}, ${zone.svgCenter.y})`}>
+                          <rect
+                            x="-42"
+                            y="-11"
+                            width="84"
+                            height="22"
+                            rx="6"
+                            fill={isSelected ? '#0F172A' : '#020617'}
+                            fillOpacity="0.88"
+                            stroke={isSelected ? '#FFFFFF' : style.hex}
+                            strokeWidth={isSelected ? 2 : 1}
+                          />
+                          <text
+                            x="0"
+                            y="4"
+                            fill="#FFFFFF"
+                            fontSize="9.5"
+                            fontWeight="900"
+                            textAnchor="middle"
+                            className="pointer-events-none select-none"
+                          >
+                            {zone.code} ({zone.predictedMnO}%)
+                          </text>
+                        </g>
+                      </g>
+                    );
+                  })}
+                </svg>
+
+                {/* Floating Bottom HUD Overlay */}
+                <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between px-3.5 py-2 rounded-xl bg-black/85 border border-white/15 text-[11px] font-mono text-white backdrop-blur-md">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="font-bold text-teal-300">
+                      {selectedMineName} Pit Floor • Bench Model Active
+                    </span>
+                  </div>
+                  <span className="text-slate-300 hidden sm:inline text-[10.5px]">
+                    Click any zone to inspect Model 1 parameters
                   </span>
                 </div>
-                <span className="text-slate-300 hidden sm:inline text-[10.5px]">
-                  Click any zone to inspect Model 1 parameters
-                </span>
               </div>
-            </div>
+            )}
           </div>
 
           {/* ========================================================================= */}
@@ -727,14 +787,47 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
               </div>
             </div>
 
+            {/* Sample Subsurface Cross-Section Button */}
+            <button
+              type="button"
+              onClick={() => {
+                const boundary = getMineBoundary(selectedMineName);
+                setCrossSectionPoint({
+                  lat: boundary.center[1] + (selectedZone.svgCenter.y - 140) * 0.0001,
+                  lng: boundary.center[0] + (selectedZone.svgCenter.x - 320) * 0.00015,
+                  siteName: `${selectedMineName} • ${selectedZone.name}`,
+                });
+              }}
+              className="w-full py-2.5 px-4 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 font-headline font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md mt-3"
+            >
+              <span className="material-symbols-outlined text-sm">timeline</span>
+              <span>INSPECT 0–400M SUBSURFACE CROSS-SECTION</span>
+            </button>
+
             {/* Send to Forecast Action Button */}
             <button
               onClick={onSendToForecast}
-              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#C77B00] hover:from-amber-400 hover:to-amber-500 text-slate-950 font-headline font-black text-sm uppercase tracking-wider shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2 transition-all transform active:scale-98 cursor-pointer mt-4"
+              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-[#C77B00] hover:from-amber-400 hover:to-amber-500 text-slate-950 font-headline font-black text-sm uppercase tracking-wider shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2 transition-all transform active:scale-98 cursor-pointer mt-3"
             >
               <span>SEND ZONE TO PRODUCTION FORECAST</span>
               <span className="material-symbols-outlined text-base">arrow_forward</span>
             </button>
+
+            {/* Quick Link to Site Intelligence & Telemetry */}
+            {onNavigateToTab && (
+              <button
+                type="button"
+                onClick={() => onNavigateToTab('site-intelligence')}
+                className={`w-full py-2.5 px-4 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer mt-2.5 ${
+                  isDark
+                    ? 'bg-slate-800/80 hover:bg-slate-700 text-slate-200 border-white/10'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300'
+                }`}
+              >
+                <span className="material-symbols-outlined text-sm">shield_person</span>
+                <span>VIEW BENCH TELEMETRY & OPERATIONS</span>
+              </button>
+            )}
           </div>
         </div>
       ) : (
@@ -943,6 +1036,17 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
           </div>
         )}
       </div>
+
+      {/* Subsurface 2D Cross-Section Slide-Up Drawer */}
+      <CrossSectionDrawer
+        isOpen={Boolean(crossSectionPoint)}
+        onClose={() => {
+          setCrossSectionPoint(null);
+          setCrossSectionActive(false);
+        }}
+        point={crossSectionPoint}
+        isDark={isDark}
+      />
     </div>
   );
 };
