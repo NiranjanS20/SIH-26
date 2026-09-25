@@ -169,46 +169,7 @@ export const MINE_PRODUCTION_PROFILES: Record<string, MineProductionProfile> = {
     },
   },
 
-  'kandri': {
-    id: 'kandri',
-    mineName: 'Kandri Opencast & Underground Mine',
-    shortCode: 'KD-01',
-    type: 'Open Cast',
-    state: 'Maharashtra',
-    district: 'Nagpur',
-    currentOutputTons: 6900,
-    plannedTargetTons: 7500,
-    predictedOutputTons: 7050,
-    projectedGapTons: -450,
-    gapPct: 6.0,
-    potentialSourceZone: 'Kandri Pit-2 West Face',
-    monthlyTrend: [
-      { label: 'Apr', actual: 7300, target: 7500, forecast: null, confidenceLower: null, confidenceUpper: null },
-      { label: 'May', actual: 7600, target: 7500, forecast: null, confidenceLower: null, confidenceUpper: null },
-      { label: 'Jun', actual: 7100, target: 7500, forecast: null, confidenceLower: null, confidenceUpper: null, isMonsoon: true },
-      { label: 'Jul', actual: 6600, target: 7500, forecast: null, confidenceLower: null, confidenceUpper: null, isMonsoon: true },
-      { label: 'Aug (Cur)', actual: 6900, target: 7500, forecast: 6900, confidenceLower: 6500, confidenceUpper: 7300, isMonsoon: true },
-      { label: 'Sep (Fcst)', actual: null, target: 7500, forecast: 7050, confidenceLower: 6600, confidenceUpper: 7500, isMonsoon: true },
-      { label: 'Oct (Fcst)', actual: null, target: 7500, forecast: 7600, confidenceLower: 7100, confidenceUpper: 8100 },
-      { label: 'Nov (Fcst)', actual: null, target: 7500, forecast: 7750, confidenceLower: 7250, confidenceUpper: 8250 },
-    ],
-    featureImportance: [
-      { feature: 'Pit Slope & Bench Stability', weightPct: 30, category: 'Geological', color: '#8B5CF6' },
-      { feature: 'Excavator & Tipper Availability', weightPct: 26, category: 'Operational', color: '#10B981' },
-      { feature: 'Seasonal Rainfall Gradient', weightPct: 20, category: 'Environmental', color: '#3B82F6' },
-      { feature: 'Blasting Fragmentation Index', weightPct: 14, category: 'Operational', color: '#F59E0B' },
-      { feature: 'Ore-Waste Stripping Ratio', weightPct: 10, category: 'Operational', color: '#06B6D4' },
-    ],
-    environmentalFactors: {
-      rainfallPct: 60,
-      rainfallMm: 3.1,
-      ndvi: 0.39,
-      soilMoisturePct: 34,
-      temperatureC: 32.1,
-      equipmentAvailabilityPct: 83,
-      blastingDelayDays: 2,
-    },
-  },
+
 
   'tirodi': {
     id: 'tirodi',
@@ -497,7 +458,35 @@ export const MINE_PRODUCTION_PROFILES: Record<string, MineProductionProfile> = {
   },
 };
 
+import dynamicMetadata from './production_metadata.json';
+
 export function getMineProductionProfile(mineId: string): MineProductionProfile {
-  return MINE_PRODUCTION_PROFILES[mineId] || MINE_PRODUCTION_PROFILES['dongri-buzurg'];
+  const profile = MINE_PRODUCTION_PROFILES[mineId] || MINE_PRODUCTION_PROFILES['dongri-buzurg'];
+  
+  // Dynamically inject the newly trained ML data if available
+  if (dynamicMetadata && (dynamicMetadata as any)[mineId]) {
+    const mlData = (dynamicMetadata as any)[mineId];
+    
+    // Create a deep copy to avoid mutating the constant
+    const updatedProfile = JSON.parse(JSON.stringify(profile));
+    
+    updatedProfile.predictedOutputTons = mlData.monthly_actual_tons;
+    updatedProfile.plannedTargetTons = mlData.monthly_target_tons;
+    updatedProfile.projectedGapTons = updatedProfile.predictedOutputTons - updatedProfile.plannedTargetTons;
+    
+    // Calculate new gap percentage
+    if (updatedProfile.plannedTargetTons > 0) {
+      updatedProfile.gapPct = Math.abs((updatedProfile.projectedGapTons / updatedProfile.plannedTargetTons) * 100).toFixed(1);
+    }
+    
+    // Overwrite with the exact SHAP feature importances from XGBoost
+    if (mlData.featureImportance && mlData.featureImportance.length > 0) {
+      updatedProfile.featureImportance = mlData.featureImportance;
+    }
+    
+    return updatedProfile;
+  }
+
+  return profile;
 }
 
