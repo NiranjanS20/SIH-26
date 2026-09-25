@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ShaderCard } from './ui/ShaderCard';
 import ColorBends from './ui/ColorBends';
 
@@ -237,6 +237,9 @@ export const PORTFOLIO_RECOVERY_BREAKDOWN: MineRecoveryData[] = [
   },
 ];
 
+// Move constant outside component body to avoid recreation on every render
+const DISPLAY_CARDS_ORDER = ['dongri-buzurg', 'tirodi', 'sitapatore', 'chikla', 'balaghat'];
+
 export const PortfolioView: React.FC<PortfolioViewProps> = ({
   isDark = true,
   onOpenMine,
@@ -270,19 +273,17 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
   const textMuted = isDark ? 'text-slate-400' : 'text-slate-500 font-semibold';
   const borderDivider = isDark ? 'border-white/10' : 'border-slate-200/80';
 
-  // Sorted list for Mine Performance cards (Dongri Buzurg, Chikla, Balaghat)
-  const displayCardsOrder = ['dongri-buzurg', 'tirodi', 'sitapatore', 'chikla', 'balaghat'];
-  const mineCards = displayCardsOrder.map((id) =>
+  // ⚡ Bolt Optimization: Memoize O(N) array operations (map, filter, sort) on static data
+  // to prevent unnecessary re-calculations when local state changes (e.g. selectedPeriod)
+  const mineCards = useMemo(() => DISPLAY_CARDS_ORDER.map((id) =>
     PORTFOLIO_MINES_DATA.find((m) => m.id === id)!
-  );
+  ), []);
 
-  // Sorted list for Ranking Table (by performance descending)
-  const sortedRanking = [...PORTFOLIO_MINES_DATA].sort(
+  const sortedRanking = useMemo(() => [...PORTFOLIO_MINES_DATA].sort(
     (a, b) => b.performance - a.performance
-  );
+  ), []);
 
-  // Deterministic Top Priority Mine derivation (Highest Risk + Largest Absolute Shortfall)
-  const topPriorityMine = [...PORTFOLIO_MINES_DATA]
+  const topPriorityMine = useMemo(() => [...PORTFOLIO_MINES_DATA]
     .filter((m) => m.variance < 0)
     .sort((a, b) => {
       const riskRank = { HIGH: 3, MEDIUM: 2, LOW: 1 };
@@ -290,20 +291,23 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
         return riskRank[b.risk] - riskRank[a.risk];
       }
       return Math.abs(b.variance) - Math.abs(a.variance);
-    })[0] || PORTFOLIO_MINES_DATA.find((m) => m.id === 'dongri-buzurg')!;
+    })[0] || PORTFOLIO_MINES_DATA.find((m) => m.id === 'dongri-buzurg')!, []);
 
-  // Dynamic Portfolio Recovery calculations
+  // Reverting useMemo on primitive math/reduce - the overhead is larger than the computation itself
   const totalProjectedShortfall = PORTFOLIO_RECOVERY_BREAKDOWN.reduce(
     (sum, m) => sum + m.projectedShortfall,
     0
   ); // 1,310 t
+
   const totalPotentiallyRecoverable = PORTFOLIO_RECOVERY_BREAKDOWN.reduce(
     (sum, m) => sum + m.potentiallyRecoverable,
     0
   ); // 850 t
+
   const overallRecoveryPct = Math.round(
     (totalPotentiallyRecoverable / totalProjectedShortfall) * 100
   ); // 65%
+
   const totalRemainingGap = totalProjectedShortfall - totalPotentiallyRecoverable; // 460 t
 
   return (
