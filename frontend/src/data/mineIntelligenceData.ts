@@ -1203,6 +1203,145 @@ export const MINE_INTELLIGENCE_DATA: Record<string, MineIntelligenceProfile> = {
     drillHoles: [],
     structuralFeatures: [],
   },
+
+  // ----------------------------------------------------------------------------
+  // 6. GUMGAON MINE (Underground, Nagpur, MH)
+  // ----------------------------------------------------------------------------
+  'gumgaon': {
+    mineId: 'gumgaon',
+    mineName: 'Gumgaon Underground Mine',
+    shortCode: 'GG-05',
+    type: 'Underground',
+    state: 'Maharashtra',
+    district: 'Nagpur',
+    latitude: 21.366,
+    longitude: 79.033,
+    elevationMsl: 300,
+    leaseAreaHa: 35.0,
+    geologicalFormation: 'Sausar Group',
+    dominantMineral: 'Braunsite & Psilomelane',
+
+    terrainData: {
+      boundaryCoords: [
+        [21.370, 79.030],
+        [21.370, 79.040],
+        [21.360, 79.040],
+        [21.360, 79.030],
+      ],
+      pitWorkingAreaCoords: [
+        [21.368, 79.032],
+        [21.368, 79.038],
+        [21.362, 79.038],
+        [21.362, 79.032],
+      ],
+      elevationRangeM: { min: -150, max: 300 },
+      contours: [
+        {
+          elevationM: 300,
+          label: 'Surface Adit Portal (+300m MSL)',
+          pathD: 'M 40 40 L 500 40',
+          color: '#0E7C7B',
+          type: 'shaft_collar',
+        },
+        {
+          elevationM: 100,
+          label: 'Level 3 Main Crosscut (+100m MSL)',
+          pathD: 'M 60 80 Q 270 60 480 80',
+          color: '#3B82F6',
+          type: 'bench',
+        },
+        {
+          elevationM: -50,
+          label: 'Level -50m Extraction Stope',
+          pathD: 'M 80 120 Q 270 100 460 120',
+          color: '#F59E0B',
+          type: 'ore_face',
+        },
+      ],
+      haulRoads: [
+        {
+          name: 'Gumgaon Decline',
+          gradePct: 15.0,
+          pathD: 'M 120 40 L 260 140',
+          lengthM: 800,
+        },
+      ],
+      equipmentAssets: [
+        {
+          id: 'EQ-GG-LHD1',
+          name: 'Underground LHD Loader',
+          type: 'Excavator',
+          status: 'ACTIVE',
+          location: 'Level -50m',
+          x: 220,
+          y: 80,
+          operator: 'Operator K. Singh',
+        },
+      ],
+    },
+
+    satelliteConfig: {
+      sensor: 'Sentinel-1 SAR / Landsat 8',
+      lastPassDate: '2026-08-30 (Cloud Free)',
+      cloudCoverPct: 1.5,
+      spatialResolution: '10m (SAR) / 30m (Thermal)',
+      availableLayers: [
+        {
+          id: 'SAR_SUBSIDENCE',
+          label: 'InSAR Subsidence',
+          icon: 'radar',
+          type: 'SAR',
+          isLiveConnected: true,
+          sampleOverlayColor: '#8b5cf6',
+          description: 'Detects minute surface deformations above underground workings.',
+        },
+        {
+          id: 'LST',
+          label: 'Land Surface Temp',
+          icon: 'thermometer',
+          type: 'THERMAL',
+          isLiveConnected: true,
+          sampleOverlayColor: '#ef4444',
+          description: 'Detects equipment hotspots and thermal anomalies.',
+        },
+        {
+          id: 'NDVI',
+          label: 'Vegetation (NDVI)',
+          icon: 'leaf',
+          type: 'NDVI',
+          isLiveConnected: true,
+          sampleOverlayColor: '#22c55e',
+          description: 'Tracks surface vegetation health over lease area.',
+        }
+      ],
+    },
+
+    prospectivityZones: [
+      {
+        id: 'PZ-GG-01',
+        name: 'Gumgaon South Limb Extension',
+        scorePct: 88.0,
+        confidencePct: 91.0,
+        estimatedTonnageKt: 120.0,
+        dominantGradePct: 41.5,
+        structuralContext: 'Continuous reef following regional folding',
+        polygonD: 'M 160 65 L 360 70 L 330 145 L 140 140 Z',
+        geoPolygon: [
+          [21.365, 79.033],
+          [21.367, 79.037],
+          [21.363, 79.036],
+          [21.362, 79.032],
+        ],
+        evidence: [
+          'High grade core intercepts confirmed',
+        ],
+        recommendedAction: 'Extend drilling to establish full extent.',
+      },
+    ],
+
+    drillHoles: [],
+    structuralFeatures: [],
+  },
 };
 
 // Helper function to safely fetch mine intelligence profile

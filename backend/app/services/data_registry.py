@@ -12,6 +12,11 @@ class DataRegistry:
         self.production_training = None
         self.production_calibration = None
         self.production_training_tirodi = None
+        self.production_training_gumgaon = None
+        self.mcdr_ground_truth_gumgaon = None
+        self.mcdr_reserves_gumgaon = None
+        self.shortfall_data_gumgaon = None
+        self.corrective_actions_gumgaon = None
         self.is_loaded = False
 
     def verify_artifacts(self):
@@ -43,6 +48,14 @@ class DataRegistry:
             "production_training": "production_training.csv",
             "production_calibration": "production_calibration.csv",
             "production_training_tirodi": "production_training_tirodi.csv",
+            "production_training_chikla": "production_training_chikla.csv",
+            "mcdr_ground_truth_chikla": "mcdr_ground_truth_chikla.csv",
+            "mcdr_reserves_chikla": "mcdr_reserves_chikla.csv",
+            "production_training_gumgaon": "production_training_gumgaon.csv",
+            "mcdr_ground_truth_gumgaon": "mcdr_ground_truth_gumgaon.csv",
+            "mcdr_reserves_gumgaon": "mcdr_reserves_gumgaon.csv",
+            "shortfall_data_gumgaon": "shortfall_data_gumgaon.csv",
+            "corrective_actions_gumgaon": "corrective_actions_gumgaon.csv",
         }
         for attr, filename in optional_csvs.items():
             path = os.path.join(settings.DATA_DIR, filename)

@@ -10,6 +10,8 @@ class ModelRegistry:
         self.model2_xgb = None
         self.model2_xgb_tirodi = None
         self.model2_xgb_sitapatore = None
+        self.model1_gumgaon_ug = None
+        self.model2_gumgaon_xgb = None
         self.shap_explainer = None  # Task 3: instantiate once at startup
         self.is_loaded = False
 
@@ -41,6 +43,26 @@ class ModelRegistry:
         
         self.model2_xgb_sitapatore = xgb.Booster()
         self.model2_xgb_sitapatore.load_model(os.path.join(settings.MODEL_DIR, "model2_xgb_sitapatore.json"))
+        
+        self.model1_chikla_ug = None
+        chikla_m1_path = os.path.join(settings.MODEL_DIR, "model1_chikla_ug.pkl")
+        if os.path.exists(chikla_m1_path):
+            self.model1_chikla_ug = joblib.load(chikla_m1_path)
+            
+        self.model2_chikla_xgb = xgb.Booster()
+        chikla_m2_path = os.path.join(settings.MODEL_DIR, "model2_chikla_ug.json")
+        if os.path.exists(chikla_m2_path):
+            self.model2_chikla_xgb.load_model(chikla_m2_path)
+            
+        self.model1_gumgaon_ug = None
+        gumgaon_m1_path = os.path.join(settings.MODEL_DIR, "model1_gumgaon_ug.pkl")
+        if os.path.exists(gumgaon_m1_path):
+            self.model1_gumgaon_ug = joblib.load(gumgaon_m1_path)
+            
+        self.model2_gumgaon_xgb = xgb.Booster()
+        gumgaon_m2_path = os.path.join(settings.MODEL_DIR, "model2_gumgaon_ug.json")
+        if os.path.exists(gumgaon_m2_path):
+            self.model2_gumgaon_xgb.load_model(gumgaon_m2_path)
         
         self.is_loaded = True
         print("All ML models loaded successfully.")

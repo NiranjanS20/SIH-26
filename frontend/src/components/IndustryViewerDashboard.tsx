@@ -12,6 +12,7 @@ interface IndustryViewerDashboardProps {
 // ── Static supply intelligence data ──────────────────────────────────────────
 const SUPPLY_MINES = [
   { id: 'dongri-buzurg', name: 'Dongri Buzurg', district: 'Bhandara, MH', grade: 'Mn 44-46%', annualCapacity: 250000, currentForecast: 231000, status: 'OPERATIONAL' },
+  { id: 'chikla',        name: 'Chikla',        district: 'Bhandara, MH', grade: 'Mn 42-44%', annualCapacity: 200000, currentForecast: 182000, status: 'OPERATIONAL' },
   { id: 'balaghat',      name: 'Balaghat',      district: 'Balaghat, MP',  grade: 'Mn 40-44%', annualCapacity: 800000, currentForecast: 762000, status: 'OPERATIONAL' },
   { id: 'tirodi',        name: 'Tirodi',         district: 'Balaghat, MP',  grade: 'Mn 38-42%', annualCapacity: 180000, currentForecast: 165000, status: 'OPERATIONAL' },
   { id: 'sitapatore',   name: 'Sitapatore',     district: 'Balaghat, MP',  grade: 'Mn 36-40%', annualCapacity: 120000, currentForecast: 112000, status: 'MAINTENANCE' },
@@ -157,8 +158,9 @@ const THREE_MONTH_OUTLOOK: MonthlyOutlookItem[] = [
       { mineName: 'Tirodi',              type: 'Open Cast',   location: 'Balaghat, MP', grade: 'Mn 43–45.5%', planned: 28000, forecast: 27200, fulfillmentPct: 97, status: 'NORMAL' },
       { mineName: 'Kandri',              type: 'Underground', location: 'Nagpur, MH',   grade: 'Mn 44–48%',   planned: 26000, forecast: 25500, fulfillmentPct: 98, status: 'NORMAL' },
       { mineName: 'Chikla',              type: 'Underground', location: 'Bhandara, MH', grade: 'Mn 42–45%',   planned: 22000, forecast: 21600, fulfillmentPct: 98, status: 'NORMAL' },
+      { mineName: 'Gumgaon',             type: 'Underground', location: 'Nagpur, MH',   grade: 'Mn 41–44%',   planned: 12000, forecast: 11500, fulfillmentPct: 96, status: 'NORMAL' },
       { mineName: 'Ukwa',                type: 'Underground', location: 'Balaghat, MP', grade: 'Mn 40–43%',   planned: 18000, forecast: 17500, fulfillmentPct: 97, status: 'NORMAL' },
-      { mineName: 'Mansar & Others',     type: 'Blended',     location: 'Nagpur / MP',  grade: 'Mn 36–42%',   planned: 38000, forecast: 35500, fulfillmentPct: 93, status: 'NORMAL' },
+      { mineName: 'Mansar & Others',     type: 'Blended',     location: 'Nagpur / MP',  grade: 'Mn 36–42%',   planned: 26000, forecast: 24000, fulfillmentPct: 92, status: 'NORMAL' },
     ]
   },
   {
@@ -173,8 +175,9 @@ const THREE_MONTH_OUTLOOK: MonthlyOutlookItem[] = [
       { mineName: 'Tirodi',              type: 'Open Cast',   location: 'Balaghat, MP', grade: 'Mn 43–45.5%', planned: 30000, forecast: 29300, fulfillmentPct: 98, status: 'NORMAL' },
       { mineName: 'Kandri',              type: 'Underground', location: 'Nagpur, MH',   grade: 'Mn 44–48%',   planned: 28000, forecast: 27400, fulfillmentPct: 98, status: 'NORMAL' },
       { mineName: 'Chikla',              type: 'Underground', location: 'Bhandara, MH', grade: 'Mn 42–45%',   planned: 24000, forecast: 23400, fulfillmentPct: 98, status: 'NORMAL' },
+      { mineName: 'Gumgaon',             type: 'Underground', location: 'Nagpur, MH',   grade: 'Mn 41–44%',   planned: 13000, forecast: 12800, fulfillmentPct: 98, status: 'NORMAL' },
       { mineName: 'Ukwa',                type: 'Underground', location: 'Balaghat, MP', grade: 'Mn 40–43%',   planned: 19000, forecast: 18500, fulfillmentPct: 97, status: 'NORMAL' },
-      { mineName: 'Mansar & Others',     type: 'Blended',     location: 'Nagpur / MP',  grade: 'Mn 36–42%',   planned: 39000, forecast: 35500, fulfillmentPct: 91, status: 'NORMAL' },
+      { mineName: 'Mansar & Others',     type: 'Blended',     location: 'Nagpur / MP',  grade: 'Mn 36–42%',   planned: 26000, forecast: 22700, fulfillmentPct: 87, status: 'NORMAL' },
     ]
   },
   {
@@ -189,8 +192,9 @@ const THREE_MONTH_OUTLOOK: MonthlyOutlookItem[] = [
       { mineName: 'Tirodi',              type: 'Open Cast',   location: 'Balaghat, MP', grade: 'Mn 43–45.5%', planned: 29000, forecast: 27500, fulfillmentPct: 95, status: 'NORMAL' },
       { mineName: 'Kandri',              type: 'Underground', location: 'Nagpur, MH',   grade: 'Mn 44–48%',   planned: 27000, forecast: 25800, fulfillmentPct: 96, status: 'NORMAL' },
       { mineName: 'Chikla',              type: 'Underground', location: 'Bhandara, MH', grade: 'Mn 42–45%',   planned: 23000, forecast: 22000, fulfillmentPct: 96, status: 'MAINTENANCE' },
+      { mineName: 'Gumgaon',             type: 'Underground', location: 'Nagpur, MH',   grade: 'Mn 41–44%',   planned: 12500, forecast: 11900, fulfillmentPct: 95, status: 'NORMAL' },
       { mineName: 'Ukwa',                type: 'Underground', location: 'Balaghat, MP', grade: 'Mn 40–43%',   planned: 18000, forecast: 17200, fulfillmentPct: 96, status: 'NORMAL' },
-      { mineName: 'Mansar & Others',     type: 'Blended',     location: 'Nagpur / MP',  grade: 'Mn 36–42%',   planned: 42000, forecast: 35800, fulfillmentPct: 85, status: 'NORMAL' },
+      { mineName: 'Mansar & Others',     type: 'Blended',     location: 'Nagpur / MP',  grade: 'Mn 36–42%',   planned: 29500, forecast: 23900, fulfillmentPct: 81, status: 'NORMAL' },
     ]
   },
 ];
@@ -202,6 +206,7 @@ const MINE_STYLING: Record<string, { color: string; icon: string; text: string; 
   'Kandri':              { color: 'bg-[#4F46E5]', icon: 'layers',                 text: 'text-[#4F46E5] dark:text-[#A5B4FC]', bg: 'bg-[#EEF2FF] dark:bg-[#4F46E5]/20', border: 'border-[#4F46E5]/30' },
   'Chikla':              { color: 'bg-[#059669]', icon: 'construction',           text: 'text-[#059669] dark:text-[#6EE7B7]', bg: 'bg-[#ECFDF5] dark:bg-[#059669]/20', border: 'border-[#059669]/30' },
   'Ukwa':                { color: 'bg-[#0284C7]', icon: 'precision_manufacturing',text: 'text-[#0284C7] dark:text-[#7DD3FC]', bg: 'bg-[#F0F9FF] dark:bg-[#0284C7]/20', border: 'border-[#0284C7]/30' },
+  'Gumgaon':             { color: 'bg-[#8B5CF6]', icon: 'radar',                  text: 'text-[#8B5CF6] dark:text-[#C4B5FD]', bg: 'bg-[#F5F3FF] dark:bg-[#8B5CF6]/20', border: 'border-[#8B5CF6]/30' },
   'Mansar & Others':     { color: 'bg-[#D97706]', icon: 'build_circle',           text: 'text-[#D97706] dark:text-[#FCD34D]', bg: 'bg-[#FEF8EC] dark:bg-[#D97706]/20', border: 'border-[#D97706]/30' },
 };
 

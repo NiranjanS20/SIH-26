@@ -602,11 +602,254 @@ def precompute_workspace_data():
     }
     _workspace_cache["ukwa"] = MineWorkspaceData(**workspace_data_ukwa)
     
-    print("  Workspace data precomputed and cached.")
+    # --- Precompute Chikla Underground ---
+    actual_prod_chikla = 179991.0
+    target_prod_chikla = 200000.0
 
+    workspace_data_chikla = {
+        "mineInfo": {
+            "id": "chikla",
+            "name": "Chikla Mine",
+            "location": "Bhandara, Maharashtra",
+            "district": "Bhandara District",
+            "state": "Maharashtra",
+            "type": "Underground Manganese Mine",
+            "leaseId": "MSH0062",
+            "status": "Active Digital Telemetry Hub",
+            "dgmsStatus": "DGMS Safety Approved",
+            "ibmRegistration": "IBM/5711/2011"
+        },
+        "operationalSummary": {
+            "headline": "Chikla Underground Operations Center",
+            "riskState": "LOW",
+            "dynamicStatement": "PRODUCTION NEAR TARGET: Output at 90% of proposed capacity with zero violations.",
+            "coreValueMessage": "Underground cut and fill operations at -170'L to -470'L maintaining consistent output.",
+            "complianceStandard": "DGMS & IBM Regulatory Standards Compliant",
+            "lastUpdated": "Live Stream"
+        },
+        "production": {
+            "actual": actual_prod_chikla,
+            "target": target_prod_chikla,
+            "forecast": 182000.0,
+            "gap": -20009.0,
+            "unit": "tonnes",
+            "isSynthetic": False,
+            "oreGradeBreakdown": {
+                "highGradeMn": round(actual_prod_chikla * 0.27, 0),   # 35-46% Mn
+                "mediumGradeMn": round(actual_prod_chikla * 0.72, 0), # 25-35% Mn
+                "lowGradeMn": round(actual_prod_chikla * 0.01, 0)     # <25% Mn
+            },
+            "monthlyTrend": monthly_trend
+        },
+        "shortfallRisk": {
+            "probability": 35.0,
+            "expectedProduction": 182000.0,
+            "target": target_prod_chikla,
+            "expectedGap": -18000.0,
+            "riskLevel": "MEDIUM"
+        },
+        "accessibleOre": {
+            "geologicalPotential": 4890529.0,   # Total reserves
+            "accessiblePotential": 1923273.0,    # 111 + 121
+            "operationallyRecoverable": 1488942.0,  # Proved (111)
+            "estimatedVolumeTons": 1488942.0
+        },
+        "gisZones": [
+            {
+                "id": "CK-170", "name": "Level -170'", "prospectivityScore": "High",
+                "geologicalPotential": 88.0, "accessiblePotential": 80.0, "recoverablePotential": 70.0,
+                "estimatedContributionTons": 60000.0, "mnGradePct": "32.0% Mn",
+                "coords": {"x": 30.0, "y": 25.0, "width": 25.0, "height": 20.0}
+            },
+            {
+                "id": "CK-270", "name": "Level -270'", "prospectivityScore": "High",
+                "geologicalPotential": 85.0, "accessiblePotential": 75.0, "recoverablePotential": 65.0,
+                "estimatedContributionTons": 55000.0, "mnGradePct": "33.0% Mn",
+                "coords": {"x": 35.0, "y": 50.0, "width": 25.0, "height": 20.0}
+            },
+            {
+                "id": "CK-370", "name": "Level -370'", "prospectivityScore": "Medium",
+                "geologicalPotential": 75.0, "accessiblePotential": 65.0, "recoverablePotential": 55.0,
+                "estimatedContributionTons": 40000.0, "mnGradePct": "34.0% Mn",
+                "coords": {"x": 40.0, "y": 60.0, "width": 20.0, "height": 15.0}
+            },
+            {
+                "id": "CK-470", "name": "Level -470'", "prospectivityScore": "Medium",
+                "geologicalPotential": 70.0, "accessiblePotential": 60.0, "recoverablePotential": 45.0,
+                "estimatedContributionTons": 24991.0, "mnGradePct": "35.0% Mn",
+                "coords": {"x": 45.0, "y": 70.0, "width": 20.0, "height": 15.0}
+            }
+        ],
+        "modelInputs": [
+            {"category": "Geology", "label": "Gondite Ore Body Mapping (G-1 Explored)", "status": "LIVE", "source": "MOIL Drilling"},
+            {"category": "Remote Sensing", "label": "Sentinel-1 SAR Subsidence Proxy", "status": "LIVE", "source": "ESA Copernicus"},
+            {"category": "Remote Sensing", "label": "Annual Context (NDVI/LST/SM)", "status": "LIVE", "source": "Sentinel-2 / Landsat"},
+            {"category": "Production", "label": "MCDR Audited Report (FY22-23)", "status": "VERIFIED", "source": "IBM Nagpur Regional Office"},
+            {"category": "Geochemistry", "label": "Stream Sediment MnO Assays", "status": "VERIFIED", "source": "GSI NGCM Dataset"}
+        ],
+        "riskContributors": [
+            {"factor": "Hoist & Winder Availability", "importancePct": 34.0,
+             "description": "Two electric winding engines (422 KG + 250 KG) are single-point dependencies.",
+             "mitigationStrategy": "Schedule preventive maintenance; commission standby skip."},
+            {"factor": "Underground Ventilation", "importancePct": 22.0,
+             "description": "3 ventilation fans at 99,999 CUM/H each. Failure limits concurrent multi-level ops.",
+             "mitigationStrategy": "Install auxiliary booster fans at -370'L and -470'L."},
+            {"factor": "Dewatering Pump Capacity", "importancePct": 18.0,
+             "description": "9 pumps at 2000 L/MIN — monsoon seepage at lower levels requires full capacity.",
+             "mitigationStrategy": "Increase pumping hours during June-September; pre-monsoon sump expansion."},
+            {"factor": "Locomotive & LHD Utilization", "importancePct": 14.0,
+             "description": "4 non-electric locomotives (3 tonne) for ore transport from stope to shaft.",
+             "mitigationStrategy": "Optimize shift crossovers; reduce tramming delays."},
+            {"factor": "Ore Body Depth Continuity", "importancePct": 12.0,
+             "description": "Drilling to prove depth continuity below -470'L is ongoing.",
+             "mitigationStrategy": "Accelerate exploration drilling; correlate with subsidence proxy data."}
+        ],
+        "futureSourceZone": {
+            "id": "CK-DEEP",
+            "name": "Depth Extension Below -470'L",
+            "prospectivity": "MEDIUM",
+            "estimatedPotentialContributionTons": 20000.0,
+            "description": "Exploratory drilling underway to prove ore continuity at depth. 2,598,901 Te inferred (UNFC 222) below current workings."
+        },
+        "recommendation": {
+            "instruction": "Maintain hoist/winder availability above 92% and pre-monsoon dewatering preparation to sustain 550 t/day output.",
+            "currentParams": {
+                "equipmentAvailability": "88%",
+                "blastingDelay": "1 day",
+                "expectedGap": "20,009 t"
+            },
+            "recommendedParams": {
+                "equipmentAvailability": "92%",
+                "blastingDelay": "0 days",
+                "expectedGap": "0 t (Target Achieved)"
+            }
+        },
+        "alerts": [
+            {
+                "id": "ALT-CK-1", "priority": "LOW", "title": "ZERO VIOLATIONS",
+                "mine": "Chikla", "triggeredCondition": "MCDR 2022-23 inspection found no violations",
+                "affectedZone": "All Levels", "timestamp": "Today, 09:15 IST"
+            }
+        ]
+    }
+    _workspace_cache["chikla"] = MineWorkspaceData(**workspace_data_chikla)
+    
+    # --- Precompute Gumgaon Underground ---
+    actual_prod_gumgaon = 44950.0
+    target_prod_gumgaon = 50000.0
 
-
-def get_workspace(mine_id: str) -> MineWorkspaceData:
+    workspace_data_gumgaon = {
+        "mineInfo": {
+            "id": "gumgaon",
+            "name": "Gumgaon Mine",
+            "location": "Nagpur, Maharashtra",
+            "district": "Nagpur District",
+            "state": "Maharashtra",
+            "type": "Underground Manganese Mine",
+            "leaseId": "MOIL-LEASE-GG-01",
+            "status": "Active Digital Telemetry Hub",
+            "dgmsStatus": "DGMS Safety Approved",
+            "ibmRegistration": "IBM/GG/1902"
+        },
+        "operationalSummary": {
+            "headline": "Gumgaon Underground Operations Center",
+            "riskState": "MEDIUM",
+            "dynamicStatement": "PRODUCTION NEAR TARGET: Seasonal variations impacting deep level stope extraction.",
+            "coreValueMessage": "Monitoring geotechnical stability (RMR 45) and subsidence across 212.7 Ha lease area.",
+            "complianceStandard": "DGMS & IBM Regulatory Standards Compliant",
+            "lastUpdated": "Live Stream"
+        },
+        "production": {
+            "actual": actual_prod_gumgaon,
+            "target": target_prod_gumgaon,
+            "forecast": 46000.0,
+            "gap": -4000.0,
+            "unit": "tonnes",
+            "isSynthetic": False,
+            "oreGradeBreakdown": {
+                "highGradeMn": round(actual_prod_gumgaon * 0.40, 0),
+                "mediumGradeMn": round(actual_prod_gumgaon * 0.50, 0),
+                "lowGradeMn": round(actual_prod_gumgaon * 0.10, 0)
+            },
+            "monthlyTrend": monthly_trend
+        },
+        "shortfallRisk": {
+            "probability": 45.0,
+            "expectedProduction": 46000.0,
+            "target": target_prod_gumgaon,
+            "expectedGap": -4000.0,
+            "riskLevel": "MEDIUM"
+        },
+        "accessibleOre": {
+            "geologicalPotential": 33600000.0,
+            "accessiblePotential": 8000000.0,
+            "operationallyRecoverable": 5000000.0,
+            "estimatedVolumeTons": 5000000.0
+        },
+        "gisZones": [
+            {
+                "id": "GG-700", "name": "Level -700'", "prospectivityScore": "High",
+                "geologicalPotential": 85.0, "accessiblePotential": 75.0, "recoverablePotential": 65.0,
+                "estimatedContributionTons": 20000.0, "mnGradePct": "46.0% Mn",
+                "coords": {"x": 35.0, "y": 30.0, "width": 25.0, "height": 20.0}
+            },
+            {
+                "id": "GG-1000", "name": "Level -1000'", "prospectivityScore": "Medium",
+                "geologicalPotential": 80.0, "accessiblePotential": 70.0, "recoverablePotential": 60.0,
+                "estimatedContributionTons": 15000.0, "mnGradePct": "47.0% Mn",
+                "coords": {"x": 40.0, "y": 55.0, "width": 25.0, "height": 20.0}
+            },
+            {
+                "id": "GG-1300", "name": "Level -1300'", "prospectivityScore": "Medium",
+                "geologicalPotential": 75.0, "accessiblePotential": 65.0, "recoverablePotential": 55.0,
+                "estimatedContributionTons": 10000.0, "mnGradePct": "48.0% Mn",
+                "coords": {"x": 45.0, "y": 75.0, "width": 20.0, "height": 15.0}
+            }
+        ],
+        "modelInputs": [
+            {"category": "Geology", "label": "Stream Sediment Geochemistry (8 strong anomalies)", "status": "LIVE", "source": "GSI NGCM"},
+            {"category": "Remote Sensing", "label": "Seasonal Sentinel-2 (Dry, Monsoon, Annual)", "status": "LIVE", "source": "ESA Copernicus"},
+            {"category": "Remote Sensing", "label": "Sentinel-1 SAR Subsidence Proxy", "status": "LIVE", "source": "ESA Copernicus"},
+            {"category": "Geotechnical", "label": "Subsidence Management Report", "status": "VERIFIED", "source": "MOIL Internal"}
+        ],
+        "riskContributors": [
+            {"factor": "Geotechnical Stability (RMR)", "importancePct": 35.0, "description": "Average RMR 45 requires structured support design.", "mitigationStrategy": "Increase bolting density to 1.5m spacing."},
+            {"factor": "Shaft Winder Availability", "importancePct": 25.0, "description": "Vertical extraction bottlenecks from deep levels.", "mitigationStrategy": "Schedule preventive maintenance."},
+            {"factor": "Underground Ventilation", "importancePct": 20.0, "description": "Airflow constraints at -1300'L level.", "mitigationStrategy": "Install auxiliary fans."},
+            {"factor": "Monsoon Dewatering", "importancePct": 15.0, "description": "Increased pumping needed in monsoon.", "mitigationStrategy": "Pre-monsoon sump expansion."},
+            {"factor": "Subsidence Risk", "importancePct": 5.0, "description": "Surface subsidence above active stopes.", "mitigationStrategy": "Monitor SAR subsidence proxy."}
+        ],
+        "futureSourceZone": {
+            "id": "GG-DEEP",
+            "name": "Depth Extension Below -1300'L",
+            "prospectivity": "LOW",
+            "estimatedPotentialContributionTons": 15000.0,
+            "description": "Exploratory drilling required to confirm ore body continuity at depth."
+        },
+        "recommendation": {
+            "instruction": "Optimize rock support spacing (1.5m bolt grid) based on RMR 45 to reduce geotechnical delays.",
+            "currentParams": {
+                "equipmentAvailability": "85%",
+                "blastingDelay": "1 day",
+                "expectedGap": "4,000 t"
+            },
+            "recommendedParams": {
+                "equipmentAvailability": "90%",
+                "blastingDelay": "0 days",
+                "expectedGap": "0 t (Target Achieved)"
+            }
+        },
+        "alerts": [
+            {
+                "id": "ALT-GG-1", "priority": "MEDIUM", "title": "GEOTECHNICAL ALERT",
+                "mine": "Gumgaon", "triggeredCondition": "RMR index dropped below 45 in -1000'L stope",
+                "affectedZone": "Level -1000'", "timestamp": "Today, 10:15 IST"
+            }
+        ]
+    }
+    _workspace_cache["gumgaon"] = MineWorkspaceData(**workspace_data_gumgaon)
+    
+    print("  Workspace data precomputed and cached.")def get_workspace(mine_id: str) -> MineWorkspaceData:
     """
     Returns precomputed workspace data from in-memory cache.
     This is a SYNC function — do NOT call with 'await'.
