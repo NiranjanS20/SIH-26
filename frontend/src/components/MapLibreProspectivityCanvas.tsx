@@ -10,11 +10,10 @@ import {
   getMineRasterHeatmapBounds,
   getMineWorldMask,
   FILTER_MODES,
-  ProspectivityFilterMode,
   CONFIDENCE_BAND_COLORS,
   STRUCTURAL_LINE_COLORS,
-  MineBoundaryConfig,
 } from '../lib/prospectivityMapConfig';
+import type { ProspectivityFilterMode, MineBoundaryConfig } from '../lib/prospectivityMapConfig';
 import {
   Mountain,
   Maximize2,
@@ -236,7 +235,7 @@ export default function MapLibreProspectivityCanvas({
           },
         });
 
-        map.on('click', 'structural-lines-layer', (e) => {
+        map.on('click', 'structural-lines-layer', (e: any) => {
           if (!e.features || !e.features[0]) return;
           const props = e.features[0].properties || {};
           if (popupRef.current) popupRef.current.remove();
@@ -305,7 +304,7 @@ export default function MapLibreProspectivityCanvas({
         });
 
         // Interactive click on any ore bench zone
-        map.on('click', 'pit-zones-fill', (e) => {
+        map.on('click', 'pit-zones-fill', (e: any) => {
           if (!e.features || !e.features[0]) return;
           const f = e.features[0];
           const props = f.properties || {};
@@ -377,7 +376,7 @@ export default function MapLibreProspectivityCanvas({
       map.resize();
     });
 
-    map.on('error', (e) => {
+    map.on('error', (e: any) => {
       // Ignore non-fatal tile errors (e.g. boundary tile not found)
       console.warn('MapLibre event notice:', e.error?.message || e);
     });

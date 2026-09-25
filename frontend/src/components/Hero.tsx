@@ -66,14 +66,9 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
       {/* Hero Content */}
       <div className="relative z-20 text-center px-6 max-w-4xl mx-auto pt-20 md:pt-24 fade-in-section is-visible">
         {/* Display Title */}
-        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-[64px] leading-tight md:leading-[72px] font-bold text-white mb-6 tracking-tight drop-shadow-md">
+        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-[64px] leading-tight md:leading-[72px] font-bold text-white mb-10 tracking-tight drop-shadow-md">
           MOIL Digital Mine Portal
         </h1>
-
-        {/* Subtitle */}
-        <p className="font-headline text-xl sm:text-2xl md:text-[28px] leading-snug md:leading-9 font-normal text-white/90 mb-10 max-w-2xl mx-auto">
-          Smarter Mining. Better Decisions.
-        </p>
 
         {/* Action Button */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

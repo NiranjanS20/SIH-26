@@ -149,8 +149,68 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
               Welcome Back
             </h1>
             <p className="text-slate-500 text-xs sm:text-sm mt-1.5 font-normal">
-              Please enter your details below to continue
+              Please enter your credentials or select a demo role to explore
             </p>
+          </div>
+
+          {/* Quick Demo Role Selector */}
+          <div className="mb-6 p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-600">
+              <span>Demo Quick Fill:</span>
+              <span className="text-[10px] text-amber-600 font-mono font-semibold">1-Click Login</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setUsername('sitemanager');
+                  setPassword('site123');
+                  setError(null);
+                }}
+                className={`px-2 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer text-center ${
+                  username === 'sitemanager'
+                    ? 'bg-[#002452] text-white border-[#002452] shadow-xs'
+                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                }`}
+                title="Log in as Mine Site Manager (Dongri Buzurg Operations)"
+              >
+                Site Manager
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setUsername('admin');
+                  setPassword('admin123');
+                  setError(null);
+                }}
+                className={`px-2 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer text-center ${
+                  username === 'admin'
+                    ? 'bg-[#002452] text-white border-[#002452] shadow-xs'
+                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                }`}
+                title="Log in as MOIL Admin (HQ Control Center & Audit)"
+              >
+                MOIL Admin
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setUsername('industry');
+                  setPassword('industry123');
+                  setError(null);
+                }}
+                className={`px-2 py-1.5 rounded-lg text-xs font-bold border transition-all cursor-pointer text-center ${
+                  username === 'industry'
+                    ? 'bg-[#002452] text-white border-[#002452] shadow-xs'
+                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                }`}
+                title="Log in as Industry Buyer (Steel & Battery Allocation)"
+              >
+                Industry Desk
+              </button>
+            </div>
           </div>
 
           {/* Form */}

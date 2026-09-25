@@ -851,6 +851,7 @@ def precompute_workspace_data():
     
     print("  Workspace data precomputed and cached.")
 
+
 def get_workspace(mine_id: str) -> MineWorkspaceData:
     """
     Returns precomputed workspace data from in-memory cache.
