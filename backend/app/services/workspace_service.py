@@ -849,7 +849,10 @@ def precompute_workspace_data():
     }
     _workspace_cache["gumgaon"] = MineWorkspaceData(**workspace_data_gumgaon)
     
-    print("  Workspace data precomputed and cached.")def get_workspace(mine_id: str) -> MineWorkspaceData:
+    print("  Workspace data precomputed and cached.")
+
+
+def get_workspace(mine_id: str) -> MineWorkspaceData:
     """
     Returns precomputed workspace data from in-memory cache.
     This is a SYNC function — do NOT call with 'await'.

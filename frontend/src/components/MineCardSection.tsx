@@ -11,7 +11,7 @@ export interface MineData {
   annualOutput: string;
   depth: string;
   image: string;
-  description: string;
+  description: string | React.ReactNode;
   kpis: { label: string; value: string }[];
 }
 
@@ -30,8 +30,21 @@ export const minesList: MineData[] = [
     mineral: 'High-Grade Manganese Dioxide',
     annualOutput: '550,000 Tonnes',
     depth: '140 Meters',
-    image: '/assets/dongri-buzurg-mine.png',
-    description: 'Dongri Buzurg is MOIL’s flagship open-cast manganese ore mine in Bhandara district. Integrated with 3D seam telemetry, automated crushing circuits, and haul fleet tracking.',
+    image: '/assets/dongri-buzurg-night.jpg',
+    description: (
+      <>
+        Dongri Buzurg is MOIL’s flagship{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          open-cast manganese ore mine
+        </strong>{' '}
+        in Bhandara district. Integrated with{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          3D seam telemetry
+        </strong>
+        , <strong className="font-semibold text-[#002452]">automated crushing circuits</strong>, and{' '}
+        <strong className="font-semibold text-[#002452]">haul fleet tracking</strong>.
+      </>
+    ),
     kpis: [
       { label: 'Daily Output', value: '1,850 TPD' },
       { label: 'Ore Grade (Mn)', value: '46.5%' },
@@ -49,8 +62,27 @@ export const minesList: MineData[] = [
     mineral: 'High-Grade Braunite Ore',
     annualOutput: '250,000 Tonnes',
     depth: '210 Meters',
-    image: '/assets/filter_bar_mining_bg.jpg',
-    description: 'Chikla is a premier underground operation in the Dongri-Chikla suture belt, featuring sub-level stoping, heavy electric hoists, and continuous stope monitoring.',
+    image: '/assets/chikla-mine.jpg',
+    description: (
+      <>
+        Chikla is a premier{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          underground operation
+        </strong>{' '}
+        in the{' '}
+        <strong className="font-semibold text-[#002452]">
+          Dongri-Chikla suture belt
+        </strong>
+        , featuring{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          sub-level stoping
+        </strong>
+        , <strong className="font-semibold text-[#002452]">heavy electric hoists</strong>, and{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          continuous stope monitoring
+        </strong>.
+      </>
+    ),
     kpis: [
       { label: 'Daily Output', value: '820 TPD' },
       { label: 'Ore Grade (Mn)', value: '42.0%' },
@@ -68,8 +100,20 @@ export const minesList: MineData[] = [
     mineral: 'Metallurgical Manganese Ore',
     annualOutput: '290,000 Tonnes',
     depth: '240 Meters',
-    image: '/assets/site_profile_mine_bg.jpg',
-    description: 'Kandri is renowned for producing exceptionally high-grade manganese ore with deep shaft winders, geological structural mapping, and automated ventilation fans.',
+    image: '/assets/kandri-mine.jpg',
+    description: (
+      <>
+        Kandri is renowned for producing{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          exceptionally high-grade manganese ore
+        </strong>{' '}
+        with <strong className="font-semibold text-[#002452]">deep shaft winders</strong>,{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          geological structural mapping
+        </strong>
+        , and <strong className="font-semibold text-[#002452]">automated ventilation fans</strong>.
+      </>
+    ),
     kpis: [
       { label: 'Daily Output', value: '950 TPD' },
       { label: 'Ore Grade (Mn)', value: '45.8%' },
@@ -87,8 +131,20 @@ export const minesList: MineData[] = [
     mineral: 'Siliceous Manganese Ore',
     annualOutput: '165,000 Tonnes',
     depth: '180 Meters',
-    image: '/assets/mine_environment_landscape.jpg',
-    description: 'Mansar mine harnesses underground decline haulage and dense sensory grids to extract high-purity metallurgical grade ore along the Ramtek-Mansar shear zone.',
+    image: '/assets/mansar-mine.jpg',
+    description: (
+      <>
+        Mansar mine harnesses{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          underground decline haulage
+        </strong>{' '}
+        and <strong className="font-semibold text-[#002452]">dense sensory grids</strong> to extract{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          high-purity metallurgical grade ore
+        </strong>{' '}
+        along the Ramtek-Mansar shear zone.
+      </>
+    ),
     kpis: [
       { label: 'Daily Output', value: '550 TPD' },
       { label: 'Ore Grade (Mn)', value: '39.5%' },
@@ -106,8 +162,19 @@ export const minesList: MineData[] = [
     mineral: 'High-Grade Braunite Ore',
     annualOutput: '185,000 Tonnes',
     depth: '225 Meters',
-    image: '/assets/filter_bar_mining_bg.jpg',
-    description: 'Located near Khapa in Nagpur district, Gumgaon operates vertical shaft production systems accessing steeply dipping, high-grade braunite manganese horizons.',
+    image: '/assets/gumgaon-mine.jpg',
+    description: (
+      <>
+        Located near Khapa in Nagpur district, Gumgaon operates{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          vertical shaft production systems
+        </strong>{' '}
+        accessing steeply dipping,{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          high-grade braunite manganese horizons
+        </strong>.
+      </>
+    ),
     kpis: [
       { label: 'Daily Output', value: '620 TPD' },
       { label: 'Ore Grade (Mn)', value: '41.2%' },
@@ -125,8 +192,19 @@ export const minesList: MineData[] = [
     mineral: 'Ferromanganese Grade Ore',
     annualOutput: '120,000 Tonnes',
     depth: '160 Meters',
-    image: '/assets/site_profile_mine_bg.jpg',
-    description: 'Beldongri executes precision room-and-pillar stoping with geotechnical roof-bolt telemetry to mine specialized ferromanganese-grade ore deposits.',
+    image: '/assets/beldongri-mine.jpg',
+    description: (
+      <>
+        Beldongri executes{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          precision room-and-pillar stoping
+        </strong>{' '}
+        with <strong className="font-semibold text-[#002452]">geotechnical roof-bolt telemetry</strong> to mine specialized{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          ferromanganese-grade ore deposits
+        </strong>.
+      </>
+    ),
     kpis: [
       { label: 'Daily Output', value: '410 TPD' },
       { label: 'Ore Grade (Mn)', value: '38.0%' },
@@ -144,8 +222,19 @@ export const minesList: MineData[] = [
     mineral: 'Super High-Grade Manganese',
     annualOutput: '580,000 Tonnes',
     depth: '385 Meters',
-    image: '/assets/mine_environment_landscape.jpg',
-    description: 'Asia’s deepest underground manganese mine, Balaghat (Bharweli) produces world-class high-grade ore with advanced multi-level vertical hoisting shafts and telemetry.',
+    image: '/assets/balaghat-mine.jpg',
+    description: (
+      <>
+        <strong className="font-semibold text-[#855300] bg-[#FEF3C7] px-1 py-0.5 rounded">
+          Asia’s deepest underground manganese mine
+        </strong>
+        , Balaghat (Bharweli) produces world-class high-grade ore with{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          multi-level vertical hoisting shafts
+        </strong>{' '}
+        and <strong className="font-semibold text-[#002452]">real-time telemetry</strong>.
+      </>
+    ),
     kpis: [
       { label: 'Daily Output', value: '1,950 TPD' },
       { label: 'Ore Grade (Mn)', value: '48.5%' },
@@ -163,8 +252,17 @@ export const minesList: MineData[] = [
     mineral: 'Tabular Manganese Seams',
     annualOutput: '210,000 Tonnes',
     depth: '195 Meters',
-    image: '/assets/filter_bar_mining_bg.jpg',
-    description: 'Ukwa is situated in the scenic Baihar plateau, mining continuous tabular manganese strata through an extensive network of winches and electric locomotive haulage.',
+    image: '/assets/ukwa-mine.jpg',
+    description: (
+      <>
+        Ukwa is situated in the scenic Baihar plateau, mining{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          continuous tabular manganese strata
+        </strong>{' '}
+        through an extensive network of{' '}
+        <strong className="font-semibold text-[#002452]">winches and electric locomotive haulage</strong>.
+      </>
+    ),
     kpis: [
       { label: 'Daily Output', value: '700 TPD' },
       { label: 'Ore Grade (Mn)', value: '42.5%' },
@@ -182,8 +280,19 @@ export const minesList: MineData[] = [
     mineral: 'High-Purity Pyrolusite',
     annualOutput: '310,000 Tonnes',
     depth: '90 Meters',
-    image: '/assets/dongri-buzurg-mine.png',
-    description: 'Tirodi is a major open-cast operation in Madhya Pradesh with expansive multi-bench terraces, heavy excavation shovels, and automated optical grade sorters.',
+    image: '/assets/tirodi-mine.jpg',
+    description: (
+      <>
+        Tirodi is a major open-cast operation in Madhya Pradesh with{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          expansive multi-bench terraces
+        </strong>
+        , <strong className="font-semibold text-[#002452]">heavy excavation shovels</strong>, and{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          automated optical grade sorters
+        </strong>.
+      </>
+    ),
     kpis: [
       { label: 'Daily Output', value: '1,050 TPD' },
       { label: 'Ore Grade (Mn)', value: '43.0%' },
@@ -201,16 +310,27 @@ export const minesList: MineData[] = [
     mineral: 'Manganese Dioxide Ore',
     annualOutput: '140,000 Tonnes',
     depth: '70 Meters',
-    image: '/assets/site_profile_mine_bg.jpg',
-    description: 'Sitapatore conducts mechanized open-pit mining of manganese dioxide ore with digital pit surveying, in-pit crushing units, and dedicated water reclamation systems.',
+    image: '/assets/sitapatore-mine.jpg',
+    description: (
+      <>
+        Sitapatore conducts{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          mechanized open-pit mining
+        </strong>{' '}
+        of manganese dioxide ore with <strong className="font-semibold text-[#002452]">digital pit surveying</strong>,{' '}
+        <strong className="font-semibold text-[#002452] bg-[#EBF2FA] px-1 py-0.5 rounded">
+          in-pit crushing units
+        </strong>
+        , and dedicated water reclamation systems.
+      </>
+    ),
     kpis: [
       { label: 'Daily Output', value: '480 TPD' },
       { label: 'Ore Grade (Mn)', value: '37.5%' },
       { label: 'Crusher Unit', value: '250 TPH' },
       { label: 'Safety Record', value: '880 Days LTI Free' }
     ]
-  },
-
+  }
 ];
 
 export const MineCardSection: React.FC<MineCardSectionProps> = ({ onOpenMineModal }) => {
@@ -342,16 +462,6 @@ export const MineCardSection: React.FC<MineCardSectionProps> = ({ onOpenMineModa
 
                   {/* Gradient Shading on photo */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent pointer-events-none" />
-
-                  {/* Sleek Mine Identification Overlay Tag */}
-                  <div className="absolute bottom-5 left-5 z-20 px-3.5 py-2 rounded-xl bg-[#002452]/90 backdrop-blur-md border border-white/20 text-white shadow-xl">
-                    <div className="font-headline font-extrabold text-sm sm:text-base tracking-wider uppercase">
-                      {mine.name} MINE
-                    </div>
-                    <div className="font-body text-[10px] font-bold text-[#F59E0B] tracking-widest uppercase mt-0.5">
-                      {mine.type}
-                    </div>
-                  </div>
                 </div>
 
                 {/* Right Column (48% width on desktop): Detailed Specifications & Action Launcher */}
@@ -383,7 +493,7 @@ export const MineCardSection: React.FC<MineCardSectionProps> = ({ onOpenMineModa
 
                     {/* Telemetry Metrics Grid (Pure Lightweight CSS, Zero JS Overhead) */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-                      <div className="p-3.5 rounded-xl bg-[#FCF9F8] border border-[#C4C6D0]/50 hover:border-[#002452]/40 transition-colors shadow-2xs">
+                      <div className="p-3.5 rounded-xl bg-white border border-[#002452] shadow-2xs">
                         <div className="flex items-center gap-2 text-[#002452] mb-1">
                           <span className="material-symbols-outlined text-base">terrain</span>
                           <span className="font-body text-[10px] font-bold text-[#747780] uppercase tracking-wider">MINE TYPE</span>
@@ -391,7 +501,7 @@ export const MineCardSection: React.FC<MineCardSectionProps> = ({ onOpenMineModa
                         <p className="font-headline text-sm font-bold text-[#002452] pl-6">{mine.type}</p>
                       </div>
 
-                      <div className="p-3.5 rounded-xl bg-[#FCF9F8] border border-[#C4C6D0]/50 hover:border-[#002452]/40 transition-colors shadow-2xs">
+                      <div className="p-3.5 rounded-xl bg-white border border-[#002452] shadow-2xs">
                         <div className="flex items-center gap-2 text-[#002452] mb-1">
                           <span className="material-symbols-outlined text-base">factory</span>
                           <span className="font-body text-[10px] font-bold text-[#747780] uppercase tracking-wider">ANNUAL OUTPUT</span>
@@ -399,7 +509,7 @@ export const MineCardSection: React.FC<MineCardSectionProps> = ({ onOpenMineModa
                         <p className="font-headline text-sm font-bold text-[#002452] pl-6">{mine.annualOutput}</p>
                       </div>
 
-                      <div className="p-3.5 rounded-xl bg-[#FCF9F8] border border-[#C4C6D0]/50 hover:border-[#002452]/40 transition-colors shadow-2xs">
+                      <div className="p-3.5 rounded-xl bg-white border border-[#002452] shadow-2xs">
                         <div className="flex items-center gap-2 text-[#002452] mb-1">
                           <span className="material-symbols-outlined text-base">straighten</span>
                           <span className="font-body text-[10px] font-bold text-[#747780] uppercase tracking-wider">SEAM DEPTH</span>

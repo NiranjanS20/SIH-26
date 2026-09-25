@@ -3,11 +3,9 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Navbar, type PortalRoute } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { ValuePropSection } from './components/ValuePropSection';
-import { DataSourcesSection } from './components/DataSourcesSection';
 import { WhatWeAreSolvingSection } from './components/WhatWeAreSolvingSection';
 import { MineCardSection } from './components/MineCardSection';
 import { ServicesSection, type ServiceItem } from './components/ServicesSection';
-import { UpdatesSection } from './components/UpdatesSection';
 import { CTASection } from './components/CTASection';
 import { Footer } from './components/Footer';
 import { ServiceModal } from './components/ServiceModal';
@@ -137,7 +135,6 @@ function AppInner() {
               onExploreClick={() => handleNavigate(getRoleLandingRoute())}
             />
             <ValuePropSection />
-            <DataSourcesSection />
             <WhatWeAreSolvingSection />
             <MineCardSection
               onOpenMineModal={() => {
@@ -145,7 +142,6 @@ function AppInner() {
               }}
             />
             <ServicesSection onSelectService={(service) => setSelectedService(service)} />
-            <UpdatesSection />
             <CTASection onCTAClick={() => handleNavigate(getRoleLandingRoute())} />
           </>
         )}
