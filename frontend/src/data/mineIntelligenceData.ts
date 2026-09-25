@@ -1342,6 +1342,144 @@ export const MINE_INTELLIGENCE_DATA: Record<string, MineIntelligenceProfile> = {
     drillHoles: [],
     structuralFeatures: [],
   },
+
+  'beldongri': {
+    id: 'beldongri',
+    mineName: 'Beldongri Mine',
+    workspaceMode: 'UNDERGROUND',
+    overview: {
+      totalAreaHa: 27.84,
+      elevationRange: '310m - 340m AMSL',
+      primaryRockType: 'Gondite Horizon (Kandri-Beldongri-Munsar Cluster)',
+      structuralComplexity: 'High (Proximal to regional faulting)',
+    },
+    terrain: {
+      contours: [
+        { elevationM: 320, label: '320m L', pathD: 'M 50 150 Q 150 50 250 100 T 500 150', color: '#6b7280', type: 'crest' },
+      ],
+      haulRoads: [],
+      assets: [],
+    },
+    satelliteLayers: [
+      {
+        id: 'SAR-S1-REC',
+        label: 'Sentinel-1 SAR (Recent)',
+        icon: 'radar',
+        type: 'SAR',
+        isLiveConnected: true,
+        sampleOverlayColor: '#8b5cf6',
+        description: 'Recent radar backscatter mapping structural lineaments and roughness.',
+      },
+      {
+        id: 'SAR-S1-EAR',
+        label: 'Sentinel-1 SAR (Early)',
+        icon: 'radar',
+        type: 'SAR',
+        isLiveConnected: true,
+        sampleOverlayColor: '#6366f1',
+        description: 'Baseline radar backscatter for change detection.',
+      },
+      {
+        id: 'SUB-PROXY',
+        label: 'Subsidence Proxy',
+        icon: 'alert-triangle',
+        type: 'SAR',
+        isLiveConnected: true,
+        sampleOverlayColor: '#ef4444',
+        description: 'Differential interferometry proxy mapping ground deformation risks.',
+      },
+    ],
+    prospectivityZones: [
+      {
+        id: 'PZ-BD-01',
+        name: 'Beldongri-Satak Extent',
+        scorePct: 82.5,
+        confidencePct: 78.0,
+        estimatedTonnageKt: 33.0,
+        dominantGradePct: 46.5,
+        structuralContext: 'Deep underground structural continuation',
+        polygonD: 'M 100 100 L 200 120 L 220 180 L 90 190 Z',
+        geoPolygon: [
+          [21.335, 79.285],
+          [21.339, 79.292],
+          [21.338, 79.285],
+        ],
+        evidence: [
+          'High grade core intercepts (46-50% Mn proxy)',
+          'Strong Stream Sediment Anomaly (1.64% MnO)',
+        ],
+        recommendedAction: 'Drill testing to confirm structural continuity at depth.',
+      },
+    ],
+    drillHoles: [],
+    structuralFeatures: [],
+  },
+
+  'kandri': {
+    id: 'kandri',
+    mineName: 'Kandri Mine',
+    workspaceMode: 'UNDERGROUND',
+    overview: {
+      totalAreaHa: 100.5,
+      elevationRange: '250m - 280m AMSL',
+      primaryRockType: 'Quartzite Mica Schist (Hangwall), Muscovite Mica Schist (Footwall)',
+      structuralComplexity: 'High (Weak Hangwall Contact <10 MPa)',
+    },
+    terrain: {
+      contours: [
+        { elevationM: -500, label: '-500\' L', pathD: 'M 50 150 Q 150 50 250 100 T 500 150', color: '#6b7280', type: 'stope_level' },
+        { elevationM: -600, label: '-600\' L', pathD: 'M 50 180 Q 150 80 250 130 T 500 180', color: '#4b5563', type: 'stope_level' },
+      ],
+      haulRoads: [],
+      assets: [
+        { id: 'K-H1', name: 'Main Hoist (-600\' L)', type: 'Headframe Winder', status: 'ACTIVE', location: 'Shaft 1', x: 250, y: 100, operator: 'MOIL' }
+      ],
+    },
+    satelliteLayers: [
+      {
+        id: 'SAR-S1-REC',
+        label: 'Sentinel-1 SAR (Recent)',
+        icon: 'radar',
+        type: 'SAR',
+        isLiveConnected: true,
+        sampleOverlayColor: '#8b5cf6',
+        description: 'Recent radar backscatter mapping structural lineaments.',
+      },
+      {
+        id: 'SUB-PROXY',
+        label: 'Subsidence Proxy',
+        icon: 'alert-triangle',
+        type: 'SAR',
+        isLiveConnected: true,
+        sampleOverlayColor: '#ef4444',
+        description: 'Differential interferometry proxy mapping ground deformation risks. (Currently 0% risk due to sand stowing).',
+      },
+    ],
+    prospectivityZones: [
+      {
+        id: 'PZ-KD-01',
+        name: 'Below -600\' L Extension',
+        scorePct: 85.0,
+        confidencePct: 75.0,
+        estimatedTonnageKt: 100.0,
+        dominantGradePct: 45.0,
+        structuralContext: 'Deeper extraction limits. High horizontal stress (15.64 MPa).',
+        polygonD: 'M 100 100 L 200 120 L 220 180 L 90 190 Z',
+        geoPolygon: [
+          [21.430, 79.290],
+          [21.435, 79.295],
+          [21.430, 79.300],
+        ],
+        evidence: [
+          'High grade ore body (Braunite 62-123 MPa)',
+          'Weak Hangwall Contact requires 1.0m bolt spacing',
+        ],
+        recommendedAction: 'Drill testing below -600\' L; Equipment hoist upgrade required for -700\' L.',
+      },
+    ],
+    drillHoles: [],
+    structuralFeatures: [],
+  },
 };
 
 // Helper function to safely fetch mine intelligence profile
