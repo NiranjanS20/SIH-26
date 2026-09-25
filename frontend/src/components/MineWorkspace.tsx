@@ -80,6 +80,14 @@ const SITE_MANAGER_TABS: OverviewTab[] = [
   'alerts',
 ];
 
+// Tabs accessible to industry_viewer
+const INDUSTRY_VIEWER_TABS: OverviewTab[] = [
+  'overview',
+  'site-intelligence',
+  'production-forecast',
+];
+
+
 export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
   onNavigate,
   themeMode = 'dark',
@@ -1244,9 +1252,12 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                 { id: 'corrective-actions', label: 'Corrective Actions', icon: 'checklist' },
                 { id: 'alerts', label: 'Alerts', icon: 'notifications' },
               ]
-              .filter((item) =>
-                userRole === 'admin' || SITE_MANAGER_TABS.includes(item.id as OverviewTab)
-              )
+              .filter((item) => {
+                if (userRole === 'admin') return true;
+                if (userRole === 'site_manager') return SITE_MANAGER_TABS.includes(item.id as OverviewTab);
+                if (userRole === 'industry_viewer') return INDUSTRY_VIEWER_TABS.includes(item.id as OverviewTab);
+                return false;
+              })
               .map((item) => {
                 const isSelected = activeTab === item.id;
                 return (
@@ -1333,12 +1344,14 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                 <div className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg border text-[10px] font-bold ${
                   userRole === 'admin'
                     ? 'bg-amber-500/10 border-amber-500/25 text-amber-400'
+                    : userRole === 'industry_viewer'
+                    ? 'bg-blue-500/10 border-blue-500/25 text-blue-400'
                     : 'bg-teal-500/10 border-teal-500/25 text-teal-400'
                 }`}>
                   <span className="material-symbols-outlined text-sm">
-                    {userRole === 'admin' ? 'shield' : 'badge'}
+                    {userRole === 'admin' ? 'shield' : userRole === 'industry_viewer' ? 'visibility' : 'badge'}
                   </span>
-                  {userRole === 'admin' ? 'Admin Access' : 'Site Manager'}
+                  {userRole === 'admin' ? 'Admin Access' : userRole === 'industry_viewer' ? 'Industry Viewer' : 'Site Manager'}
                 </div>
               </div>
             )}

@@ -161,21 +161,13 @@ function AppInner() {
 
         {/* WORKSPACE PAGES */}
         {currentRoute.startsWith('workspace/') && (
-          user?.role === 'industry_viewer' ? (
-            <IndustryViewerDashboard
-              onNavigate={handleNavigate}
-              themeMode={themeMode}
-              onToggleTheme={handleToggleTheme}
-            />
-          ) : (
-            <MineWorkspace
-              onNavigate={handleNavigate}
-              themeMode={themeMode}
-              onToggleTheme={handleToggleTheme}
-              initialMineId={currentRoute.replace('workspace/', '')}
-              userRole={user?.role ?? 'site_manager'}
-            />
-          )
+          <MineWorkspace
+            onNavigate={handleNavigate}
+            themeMode={themeMode}
+            onToggleTheme={handleToggleTheme}
+            initialMineId={currentRoute.replace('workspace/', '')}
+            userRole={user?.role ?? 'site_manager'}
+          />
         )}
 
         {/* INDUSTRY VIEWER DASHBOARD */}

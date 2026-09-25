@@ -460,3 +460,4 @@ export const MINE_PRODUCTION_PROFILES: Record<string, MineProductionProfile> = {
 export function getMineProductionProfile(mineId: string): MineProductionProfile {
   return MINE_PRODUCTION_PROFILES[mineId] || MINE_PRODUCTION_PROFILES['dongri-buzurg'];
 }
+
