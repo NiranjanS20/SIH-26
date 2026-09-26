@@ -1342,6 +1342,92 @@ export const MINE_INTELLIGENCE_DATA: Record<string, MineIntelligenceProfile> = {
     drillHoles: [],
     structuralFeatures: [],
   },
+
+  'beldongri': {
+    mineId: 'beldongri',
+    mineName: 'Beldongri Mine',
+    shortCode: 'BD-01',
+    type: 'Underground',
+    state: 'Maharashtra',
+    district: 'Nagpur',
+    latitude: 21.337,
+    longitude: 79.288,
+    elevationMsl: 325,
+    leaseAreaHa: 27.84,
+    geologicalFormation: 'Gondite Horizon (Kandri-Beldongri-Munsar Cluster)',
+    dominantMineral: 'Manganese Ore',
+    terrainData: {
+      boundaryCoords: [],
+      pitWorkingAreaCoords: [],
+      elevationRangeM: { min: 310, max: 340 },
+      contours: [
+        { elevationM: 320, label: '320m L', pathD: 'M 50 150 Q 150 50 250 100 T 500 150', color: '#6b7280', type: 'crest' },
+      ],
+      haulRoads: [],
+      equipmentAssets: [],
+    },
+    satelliteConfig: {
+      sensor: 'Sentinel-1 & 2',
+      lastPassDate: '2024-03-12',
+      cloudCoverPct: 12.5,
+      spatialResolution: '10m',
+      availableLayers: [
+        {
+          id: 'SAR-S1-REC',
+          label: 'Sentinel-1 SAR (Recent)',
+          icon: 'radar',
+          type: 'SAR',
+          isLiveConnected: true,
+          sampleOverlayColor: '#8b5cf6',
+          description: 'Recent radar backscatter mapping structural lineaments and roughness.',
+        },
+        {
+          id: 'SAR-S1-EAR',
+          label: 'Sentinel-1 SAR (Early)',
+          icon: 'radar',
+          type: 'SAR',
+          isLiveConnected: true,
+          sampleOverlayColor: '#6366f1',
+          description: 'Baseline radar backscatter for change detection.',
+        },
+        {
+          id: 'SUB-PROXY',
+          label: 'Subsidence Proxy',
+          icon: 'alert-triangle',
+          type: 'SAR',
+          isLiveConnected: true,
+          sampleOverlayColor: '#ef4444',
+          description: 'Differential interferometry proxy mapping ground deformation risks.',
+        }
+      ],
+    },
+    prospectivityZones: [
+      {
+        id: 'PZ-BD-01',
+        name: 'Beldongri-Satak Extent',
+        scorePct: 82.5,
+        confidencePct: 78.0,
+        estimatedTonnageKt: 33.0,
+        dominantGradePct: 46.5,
+        structuralContext: 'Deep underground structural continuation',
+        polygonD: 'M 100 100 L 200 120 L 220 180 L 90 190 Z',
+        geoPolygon: [
+          [21.335, 79.285],
+          [21.339, 79.292],
+          [21.338, 79.285],
+        ],
+        evidence: [
+          'High grade core intercepts (46-50% Mn proxy)',
+          'Strong Stream Sediment Anomaly (1.64% MnO)',
+        ],
+        recommendedAction: 'Drill testing to confirm structural continuity at depth.',
+      },
+    ],
+    drillHoles: [],
+    structuralFeatures: [],
+  },
+
+
 };
 
 // Helper function to safely fetch mine intelligence profile

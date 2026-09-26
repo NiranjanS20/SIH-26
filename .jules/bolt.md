@@ -1,0 +1,3 @@
+## 2024-05-19 - React render cycle optimization
+**Learning:** In complex React dashboards that have expensive derived data calculations using array mapping, filtering and reducing on static arrays inside the component body, they run synchronously on every render. Even though the array doesn't change, re-rendering because of local state (e.g. tabs or loading toggles) will perform those operations again and can cause a performance drop.
+**Action:** Use `useMemo` hooks with empty dependency arrays (or relevant dependencies if they're dynamic) for variables that derive from constants or props, saving CPU cycles when the component re-renders.
