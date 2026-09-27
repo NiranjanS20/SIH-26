@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { getStoredUser } from './services/authService';
 import { Navbar, type PortalRoute } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { ValuePropSection } from './components/ValuePropSection';
@@ -77,7 +78,8 @@ function AppInner() {
   const handleNavigate = (route: PortalRoute) => {
     // Guard: any route that's not landing or login requires authentication
     const publicRoutes: PortalRoute[] = ['landing', 'login'];
-    if (!publicRoutes.includes(route) && !isAuthenticated) {
+    const hasAuth = isAuthenticated || !!getStoredUser();
+    if (!publicRoutes.includes(route) && !hasAuth) {
       setCurrentRoute('login');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -91,11 +93,29 @@ function AppInner() {
   };
 
   const getRoleLandingRoute = (): PortalRoute => {
-    if (!isAuthenticated) return 'login';
-    if (user?.role === 'admin') return 'admin-control-center';
-    if (user?.role === 'industry_viewer') return 'industry-viewer';
+    const activeUser = user || getStoredUser();
+    if (!activeUser) return 'login';
+    if (activeUser.role === 'admin') return 'admin-control-center';
+    if (activeUser.role === 'industry_viewer') return 'industry-viewer';
     return 'mine-selection';
   };
+
+  // Auto-redirect if authenticated user is on login page
+  useEffect(() => {
+    if (currentRoute === 'login') {
+      const activeUser = user || getStoredUser();
+      if (activeUser) {
+        const target =
+          activeUser.role === 'admin'
+            ? 'admin-control-center'
+            : activeUser.role === 'industry_viewer'
+            ? 'industry-viewer'
+            : 'mine-selection';
+        setCurrentRoute(target);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }, [currentRoute, user]);
 
   const isFullScreenWorkspace =
     currentRoute.startsWith('workspace/') ||
