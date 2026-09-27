@@ -68,6 +68,22 @@
             "before": null,
             "after": 8.13073510197869,
             "improved": true
+        },
+        {
+            "timestamp": "2026-09-27T17:23:04.423242",
+            "model_name": "model2_xgb_Beldongri",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 32.388745957167,
+            "improved": true
+        },
+        {
+            "timestamp": "2026-09-27T17:23:05.479143",
+            "model_name": "model2_xgb_Kandri",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 52.080565556395484,
+            "improved": true
         }
     ],
     "model1_unfc_check": {
@@ -93,5 +109,15 @@
         "metric_name": "RMSE",
         "metric_value": 8.13073510197869,
         "last_updated": "2026-09-13T20:28:30.039484"
+    },
+    "model2_xgb_Beldongri": {
+        "metric_name": "RMSE",
+        "metric_value": 32.388745957167,
+        "last_updated": "2026-09-27T17:23:04.423242"
+    },
+    "model2_xgb_Kandri": {
+        "metric_name": "RMSE",
+        "metric_value": 52.080565556395484,
+        "last_updated": "2026-09-27T17:23:05.479143"
     }
 }

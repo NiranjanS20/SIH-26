@@ -871,8 +871,10 @@ export const MINE_INTELLIGENCE_DATA: Record<string, MineIntelligenceProfile> = {
         evidence: [
           'High grade assay averaging 47.0% Mn with low silica (<6%)',
           'Drill hole KD-DH-08 intersected 16.5m ore intercept at 65m depth',
+          'Geotechnical analysis confirms RMR 45 with weak hangwall contact (<10 MPa)',
+          'MOIL Report: Zero surface subsidence observed over lease hold area',
         ],
-        recommendedAction: 'Accelerate pushback to expose high grade ore body.',
+        recommendedAction: 'Accelerate pushback to expose high grade ore body. Optimize hangwall bolt pattern to 1.0m spacing.',
       },
     ],
 
@@ -1466,8 +1468,11 @@ export const MINE_INTELLIGENCE_DATA: Record<string, MineIntelligenceProfile> = {
         evidence: [
           'High magnetic susceptibility contrast with mica schist',
           'Surface outcrop assay verified at 42.8% Mn',
+          'Stream sediment geochemistry anomaly (1.64% MnO) detected at 1.26km proximity',
+          'Dump mining operational efficiency outpaces underground extraction by 30%',
+          'Subsidence Proxy Data: No active subsidence noted, but UG operations require monitoring',
         ],
-        recommendedAction: 'Drill 3 confirmatory core holes to depth 60m.',
+        recommendedAction: 'Drill 3 confirmatory core holes to depth 60m. Initiate subsidence monitoring protocol for stoping areas.',
       },
     ],
 
