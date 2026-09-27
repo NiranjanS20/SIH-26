@@ -1342,17 +1342,401 @@ export const MINE_INTELLIGENCE_DATA: Record<string, MineIntelligenceProfile> = {
     drillHoles: [],
     structuralFeatures: [],
   },
+
+  // ----------------------------------------------------------------------------
+  // 8. BELDONGRI MINE (Opencast, Nagpur, MH)
+  // ----------------------------------------------------------------------------
+  'beldongri': {
+    mineId: 'beldongri',
+    mineName: 'Beldongri Opencast Mine',
+    shortCode: 'BD-01',
+    type: 'Open Cast',
+    state: 'Maharashtra',
+    district: 'Nagpur',
+    latitude: 21.3370,
+    longitude: 79.2891,
+    elevationMsl: 295,
+    leaseAreaHa: 42.5,
+    geologicalFormation: 'Mansar Formation (Sausar Group)',
+    dominantMineral: 'Braunite & Pyrolusite with Quartz-Spessartite Gondite',
+
+    terrainData: {
+      boundaryCoords: [
+        [21.341, 79.284],
+        [21.342, 79.294],
+        [21.333, 79.293],
+        [21.332, 79.283],
+      ],
+      pitWorkingAreaCoords: [
+        [21.339, 79.287],
+        [21.340, 79.291],
+        [21.335, 79.290],
+        [21.334, 79.286],
+      ],
+      elevationRangeM: { min: 235, max: 295 },
+      contours: [
+        {
+          elevationM: 295,
+          label: 'North Crest Highwall (+295m MSL)',
+          pathD: 'M 40 40 Q 180 20 320 40 T 520 40',
+          color: '#64748B',
+          type: 'crest',
+        },
+        {
+          elevationM: 265,
+          label: 'Active Ore Bench Cut (+265m MSL)',
+          pathD: 'M 70 85 Q 200 60 320 85 T 480 85',
+          color: '#F59E0B',
+          type: 'ore_face',
+        },
+        {
+          elevationM: 235,
+          label: 'Lower Incline Pit Sump Floor (+235m MSL)',
+          pathD: 'M 100 130 Q 220 105 320 130 T 440 130',
+          color: '#3B82F6',
+          type: 'sump',
+        },
+      ],
+      haulRoads: [
+        {
+          name: 'Beldongri North Ramp Haul Road',
+          gradePct: 8.2,
+          pathD: 'M 90 40 L 190 85 L 320 130',
+          lengthM: 640,
+        },
+      ],
+      equipmentAssets: [
+        {
+          id: 'EQ-BD-EX01',
+          name: 'Komatsu PC300 Hydraulic Excavator',
+          type: 'Excavator',
+          status: 'ACTIVE',
+          location: 'North Pit Cut',
+          x: 210,
+          y: 85,
+          operator: 'Operator D. Borkar',
+        },
+        {
+          id: 'EQ-BD-TR03',
+          name: 'Tata 25T Heavy Tipper Dumper',
+          type: 'Dumper Fleet',
+          status: 'ACTIVE',
+          location: 'Haul Ramp Incline',
+          x: 280,
+          y: 110,
+          operator: 'Fleet BD-A',
+        },
+      ],
+    },
+
+    satelliteConfig: {
+      sensor: 'Sentinel-2B MSI (10m) / Landsat-9 OLI-2',
+      lastPassDate: '2026-08-28',
+      cloudCoverPct: 0.0,
+      spatialResolution: '10m / Pixel',
+      availableLayers: [
+        {
+          id: 'TRUE_COLOR',
+          label: 'True Color (RGB)',
+          icon: '🛰️',
+          type: 'OPTICAL',
+          isLiveConnected: true,
+          sampleOverlayColor: 'transparent',
+          description: 'High-resolution pit terrain and bench status.',
+        },
+      ],
+    },
+
+    prospectivityZones: [
+      {
+        id: 'PZ-BD-01',
+        name: 'Beldongri North Lens Extension',
+        scorePct: 87.5,
+        confidencePct: 90.0,
+        estimatedTonnageKt: 145.0,
+        dominantGradePct: 42.0,
+        structuralContext: 'Faulted contact between gondite band and mica schist',
+        polygonD: 'M 140 60 L 320 65 L 290 130 L 120 125 Z',
+        geoPolygon: [
+          [21.339, 79.286],
+          [21.341, 79.290],
+          [21.336, 79.292],
+          [21.335, 79.287],
+        ],
+        evidence: [
+          'High magnetic susceptibility contrast with mica schist',
+          'Surface outcrop assay verified at 42.8% Mn',
+        ],
+        recommendedAction: 'Drill 3 confirmatory core holes to depth 60m.',
+      },
+    ],
+
+    drillHoles: [],
+    structuralFeatures: [],
+  },
+
+  // ----------------------------------------------------------------------------
+  // 9. MUNSAR MINE (Opencast & Underground, Nagpur, MH)
+  // ----------------------------------------------------------------------------
+  'munsar': {
+    mineId: 'munsar',
+    mineName: 'Munsar Opencast & Underground Mine',
+    shortCode: 'MS-01',
+    type: 'Open Cast',
+    state: 'Maharashtra',
+    district: 'Nagpur',
+    latitude: 21.4010,
+    longitude: 79.2801,
+    elevationMsl: 320,
+    leaseAreaHa: 108.5,
+    geologicalFormation: 'Mansar Stage Type Locality (Sausar Group)',
+    dominantMineral: 'High-Grade Braunite, Pyrolusite & Cryptomelane',
+
+    terrainData: {
+      boundaryCoords: [
+        [21.407, 79.274],
+        [21.408, 79.286],
+        [21.395, 79.285],
+        [21.394, 79.273],
+      ],
+      pitWorkingAreaCoords: [
+        [21.405, 79.277],
+        [21.406, 79.283],
+        [21.398, 79.282],
+        [21.397, 79.276],
+      ],
+      elevationRangeM: { min: 230, max: 320 },
+      contours: [
+        {
+          elevationM: 320,
+          label: 'Munsar Ridge Highwall Crest (+320m MSL)',
+          pathD: 'M 30 35 Q 180 15 320 35 T 530 35',
+          color: '#64748B',
+          type: 'crest',
+        },
+        {
+          elevationM: 275,
+          label: 'Main Ore Bench Face (+275m MSL)',
+          pathD: 'M 60 85 Q 200 65 320 85 T 490 85',
+          color: '#F59E0B',
+          type: 'ore_face',
+        },
+        {
+          elevationM: 230,
+          label: 'Pit Floor Sump & Incline Sump (+230m MSL)',
+          pathD: 'M 90 135 Q 220 115 320 135 T 450 135',
+          color: '#3B82F6',
+          type: 'sump',
+        },
+      ],
+      haulRoads: [
+        {
+          name: 'Munsar Spiral Haul Road',
+          gradePct: 7.8,
+          pathD: 'M 80 35 L 180 85 L 320 135',
+          lengthM: 810,
+        },
+      ],
+      equipmentAssets: [
+        {
+          id: 'EQ-MS-EX01',
+          name: 'CAT 336D Hydraulic Shovel',
+          type: 'Excavator',
+          status: 'ACTIVE',
+          location: 'Ridge Main Face',
+          x: 240,
+          y: 85,
+          operator: 'Operator H. Charde',
+        },
+        {
+          id: 'EQ-MS-TR02',
+          name: 'BEML 35T Heavy Dumper',
+          type: 'Dumper Fleet',
+          status: 'ACTIVE',
+          location: 'Haul Incline Ramp',
+          x: 310,
+          y: 115,
+          operator: 'Fleet MS-A',
+        },
+      ],
+    },
+
+    satelliteConfig: {
+      sensor: 'Sentinel-2B MSI (10m) / Landsat-9 OLI-2',
+      lastPassDate: '2026-08-28',
+      cloudCoverPct: 0.0,
+      spatialResolution: '10m / Pixel',
+      availableLayers: [
+        {
+          id: 'TRUE_COLOR',
+          label: 'True Color (RGB)',
+          icon: '🛰️',
+          type: 'OPTICAL',
+          isLiveConnected: true,
+          sampleOverlayColor: 'transparent',
+          description: 'Multispectral ridge and stope terrain analysis.',
+        },
+      ],
+    },
+
+    prospectivityZones: [
+      {
+        id: 'PZ-MS-01',
+        name: 'Munsar Type-Locality East Syncline',
+        scorePct: 91.2,
+        confidencePct: 93.0,
+        estimatedTonnageKt: 320.0,
+        dominantGradePct: 44.5,
+        structuralContext: 'Overturned isoclinal fold hinge in Mansar Formation',
+        polygonD: 'M 150 55 L 350 60 L 320 135 L 130 130 Z',
+        geoPolygon: [
+          [21.403, 79.278],
+          [21.405, 79.283],
+          [21.399, 79.284],
+          [21.398, 79.279],
+        ],
+        evidence: [
+          'Direct outcrop strike tracing into high-grade ore zone',
+          'Borehole MS-14 intersected 6.2m true thickness at 45.1% Mn',
+        ],
+        recommendedAction: 'Priority diamond core drilling along east plunge.',
+      },
+    ],
+
+    drillHoles: [],
+    structuralFeatures: [],
+  },
+
+  // ----------------------------------------------------------------------------
+  // 10. UKWA MINE (Underground, Balaghat, MP)
+  // ----------------------------------------------------------------------------
+  'ukwa': {
+    mineId: 'ukwa',
+    mineName: 'Ukwa Underground Mine',
+    shortCode: 'UK-01',
+    type: 'Underground',
+    state: 'Madhya Pradesh',
+    district: 'Balaghat',
+    latitude: 21.9667,
+    longitude: 80.4667,
+    elevationMsl: 610,
+    leaseAreaHa: 196.4,
+    geologicalFormation: 'Bharweli-Ukwa Manganese Belt (Sausar Group)',
+    dominantMineral: 'High-Grade Braunite with Cryptomelane (Low Phosphorus)',
+
+    terrainData: {
+      boundaryCoords: [
+        [21.972, 80.460],
+        [21.973, 80.473],
+        [21.961, 80.472],
+        [21.960, 80.459],
+      ],
+      pitWorkingAreaCoords: [
+        [21.970, 80.463],
+        [21.971, 80.470],
+        [21.964, 80.469],
+        [21.963, 80.462],
+      ],
+      elevationRangeM: { min: 480, max: 610 },
+      contours: [
+        {
+          elevationM: 610,
+          label: 'Ukwa Surface Headframe (+610m MSL)',
+          pathD: 'M 40 40 Q 180 20 320 40 T 520 40',
+          color: '#64748B',
+          type: 'crest',
+        },
+        {
+          elevationM: 540,
+          label: 'Upper Stope Extraction Level (+540m MSL)',
+          pathD: 'M 70 85 Q 200 65 320 85 T 480 85',
+          color: '#F59E0B',
+          type: 'ore_face',
+        },
+        {
+          elevationM: 480,
+          label: 'Deep Incline Drift Shaft Level (+480m MSL)',
+          pathD: 'M 100 130 Q 220 105 320 130 T 440 130',
+          color: '#3B82F6',
+          type: 'sump',
+        },
+      ],
+      haulRoads: [
+        {
+          name: 'Ukwa Incline Drift Haulage',
+          gradePct: 7.5,
+          pathD: 'M 90 40 L 190 85 L 320 130',
+          lengthM: 950,
+        },
+      ],
+      equipmentAssets: [
+        {
+          id: 'EQ-UK-LHD01',
+          name: 'Sandvik LH307 Low-Profile LHD',
+          type: 'Excavator',
+          status: 'ACTIVE',
+          location: 'Stope Level 3',
+          x: 230,
+          y: 85,
+          operator: 'Operator S. Maravi',
+        },
+      ],
+    },
+
+    satelliteConfig: {
+      sensor: 'Sentinel-2B MSI (10m) / Landsat-9 OLI-2',
+      lastPassDate: '2026-08-28',
+      cloudCoverPct: 0.0,
+      spatialResolution: '10m / Pixel',
+      availableLayers: [
+        {
+          id: 'TRUE_COLOR',
+          label: 'True Color (RGB)',
+          icon: '🛰️',
+          type: 'OPTICAL',
+          isLiveConnected: true,
+          sampleOverlayColor: 'transparent',
+          description: 'Surface headframe and drift entry inspection.',
+        },
+      ],
+    },
+
+    prospectivityZones: [
+      {
+        id: 'PZ-UK-01',
+        name: 'Ukwa Low-Phos Orebody Deep Extension',
+        scorePct: 92.0,
+        confidencePct: 94.0,
+        estimatedTonnageKt: 410.0,
+        dominantGradePct: 45.2,
+        structuralContext: 'Continuous bedded braunite seam dipping 35° north',
+        polygonD: 'M 140 60 L 340 65 L 310 135 L 120 130 Z',
+        geoPolygon: [
+          [21.968, 80.464],
+          [21.970, 80.469],
+          [21.965, 80.470],
+          [21.964, 80.465],
+        ],
+        evidence: [
+          'Consistent metallurgical grade with ultra-low phosphorus (<0.07% P)',
+          'Underground face channel samples confirmed continuity',
+        ],
+        recommendedAction: 'Advance horizontal cross-cut 50m north to intercept ore seam.',
+      },
+    ],
+
+    drillHoles: [],
+    structuralFeatures: [],
+  },
 };
 
 // Helper function to safely fetch mine intelligence profile
 export function getMineIntelligenceProfile(mineId: string): MineIntelligenceProfile {
-  return MINE_INTELLIGENCE_DATA[mineId] || MINE_INTELLIGENCE_DATA['dongri-buzurg'];
+  const normId = mineId === 'mansar' ? 'munsar' : mineId;
+  return MINE_INTELLIGENCE_DATA[normId] || MINE_INTELLIGENCE_DATA['dongri-buzurg'];
 }
 
 // Future FastAPI loader service stub (GET /mines/{mineId})
 export async function fetchMineIntelligenceApi(mineId: string): Promise<MineIntelligenceProfile> {
-  // When FastAPI backend is connected:
-  // const res = await fetch(`/api/v1/mines/${mineId}/intelligence`);
-  // return await res.json();
   return Promise.resolve(getMineIntelligenceProfile(mineId));
 }

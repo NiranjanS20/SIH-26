@@ -121,6 +121,76 @@ export const PORTFOLIO_MINES_DATA: PortfolioMineProfile[] = [
     status: 'Shortfall',
     riskColor: '#B8860B', // Amber
   },
+  {
+    id: 'kandri',
+    name: 'Kandri Opencast & Underground Mine',
+    shortName: 'Kandri',
+    location: 'Nagpur, Maharashtra',
+    type: 'Open Cast',
+    production: 3600,
+    target: 4000,
+    variance: -400,
+    performance: 90,
+    risk: 'LOW',
+    status: 'Shortfall',
+    riskColor: '#2E7D32',
+  },
+  {
+    id: 'beldongri',
+    name: 'Beldongri Underground Mine',
+    shortName: 'Beldongri',
+    location: 'Nagpur, Maharashtra',
+    type: 'Underground',
+    production: 2900,
+    target: 3200,
+    variance: -300,
+    performance: 91,
+    risk: 'LOW',
+    status: 'Shortfall',
+    riskColor: '#2E7D32',
+  },
+  {
+    id: 'munsar',
+    name: 'Munsar Underground Mine',
+    shortName: 'Munsar',
+    location: 'Nagpur, Maharashtra',
+    type: 'Underground',
+    production: 3800,
+    target: 4100,
+    variance: -300,
+    performance: 93,
+    risk: 'LOW',
+    status: 'Shortfall',
+    riskColor: '#2E7D32',
+  },
+  {
+    id: 'gumgaon',
+    name: 'Gumgaon Underground Mine',
+    shortName: 'Gumgaon',
+    location: 'Nagpur, Maharashtra',
+    type: 'Underground',
+    production: 3800,
+    target: 4166,
+    variance: -366,
+    performance: 91,
+    risk: 'MEDIUM',
+    status: 'Shortfall',
+    riskColor: '#B8860B',
+  },
+  {
+    id: 'ukwa',
+    name: 'Ukwa Underground Mine',
+    shortName: 'Ukwa',
+    location: 'Balaghat, Madhya Pradesh',
+    type: 'Underground',
+    production: 14200,
+    target: 15000,
+    variance: -800,
+    performance: 95,
+    risk: 'LOW',
+    status: 'Shortfall',
+    riskColor: '#2E7D32',
+  },
 ];
 
 // Aggregated Multi-Month Supply Outlook Dataset (Model 2 Aggregated Outputs)
@@ -235,6 +305,76 @@ export const PORTFOLIO_RECOVERY_BREAKDOWN: MineRecoveryData[] = [
     riskLevel: 'LOW',
     riskColor: '#2E7D32',
   },
+  {
+    id: 'kandri',
+    shortName: 'Kandri',
+    mineName: 'Kandri Opencast & Underground Mine',
+    location: 'Nagpur, Maharashtra',
+    type: 'Open Cast',
+    projectedShortfall: 400,
+    potentiallyRecoverable: 350,
+    recoveryRatePct: 88,
+    remainingGap: 50,
+    primaryAction: 'Incline hoist cycle synchronization & pit sump dewatering array expansion',
+    riskLevel: 'LOW',
+    riskColor: '#2E7D32',
+  },
+  {
+    id: 'beldongri',
+    shortName: 'Beldongri',
+    mineName: 'Beldongri Underground Mine',
+    location: 'Nagpur, Maharashtra',
+    type: 'Underground',
+    projectedShortfall: 300,
+    potentiallyRecoverable: 260,
+    recoveryRatePct: 87,
+    remainingGap: 40,
+    primaryAction: 'Optimize room-and-pillar stope extraction sequence & calibrate winch speed',
+    riskLevel: 'LOW',
+    riskColor: '#2E7D32',
+  },
+  {
+    id: 'munsar',
+    shortName: 'Munsar',
+    mineName: 'Munsar Underground Mine',
+    location: 'Nagpur, Maharashtra',
+    type: 'Underground',
+    projectedShortfall: 300,
+    potentiallyRecoverable: 270,
+    recoveryRatePct: 90,
+    remainingGap: 30,
+    primaryAction: 'Synchronize 3-lease stope tramming and deploy high-volume drainage',
+    riskLevel: 'LOW',
+    riskColor: '#2E7D32',
+  },
+  {
+    id: 'gumgaon',
+    shortName: 'Gumgaon',
+    mineName: 'Gumgaon Underground Mine',
+    location: 'Nagpur, Maharashtra',
+    type: 'Underground',
+    projectedShortfall: 366,
+    potentiallyRecoverable: 280,
+    recoveryRatePct: 77,
+    remainingGap: 86,
+    primaryAction: 'Reinforce RMR bolt support density in lower levels and inspect winder ropes',
+    riskLevel: 'MEDIUM',
+    riskColor: '#B8860B',
+  },
+  {
+    id: 'ukwa',
+    shortName: 'Ukwa',
+    mineName: 'Ukwa Underground Mine',
+    location: 'Balaghat, Madhya Pradesh',
+    type: 'Underground',
+    projectedShortfall: 800,
+    potentiallyRecoverable: 700,
+    recoveryRatePct: 88,
+    remainingGap: 100,
+    primaryAction: 'Accelerate continuous seam incline tramming & clear main haulage incline',
+    riskLevel: 'LOW',
+    riskColor: '#2E7D32',
+  },
 ];
 
 export const PortfolioView: React.FC<PortfolioViewProps> = ({
@@ -270,8 +410,19 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
   const textMuted = isDark ? 'text-slate-400' : 'text-slate-500 font-semibold';
   const borderDivider = isDark ? 'border-white/10' : 'border-slate-200/80';
 
-  // Sorted list for Mine Performance cards (Dongri Buzurg, Chikla, Balaghat)
-  const displayCardsOrder = ['dongri-buzurg', 'tirodi', 'sitapatore', 'chikla', 'balaghat'];
+  // Sorted list for Mine Performance cards (All 10 MOIL Mines)
+  const displayCardsOrder = [
+    'dongri-buzurg',
+    'tirodi',
+    'sitapatore',
+    'chikla',
+    'balaghat',
+    'kandri',
+    'beldongri',
+    'munsar',
+    'gumgaon',
+    'ukwa',
+  ];
   const mineCards = displayCardsOrder.map((id) =>
     PORTFOLIO_MINES_DATA.find((m) => m.id === id)!
   );
@@ -656,18 +807,14 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
                   <button
                     onClick={() => onOpenMine(mine.id)}
                     className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-xs font-bold transition-all border cursor-pointer shadow-md group ${
-                      (mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore')
-                        ? isDark
-                          ? 'bg-[#1F3864] hover:bg-[#27467C] text-white border-indigo-400/30'
-                          : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black border-blue-500 shadow-blue-500/20'
-                        : isDark
-                        ? 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/15'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-300 font-semibold'
+                      isDark
+                        ? 'bg-[#1F3864] hover:bg-[#27467C] text-white border-indigo-400/30'
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black border-blue-500 shadow-blue-500/20'
                     }`}
                   >
-                    <span>{(mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore') ? 'Open Mine' : 'Open Mine (Phase II 🔒)'}</span>
+                    <span>Open Mine</span>
                     <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">
-                      {(mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore') ? 'arrow_forward' : 'lock'}
+                      arrow_forward
                     </span>
                   </button>
                 </div>
@@ -1021,15 +1168,9 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
                       <td className="px-4 py-4 text-right">
                         <button
                           onClick={() => onOpenMine(mine.id)}
-                          className={`px-3 py-1.5 rounded text-[11px] font-bold transition-all border cursor-pointer ${
-                            (mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore')
-                              ? 'bg-[#0E7C7B] hover:bg-[#0C6B6A] text-white border-teal-400/30 shadow-sm'
-                              : isDark
-                              ? 'bg-white/10 hover:bg-white/20 text-slate-400 border-white/15'
-                              : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-300 font-semibold'
-                          }`}
+                          className="px-3 py-1.5 rounded text-[11px] font-bold transition-all border cursor-pointer bg-[#0E7C7B] hover:bg-[#0C6B6A] text-white border-teal-400/30 shadow-sm"
                         >
-                          {(mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore') ? 'Open Mine →' : 'Phase II 🔒'}
+                          Open Mine →
                         </button>
                       </td>
                     </tr>
@@ -1466,15 +1607,9 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
                     <div className="shrink-0 flex justify-end">
                       <button
                         onClick={() => onOpenMine(mine.id)}
-                        className={`px-3 py-1.5 rounded text-[11px] font-bold transition-all border cursor-pointer ${
-                          (mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore')
-                            ? 'bg-[#0E7C7B] hover:bg-[#0C6B6A] text-white border-teal-400/30 shadow-xs'
-                            : isDark
-                            ? 'bg-white/5 hover:bg-white/10 text-slate-400 border-white/10'
-                            : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200'
-                        }`}
+                        className="px-3 py-1.5 rounded text-[11px] font-bold transition-all border cursor-pointer bg-[#0E7C7B] hover:bg-[#0C6B6A] text-white border-teal-400/30 shadow-xs"
                       >
-                        {(mine.id === 'dongri-buzurg' || mine.id === 'tirodi' || mine.id === 'sitapatore') ? 'View Actions →' : 'Details 🔒'}
+                        View Actions →
                       </button>
                     </div>
                   </div>

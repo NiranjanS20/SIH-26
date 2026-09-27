@@ -137,8 +137,13 @@ function AppInner() {
             <ValuePropSection />
             <WhatWeAreSolvingSection />
             <MineCardSection
-              onOpenMineModal={() => {
-                handleNavigate(getRoleLandingRoute());
+              onOpenMineModal={(mine) => {
+                if (mine && mine.id) {
+                  const targetId = mine.id === 'mansar' ? 'munsar' : mine.id;
+                  handleNavigate(`workspace/${targetId}` as PortalRoute);
+                } else {
+                  handleNavigate(getRoleLandingRoute());
+                }
               }}
             />
             <ServicesSection onSelectService={(service) => setSelectedService(service)} />

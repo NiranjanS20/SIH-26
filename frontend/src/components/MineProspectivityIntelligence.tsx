@@ -393,7 +393,7 @@ export const MineProspectivityIntelligence: React.FC<Props> = ({ isDark = false 
               <div className="absolute top-3 left-3 z-10 w-6 h-6 rounded-full bg-[#002452] text-white text-[10px] font-black flex items-center justify-center shadow">{idx + 1}</div>
               {/* Heatmap thumb */}
               <div className="relative h-36 bg-slate-900 overflow-hidden">
-                <img src={`/prospectivity/layers/${mine.heatmapFolder}/${filter}.png`}
+                <img src={`/prospectivity/layers/${mine.heatmapFolder}/${filter}.png?v=20260927_real_dem`}
                   alt={`${mine.name} ${FILTER_LABELS[filter]}`}
                   className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300"
                   onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
@@ -520,7 +520,7 @@ export const MineProspectivityIntelligence: React.FC<Props> = ({ isDark = false 
                   <button key={f} onClick={() => setFilter(f)}
                     className={`group rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${filter === f ? 'border-[#002452] shadow-md' : 'border-transparent hover:border-slate-300'}`}>
                     <div className="h-20 bg-slate-900 overflow-hidden">
-                      <img src={`/prospectivity/layers/${sel.heatmapFolder}/${f}.png`}
+                      <img src={`/prospectivity/layers/${sel.heatmapFolder}/${f}.png?v=20260927_real_dem`}
                         alt={`${sel.name} ${FILTER_LABELS[f]}`}
                         className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
                         onError={e => { (e.target as HTMLImageElement).style.opacity = '0'; }} />

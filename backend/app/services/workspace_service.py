@@ -116,7 +116,7 @@ def precompute_workspace_data():
             "id": "dongri-buzurg",
             "name": "Dongri Buzurg Mine",
             "location": "Bhandara, Maharashtra",
-            "district": "Bhandara District",
+            "district": "Bhandara",
             "state": "Maharashtra",
             "type": "Open Cast Manganese Mine",
             "leaseId": "MOIL-LEASE-DG-01",
@@ -208,7 +208,7 @@ def precompute_workspace_data():
             "id": "tirodi",
             "name": "Tirodi Mine",
             "location": "Tirodi, Madhya Pradesh",
-            "district": "Balaghat District",
+            "district": "Balaghat",
             "state": "Madhya Pradesh",
             "type": "Open Cast Manganese Mine",
             "leaseId": "MOIL-LEASE-TR-01",
@@ -311,7 +311,7 @@ def precompute_workspace_data():
             "id": "sitapatore",
             "name": "Sitapatore",
             "location": "Balaghat, Madhya Pradesh",
-            "district": "Balaghat District",
+            "district": "Balaghat",
             "state": "Madhya Pradesh",
             "type": "Open Cast Manganese Mine",
             "leaseId": "MOIL-LEASE-SP-10",
@@ -407,7 +407,7 @@ def precompute_workspace_data():
             "id": "balaghat",
             "name": "Balaghat",
             "location": "Balaghat, Madhya Pradesh",
-            "district": "Balaghat District",
+            "district": "Balaghat",
             "state": "Madhya Pradesh",
             "type": "Underground Manganese Mine",
             "leaseId": "MOIL-LEASE-BG-07",
@@ -509,7 +509,7 @@ def precompute_workspace_data():
             "id": "ukwa",
             "name": "Ukwa Mine",
             "location": "Balaghat, Madhya Pradesh",
-            "district": "Balaghat District",
+            "district": "Balaghat",
             "state": "Madhya Pradesh",
             "type": "Underground Manganese Mine",
             "leaseId": "MOIL-LEASE-UK-08",
@@ -611,7 +611,7 @@ def precompute_workspace_data():
             "id": "chikla",
             "name": "Chikla Mine",
             "location": "Bhandara, Maharashtra",
-            "district": "Bhandara District",
+            "district": "Bhandara",
             "state": "Maharashtra",
             "type": "Underground Manganese Mine",
             "leaseId": "MSH0062",
@@ -743,7 +743,7 @@ def precompute_workspace_data():
             "id": "gumgaon",
             "name": "Gumgaon Mine",
             "location": "Nagpur, Maharashtra",
-            "district": "Nagpur District",
+            "district": "Nagpur",
             "state": "Maharashtra",
             "type": "Underground Manganese Mine",
             "leaseId": "MOIL-LEASE-GG-01",
@@ -848,8 +848,352 @@ def precompute_workspace_data():
         ]
     }
     _workspace_cache["gumgaon"] = MineWorkspaceData(**workspace_data_gumgaon)
+
+    # --- Precompute Kandri Open Cast & Underground ---
+    actual_prod_kandri = 148500.0
+    target_prod_kandri = 150000.0
+    workspace_data_kandri = {
+        "mineInfo": {
+            "id": "kandri",
+            "name": "Kandri Mine",
+            "location": "Nagpur, Maharashtra",
+            "district": "Nagpur",
+            "state": "Maharashtra",
+            "type": "Open Cast & Underground Manganese Mine",
+            "leaseId": "MOIL-LEASE-KD-03",
+            "status": "Active Digital Telemetry Hub",
+            "dgmsStatus": "DGMS Safety Approved",
+            "ibmRegistration": "IBM/KD/1904"
+        },
+        "operationalSummary": {
+            "headline": "Kandri Hybrid Mining Operations Center",
+            "riskState": "LOW",
+            "dynamicStatement": "PRODUCTION ON TRACK: Hybrid opencast pit and underground incline maintaining stable throughput.",
+            "coreValueMessage": "Optimizing multi-level extraction across Kandri gondite syncline with integrated dewatering.",
+            "complianceStandard": "DGMS & IBM Regulatory Standards Compliant",
+            "lastUpdated": "Live Stream"
+        },
+        "production": {
+            "actual": actual_prod_kandri,
+            "target": target_prod_kandri,
+            "forecast": 149200.0,
+            "gap": -800.0,
+            "unit": "tonnes",
+            "isSynthetic": False,
+            "oreGradeBreakdown": {
+                "highGradeMn": round(actual_prod_kandri * 0.45, 0),
+                "mediumGradeMn": round(actual_prod_kandri * 0.45, 0),
+                "lowGradeMn": round(actual_prod_kandri * 0.10, 0)
+            },
+            "monthlyTrend": monthly_trend
+        },
+        "shortfallRisk": {
+            "probability": 18.0,
+            "expectedProduction": 149200.0,
+            "target": target_prod_kandri,
+            "expectedGap": -800.0,
+            "riskLevel": "LOW"
+        },
+        "accessibleOre": {
+            "geologicalPotential": 18700000.0,
+            "accessiblePotential": 9300000.0,
+            "operationallyRecoverable": 7500000.0,
+            "estimatedVolumeTons": 9300000.0
+        },
+        "gisZones": [
+            {
+                "id": "KD-01", "name": "Kandri North Pit Bench KD-01", "prospectivityScore": "High",
+                "geologicalPotential": 88.0, "accessiblePotential": 78.0, "recoverablePotential": 68.0,
+                "estimatedContributionTons": 32000.0, "mnGradePct": "44.5% Mn",
+                "coords": {"x": 38.0, "y": 28.0, "width": 25.0, "height": 20.0}
+            },
+            {
+                "id": "KD-02", "name": "West Face Syncline Cut KD-02", "prospectivityScore": "Medium",
+                "geologicalPotential": 80.0, "accessiblePotential": 72.0, "recoverablePotential": 62.0,
+                "estimatedContributionTons": 24000.0, "mnGradePct": "43.2% Mn",
+                "coords": {"x": 42.0, "y": 52.0, "width": 22.0, "height": 18.0}
+            },
+            {
+                "id": "KD-03", "name": "Incline Shaft Level -180m", "prospectivityScore": "Medium",
+                "geologicalPotential": 76.0, "accessiblePotential": 66.0, "recoverablePotential": 56.0,
+                "estimatedContributionTons": 18000.0, "mnGradePct": "42.8% Mn",
+                "coords": {"x": 48.0, "y": 72.0, "width": 20.0, "height": 15.0}
+            }
+        ],
+        "modelInputs": [
+            {"category": "Geology", "label": "Gondite Syncline Lithology (G-1 Explored)", "status": "LIVE", "source": "MOIL Core Drilling"},
+            {"category": "Remote Sensing", "label": "Dedicated Sentinel-2 NDVI & SRTM DEM", "status": "LIVE", "source": "ESA Copernicus"},
+            {"category": "Remote Sensing", "label": "Sentinel-1 InSAR Subsidence Tracking", "status": "LIVE", "source": "ESA Copernicus"},
+            {"category": "Operational", "label": "Hybrid Open-Pit Telemetry & Incline Logs", "status": "VERIFIED", "source": "MOIL Dispatch"}
+        ],
+        "riskContributors": [
+            {"factor": "Pit Sump Dewatering Capacity", "importancePct": 28.0, "description": "Monsoon rainwater accumulation in lower pit cut.", "mitigationStrategy": "Deploy high-head submersible pumps."},
+            {"factor": "Excavator & Haul Fleet Uptime", "importancePct": 26.0, "description": "Heavy machinery availability across 2 active benches.", "mitigationStrategy": "Deploy standby loader unit."},
+            {"factor": "Incline Shaft Hoisting Rate", "importancePct": 20.0, "description": "Single-incline haulage bottleneck during peak shifts.", "mitigationStrategy": "Calibrate skip hoist cycle timing."},
+            {"factor": "Blast Fragmentation Quality", "importancePct": 16.0, "description": "Hard gondite quartzite requires tailored delay timing.", "mitigationStrategy": "Optimize electronic detonator sequence."},
+            {"factor": "Gondite Horizon Continuity", "importancePct": 10.0, "description": "Fold axis plunge at western lease boundary.", "mitigationStrategy": "Infill exploration drilling."}
+        ],
+        "futureSourceZone": {
+            "id": "KD-SYNCLINE",
+            "name": "Kandri Syncline Depth Extension",
+            "prospectivity": "HIGH",
+            "estimatedPotentialContributionTons": 28000.0,
+            "description": "High-grade gondite horizon extending along syncline plunge below -180m level."
+        },
+        "recommendation": {
+            "instruction": "Maintain dual-pump dewatering array and optimize shift haulage to sustain 410 t/day output.",
+            "currentParams": {
+                "equipmentAvailability": "83%",
+                "blastingDelay": "1 day",
+                "expectedGap": "800 t"
+            },
+            "recommendedParams": {
+                "equipmentAvailability": "88%",
+                "blastingDelay": "0 days",
+                "expectedGap": "0 t (Target Achieved)"
+            }
+        },
+        "alerts": [
+            {
+                "id": "ALT-KD-1", "priority": "LOW", "title": "STABLE OPERATIONAL TRAJECTORY",
+                "mine": "Kandri", "triggeredCondition": "Production tracking at 99.0% of monthly plan",
+                "affectedZone": "Kandri North Pit Bench KD-01", "timestamp": "Today, 08:45 IST"
+            }
+        ]
+    }
+    _workspace_cache["kandri"] = MineWorkspaceData(**workspace_data_kandri)
+
+    # --- Precompute Beldongri Underground ---
+    actual_prod_beldongri = 98500.0
+    target_prod_beldongri = 100000.0
+    workspace_data_beldongri = {
+        "mineInfo": {
+            "id": "beldongri",
+            "name": "Beldongri Mine",
+            "location": "Nagpur, Maharashtra",
+            "district": "Nagpur",
+            "state": "Maharashtra",
+            "type": "Underground Manganese Mine",
+            "leaseId": "MOIL-LEASE-BD-06",
+            "status": "Active Digital Telemetry Hub",
+            "dgmsStatus": "DGMS Safety Approved",
+            "ibmRegistration": "IBM/BD/1912"
+        },
+        "operationalSummary": {
+            "headline": "Beldongri Precision Telemetry Operations Center",
+            "riskState": "LOW",
+            "dynamicStatement": "PRODUCTION STABLE: Precision room-and-pillar extraction maintaining high-grade ferromanganese output.",
+            "coreValueMessage": "Geotechnical roof-bolt telemetry and moisture tracking across active stope levels.",
+            "complianceStandard": "DGMS & IBM Regulatory Standards Compliant",
+            "lastUpdated": "Live Stream"
+        },
+        "production": {
+            "actual": actual_prod_beldongri,
+            "target": target_prod_beldongri,
+            "forecast": 99100.0,
+            "gap": -900.0,
+            "unit": "tonnes",
+            "isSynthetic": False,
+            "oreGradeBreakdown": {
+                "highGradeMn": round(actual_prod_beldongri * 0.35, 0),
+                "mediumGradeMn": round(actual_prod_beldongri * 0.55, 0),
+                "lowGradeMn": round(actual_prod_beldongri * 0.10, 0)
+            },
+            "monthlyTrend": monthly_trend
+        },
+        "shortfallRisk": {
+            "probability": 15.0,
+            "expectedProduction": 99100.0,
+            "target": target_prod_beldongri,
+            "expectedGap": -900.0,
+            "riskLevel": "LOW"
+        },
+        "accessibleOre": {
+            "geologicalPotential": 7500000.0,
+            "accessiblePotential": 3500000.0,
+            "operationallyRecoverable": 2800000.0,
+            "estimatedVolumeTons": 3500000.0
+        },
+        "gisZones": [
+            {
+                "id": "BD-01", "name": "Beldongri North Pit Cut BD-01", "prospectivityScore": "High",
+                "geologicalPotential": 82.0, "accessiblePotential": 74.0, "recoverablePotential": 65.0,
+                "estimatedContributionTons": 16000.0, "mnGradePct": "39.5% Mn",
+                "coords": {"x": 36.0, "y": 32.0, "width": 24.0, "height": 18.0}
+            },
+            {
+                "id": "BD-02", "name": "Stope Level -140m Incline BD-02", "prospectivityScore": "Medium",
+                "geologicalPotential": 78.0, "accessiblePotential": 68.0, "recoverablePotential": 58.0,
+                "estimatedContributionTons": 12000.0, "mnGradePct": "38.2% Mn",
+                "coords": {"x": 42.0, "y": 55.0, "width": 22.0, "height": 18.0}
+            },
+            {
+                "id": "BD-03", "name": "Monsoon Sump Extension Zone", "prospectivityScore": "Medium",
+                "geologicalPotential": 72.0, "accessiblePotential": 62.0, "recoverablePotential": 50.0,
+                "estimatedContributionTons": 9000.0, "mnGradePct": "37.8% Mn",
+                "coords": {"x": 46.0, "y": 74.0, "width": 20.0, "height": 15.0}
+            }
+        ],
+        "modelInputs": [
+            {"category": "Geology", "label": "Confirmed Manganese Lease Boundary (0.32km)", "status": "LIVE", "source": "MOIL Lease Register"},
+            {"category": "Remote Sensing", "label": "Sentinel-2 Soil Moisture Anomaly (C-Horizon)", "status": "LIVE", "source": "ESA Copernicus"},
+            {"category": "Remote Sensing", "label": "Dedicated Beldongri SRTM DEM & Slope", "status": "LIVE", "source": "USGS / NASA"},
+            {"category": "Geotechnical", "label": "Incline Telemetry & Roof Bolt Strain Logs", "status": "VERIFIED", "source": "MOIL Beldongri"}
+        ],
+        "riskContributors": [
+            {"factor": "Roof Bolt Strain & Strata Control", "importancePct": 32.0, "description": "Room-and-pillar stope roof stability during wet season.", "mitigationStrategy": "Install real-time vibrating wire telltales."},
+            {"factor": "Incline Winch Haulage Rate", "importancePct": 26.0, "description": "140m incline haulage rate dictates shift ore throughput.", "mitigationStrategy": "Enforce preventive winch maintenance."},
+            {"factor": "Subsurface Seepage Dewatering", "importancePct": 22.0, "description": "Groundwater ingress along weathered Gondite contact.", "mitigationStrategy": "Automate sump float switch pump arrays."},
+            {"factor": "Ventilation Airflow Velocity", "importancePct": 12.0, "description": "Air distribution across active stope faces.", "mitigationStrategy": "Inspect return airway regulators."},
+            {"factor": "Ore Grade Dilution Control", "importancePct": 8.0, "description": "Hanging wall schist sloughing in older stopes.", "mitigationStrategy": "Selective stope scraping protocol."}
+        ],
+        "futureSourceZone": {
+            "id": "BD-EXT",
+            "name": "Beldongri East Gondite Horizon",
+            "prospectivity": "HIGH",
+            "estimatedPotentialContributionTons": 14000.0,
+            "description": "Continuous gondite ore lens confirmed by C-horizon soil geochemistry east of current workings."
+        },
+        "recommendation": {
+            "instruction": "Calibrate incline haulage dispatch and maintain roof-bolt tension above 45 kN to sustain 275 t/day output.",
+            "currentParams": {
+                "equipmentAvailability": "82%",
+                "blastingDelay": "1 day",
+                "expectedGap": "900 t"
+            },
+            "recommendedParams": {
+                "equipmentAvailability": "86%",
+                "blastingDelay": "0 days",
+                "expectedGap": "0 t (Target Achieved)"
+            }
+        },
+        "alerts": [
+            {
+                "id": "ALT-BD-1", "priority": "LOW", "title": "ROOF STRAIN NOMINAL",
+                "mine": "Beldongri", "triggeredCondition": "Geotechnical sensors report all stopes within safe DGMS limits",
+                "affectedZone": "Stope Level -140m Incline BD-02", "timestamp": "Today, 09:30 IST"
+            }
+        ]
+    }
+    _workspace_cache["beldongri"] = MineWorkspaceData(**workspace_data_beldongri)
+
+    # --- Precompute Munsar (Mansar) Underground ---
+    actual_prod_munsar = 147500.0
+    target_prod_munsar = 150000.0
+    workspace_data_munsar = {
+        "mineInfo": {
+            "id": "munsar",
+            "name": "Munsar Mine",
+            "location": "Nagpur, Maharashtra",
+            "district": "Nagpur",
+            "state": "Maharashtra",
+            "type": "Underground Manganese Mine",
+            "leaseId": "MOIL-LEASE-MS-04",
+            "status": "Active Digital Telemetry Hub",
+            "dgmsStatus": "DGMS Safety Approved",
+            "ibmRegistration": "IBM/MS/1908"
+        },
+        "operationalSummary": {
+            "headline": "Munsar Formation Type-Locality Operations Center",
+            "riskState": "LOW",
+            "dynamicStatement": "PRODUCTION RESILIENT: Multi-horizon braunite extraction tracking within planned bandwidth.",
+            "coreValueMessage": "Leveraging dense lease coverage (3 overlapping leases within 1.1km) and shallow incline access.",
+            "complianceStandard": "DGMS & IBM Regulatory Standards Compliant",
+            "lastUpdated": "Live Stream"
+        },
+        "production": {
+            "actual": actual_prod_munsar,
+            "target": target_prod_munsar,
+            "forecast": 148200.0,
+            "gap": -1800.0,
+            "unit": "tonnes",
+            "isSynthetic": False,
+            "oreGradeBreakdown": {
+                "highGradeMn": round(actual_prod_munsar * 0.40, 0),
+                "mediumGradeMn": round(actual_prod_munsar * 0.50, 0),
+                "lowGradeMn": round(actual_prod_munsar * 0.10, 0)
+            },
+            "monthlyTrend": monthly_trend
+        },
+        "shortfallRisk": {
+            "probability": 20.0,
+            "expectedProduction": 148200.0,
+            "target": target_prod_munsar,
+            "expectedGap": -1800.0,
+            "riskLevel": "LOW"
+        },
+        "accessibleOre": {
+            "geologicalPotential": 14500000.0,
+            "accessiblePotential": 6800000.0,
+            "operationallyRecoverable": 5400000.0,
+            "estimatedVolumeTons": 6800000.0
+        },
+        "gisZones": [
+            {
+                "id": "MS-01", "name": "Type-Locality Ridge Horizon MS-01", "prospectivityScore": "High",
+                "geologicalPotential": 90.0, "accessiblePotential": 82.0, "recoverablePotential": 72.0,
+                "estimatedContributionTons": 28000.0, "mnGradePct": "41.5% Mn",
+                "coords": {"x": 35.0, "y": 30.0, "width": 25.0, "height": 20.0}
+            },
+            {
+                "id": "MS-02", "name": "Braunite Parallel Horizon MS-02", "prospectivityScore": "High",
+                "geologicalPotential": 85.0, "accessiblePotential": 76.0, "recoverablePotential": 66.0,
+                "estimatedContributionTons": 22000.0, "mnGradePct": "40.8% Mn",
+                "coords": {"x": 40.0, "y": 52.0, "width": 24.0, "height": 18.0}
+            },
+            {
+                "id": "MS-03", "name": "Incline Level -190m Stope", "prospectivityScore": "Medium",
+                "geologicalPotential": 77.0, "accessiblePotential": 68.0, "recoverablePotential": 56.0,
+                "estimatedContributionTons": 15000.0, "mnGradePct": "39.8% Mn",
+                "coords": {"x": 45.0, "y": 72.0, "width": 20.0, "height": 15.0}
+            }
+        ],
+        "modelInputs": [
+            {"category": "Geology", "label": "Mansar Formation Type-Locality Outcrops", "status": "LIVE", "source": "GSI Stratigraphy"},
+            {"category": "Remote Sensing", "label": "Dedicated Munsar NDVI & Sentinel-1 SAR", "status": "LIVE", "source": "ESA Copernicus"},
+            {"category": "Remote Sensing", "label": "High-Res SRTM Elevation & Ridge Morphology", "status": "LIVE", "source": "NASA / USGS"},
+            {"category": "Geochemistry", "label": "Stream Sediment MnO Assays (Closest in Cluster)", "status": "VERIFIED", "source": "GSI NGCM"}
+        ],
+        "riskContributors": [
+            {"factor": "Ridge Bench Face Stability", "importancePct": 30.0, "description": "Steep topography requires regular bench dressing.", "mitigationStrategy": "Pre-split smooth wall blasting along contact."},
+            {"factor": "Incline Winder Haulage", "importancePct": 25.0, "description": "190m hoisting depth cycle management.", "mitigationStrategy": "Inspect friction liner and wire rope tension."},
+            {"factor": "Stope Inflow Drainage", "importancePct": 22.0, "description": "Heavy monsoon inflow down ridge incline portal.", "mitigationStrategy": "Deploy high-volume dewatering pumps."},
+            {"factor": "Multi-Horizon Ore Sorting", "importancePct": 14.0, "description": "Interbanded low-grade gondite vs braunite.", "mitigationStrategy": "Online XRF sensor conveyor sorting."},
+            {"factor": "Tramming Cycle Coordination", "importancePct": 9.0, "description": "Multi-stope battery locomotive coordination.", "mitigationStrategy": "Digital locomotive dispatch timing."}
+        ],
+        "futureSourceZone": {
+            "id": "MS-RIDGE",
+            "name": "Mansar Ridge NW Extension",
+            "prospectivity": "HIGH",
+            "estimatedPotentialContributionTons": 25000.0,
+            "description": "3 overlapping confirmed leases ensure proven ore continuation along NW ridge strike."
+        },
+        "recommendation": {
+            "instruction": "Sustain portal dewatering and coordinate 3-lease tramming schedules to meet 410 t/day output.",
+            "currentParams": {
+                "equipmentAvailability": "84%",
+                "blastingDelay": "1 day",
+                "expectedGap": "1,800 t"
+            },
+            "recommendedParams": {
+                "equipmentAvailability": "89%",
+                "blastingDelay": "0 days",
+                "expectedGap": "0 t (Target Achieved)"
+            }
+        },
+        "alerts": [
+            {
+                "id": "ALT-MS-1", "priority": "LOW", "title": "EXTRACTION ON TARGET",
+                "mine": "Munsar", "triggeredCondition": "3-lease production aggregate meeting shift targets",
+                "affectedZone": "Type-Locality Ridge Horizon MS-01", "timestamp": "Today, 11:00 IST"
+            }
+        ]
+    }
+    _workspace_cache["munsar"] = MineWorkspaceData(**workspace_data_munsar)
+    _workspace_cache["mansar"] = _workspace_cache["munsar"]
+    _workspace_cache["dongri"] = _workspace_cache["dongri-buzurg"]
     
-    print("  Workspace data precomputed and cached.")
+    print("  Workspace data precomputed and cached for all 10 MOIL mines.")
 
 
 def get_workspace(mine_id: str) -> MineWorkspaceData:
@@ -858,6 +1202,11 @@ def get_workspace(mine_id: str) -> MineWorkspaceData:
     This is a SYNC function — do NOT call with 'await'.
     Pure memory read, no disk I/O.
     """
-    if mine_id not in _workspace_cache:
+    norm_id = (mine_id or "").lower().strip()
+    if norm_id == "mansar":
+        norm_id = "munsar"
+    if norm_id == "dongri":
+        norm_id = "dongri-buzurg"
+    if norm_id not in _workspace_cache:
         raise ValueError(f"Mine ID '{mine_id}' not found in cache.")
-    return _workspace_cache[mine_id]
+    return _workspace_cache[norm_id]

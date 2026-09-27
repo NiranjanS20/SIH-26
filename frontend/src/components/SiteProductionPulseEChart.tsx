@@ -54,6 +54,42 @@ const DEFAULT_HOURLY_PULSE: Record<string, ProductionPulseDataPoint[]> = {
     { hour: '16:00', actualTonsPerHour: 375, plannedTonsPerHour: 350, statutoryParTonsPerHour: 330, dumperTrips: 16, shovelPayloadIndex: 97, activeBench: 'Holmes Shaft Stope', cadenceStatus: 'SURPLUS' },
     { hour: '17:00', actualTonsPerHour: 390, plannedTonsPerHour: 350, statutoryParTonsPerHour: 330, dumperTrips: 18, shovelPayloadIndex: 99, activeBench: 'Deep Level -12', cadenceStatus: 'SURPLUS' },
   ],
+  kandri: [
+    { hour: '08:00', actualTonsPerHour: 280, plannedTonsPerHour: 290, statutoryParTonsPerHour: 275, dumperTrips: 12, shovelPayloadIndex: 94, activeBench: 'Hill Top Cut', cadenceStatus: 'ON_TARGET' },
+    { hour: '09:00', actualTonsPerHour: 305, plannedTonsPerHour: 290, statutoryParTonsPerHour: 275, dumperTrips: 14, shovelPayloadIndex: 96, activeBench: 'Hill Top Cut', cadenceStatus: 'SURPLUS' },
+    { hour: '10:00', actualTonsPerHour: 290, plannedTonsPerHour: 290, statutoryParTonsPerHour: 275, dumperTrips: 13, shovelPayloadIndex: 95, activeBench: 'South Syncline', cadenceStatus: 'ON_TARGET' },
+    { hour: '11:00', actualTonsPerHour: 260, plannedTonsPerHour: 290, statutoryParTonsPerHour: 275, dumperTrips: 11, shovelPayloadIndex: 89, activeBench: 'Decline Level -1', cadenceStatus: 'DEFICIT' },
+    { hour: '12:00', actualTonsPerHour: 310, plannedTonsPerHour: 290, statutoryParTonsPerHour: 275, dumperTrips: 14, shovelPayloadIndex: 97, activeBench: 'South Syncline', cadenceStatus: 'SURPLUS' },
+    { hour: '13:00', actualTonsPerHour: 315, plannedTonsPerHour: 290, statutoryParTonsPerHour: 275, dumperTrips: 15, shovelPayloadIndex: 98, activeBench: 'Hill Top Cut', cadenceStatus: 'SURPLUS' },
+    { hour: '14:00', actualTonsPerHour: 285, plannedTonsPerHour: 290, statutoryParTonsPerHour: 275, dumperTrips: 12, shovelPayloadIndex: 93, activeBench: 'Decline Level -1', cadenceStatus: 'DEFICIT' },
+    { hour: '15:00', actualTonsPerHour: 300, plannedTonsPerHour: 290, statutoryParTonsPerHour: 275, dumperTrips: 13, shovelPayloadIndex: 95, activeBench: 'South Syncline', cadenceStatus: 'SURPLUS' },
+    { hour: '16:00', actualTonsPerHour: 320, plannedTonsPerHour: 290, statutoryParTonsPerHour: 275, dumperTrips: 15, shovelPayloadIndex: 98, activeBench: 'Hill Top Cut', cadenceStatus: 'SURPLUS' },
+    { hour: '17:00', actualTonsPerHour: 325, plannedTonsPerHour: 290, statutoryParTonsPerHour: 275, dumperTrips: 15, shovelPayloadIndex: 99, activeBench: 'South Syncline', cadenceStatus: 'SURPLUS' },
+  ],
+  beldongri: [
+    { hour: '08:00', actualTonsPerHour: 180, plannedTonsPerHour: 195, statutoryParTonsPerHour: 185, dumperTrips: 8, shovelPayloadIndex: 91, activeBench: 'North Pit Cut', cadenceStatus: 'DEFICIT' },
+    { hour: '09:00', actualTonsPerHour: 210, plannedTonsPerHour: 195, statutoryParTonsPerHour: 185, dumperTrips: 10, shovelPayloadIndex: 95, activeBench: 'North Pit Cut', cadenceStatus: 'SURPLUS' },
+    { hour: '10:00', actualTonsPerHour: 195, plannedTonsPerHour: 195, statutoryParTonsPerHour: 185, dumperTrips: 9, shovelPayloadIndex: 93, activeBench: 'North Pit Cut', cadenceStatus: 'ON_TARGET' },
+    { hour: '11:00', actualTonsPerHour: 160, plannedTonsPerHour: 195, statutoryParTonsPerHour: 185, dumperTrips: 7, shovelPayloadIndex: 85, activeBench: 'South Extension', cadenceStatus: 'DEFICIT' },
+    { hour: '12:00', actualTonsPerHour: 205, plannedTonsPerHour: 195, statutoryParTonsPerHour: 185, dumperTrips: 10, shovelPayloadIndex: 96, activeBench: 'North Pit Cut', cadenceStatus: 'SURPLUS' },
+    { hour: '13:00', actualTonsPerHour: 215, plannedTonsPerHour: 195, statutoryParTonsPerHour: 185, dumperTrips: 10, shovelPayloadIndex: 97, activeBench: 'North Pit Cut', cadenceStatus: 'SURPLUS' },
+    { hour: '14:00', actualTonsPerHour: 190, plannedTonsPerHour: 195, statutoryParTonsPerHour: 185, dumperTrips: 9, shovelPayloadIndex: 92, activeBench: 'South Extension', cadenceStatus: 'DEFICIT' },
+    { hour: '15:00', actualTonsPerHour: 200, plannedTonsPerHour: 195, statutoryParTonsPerHour: 185, dumperTrips: 10, shovelPayloadIndex: 94, activeBench: 'North Pit Cut', cadenceStatus: 'SURPLUS' },
+    { hour: '16:00', actualTonsPerHour: 210, plannedTonsPerHour: 195, statutoryParTonsPerHour: 185, dumperTrips: 10, shovelPayloadIndex: 96, activeBench: 'North Pit Cut', cadenceStatus: 'SURPLUS' },
+    { hour: '17:00', actualTonsPerHour: 220, plannedTonsPerHour: 195, statutoryParTonsPerHour: 185, dumperTrips: 11, shovelPayloadIndex: 98, activeBench: 'South Extension', cadenceStatus: 'SURPLUS' },
+  ],
+  munsar: [
+    { hour: '08:00', actualTonsPerHour: 340, plannedTonsPerHour: 360, statutoryParTonsPerHour: 345, dumperTrips: 15, shovelPayloadIndex: 93, activeBench: 'Ridge Main Face', cadenceStatus: 'DEFICIT' },
+    { hour: '09:00', actualTonsPerHour: 380, plannedTonsPerHour: 360, statutoryParTonsPerHour: 345, dumperTrips: 17, shovelPayloadIndex: 97, activeBench: 'Ridge Main Face', cadenceStatus: 'SURPLUS' },
+    { hour: '10:00', actualTonsPerHour: 360, plannedTonsPerHour: 360, statutoryParTonsPerHour: 345, dumperTrips: 16, shovelPayloadIndex: 95, activeBench: 'Ridge Main Face', cadenceStatus: 'ON_TARGET' },
+    { hour: '11:00', actualTonsPerHour: 310, plannedTonsPerHour: 360, statutoryParTonsPerHour: 345, dumperTrips: 13, shovelPayloadIndex: 88, activeBench: 'North Stope Face', cadenceStatus: 'DEFICIT' },
+    { hour: '12:00', actualTonsPerHour: 375, plannedTonsPerHour: 360, statutoryParTonsPerHour: 345, dumperTrips: 17, shovelPayloadIndex: 96, activeBench: 'Ridge Main Face', cadenceStatus: 'SURPLUS' },
+    { hour: '13:00', actualTonsPerHour: 390, plannedTonsPerHour: 360, statutoryParTonsPerHour: 345, dumperTrips: 18, shovelPayloadIndex: 98, activeBench: 'Ridge Main Face', cadenceStatus: 'SURPLUS' },
+    { hour: '14:00', actualTonsPerHour: 350, plannedTonsPerHour: 360, statutoryParTonsPerHour: 345, dumperTrips: 15, shovelPayloadIndex: 93, activeBench: 'North Stope Face', cadenceStatus: 'DEFICIT' },
+    { hour: '15:00', actualTonsPerHour: 370, plannedTonsPerHour: 360, statutoryParTonsPerHour: 345, dumperTrips: 16, shovelPayloadIndex: 95, activeBench: 'Ridge Main Face', cadenceStatus: 'SURPLUS' },
+    { hour: '16:00', actualTonsPerHour: 385, plannedTonsPerHour: 360, statutoryParTonsPerHour: 345, dumperTrips: 17, shovelPayloadIndex: 97, activeBench: 'Ridge Main Face', cadenceStatus: 'SURPLUS' },
+    { hour: '17:00', actualTonsPerHour: 400, plannedTonsPerHour: 360, statutoryParTonsPerHour: 345, dumperTrips: 18, shovelPayloadIndex: 99, activeBench: 'Ridge Main Face', cadenceStatus: 'SURPLUS' },
+  ],
 };
 
 const SITE_BENCH_COMPARISONS: Record<string, BenchExtractionPulse[]> = {
@@ -131,6 +167,102 @@ const SITE_BENCH_COMPARISONS: Record<string, BenchExtractionPulse[]> = {
       color: '#10B981',
     },
   ],
+  kandri: [
+    {
+      benchId: 'kd-b1',
+      benchName: 'Kandri Hill Top Opencast Cut',
+      zone: 'Hillcrest Section',
+      status: 'EXTRACTION ACTIVE',
+      pulsePerHour: [140, 160, 150, 130, 165, 170, 145, 160, 175, 180],
+      currentHourlyRate: 180,
+      targetHourlyRate: 160,
+      color: '#0E7C7B',
+    },
+    {
+      benchId: 'kd-syncline',
+      benchName: 'South Syncline Highwall Bench',
+      zone: 'Syncline Formation',
+      status: 'HAULAGE ACTIVE',
+      pulsePerHour: [100, 105, 100, 90, 105, 110, 100, 105, 110, 110],
+      currentHourlyRate: 110,
+      targetHourlyRate: 100,
+      color: '#3B82F6',
+    },
+    {
+      benchId: 'kd-ug',
+      benchName: 'Decline Shaft Level -1 Stope',
+      zone: 'Underground Decline',
+      status: 'STOPE DEVELOPMENT',
+      pulsePerHour: [40, 40, 40, 40, 40, 35, 40, 35, 35, 35],
+      currentHourlyRate: 35,
+      targetHourlyRate: 30,
+      color: '#F59E0B',
+    },
+  ],
+  beldongri: [
+    {
+      benchId: 'bd-b1',
+      benchName: 'North Pit Cut (High-Grade Face)',
+      zone: 'North Highwall Reef',
+      status: 'EXTRACTION ACTIVE',
+      pulsePerHour: [110, 130, 120, 95, 125, 135, 115, 125, 130, 140],
+      currentHourlyRate: 140,
+      targetHourlyRate: 120,
+      color: '#0E7C7B',
+    },
+    {
+      benchId: 'bd-b2',
+      benchName: 'South Extension Bench (Stripping)',
+      zone: 'South Boundary Lens',
+      status: 'STRIPPING ACTIVE',
+      pulsePerHour: [50, 60, 55, 45, 60, 60, 55, 55, 60, 60],
+      currentHourlyRate: 60,
+      targetHourlyRate: 55,
+      color: '#3B82F6',
+    },
+    {
+      benchId: 'bd-rom',
+      benchName: 'Surface ROM Sizing Hopper',
+      zone: 'Surface ROM Pad',
+      status: 'CRUSHING FEED',
+      pulsePerHour: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
+      currentHourlyRate: 20,
+      targetHourlyRate: 20,
+      color: '#10B981',
+    },
+  ],
+  munsar: [
+    {
+      benchId: 'ms-b1',
+      benchName: 'Ridge Main Face (Pyrolusite Reef)',
+      zone: 'Ridge Crest Section',
+      status: 'EXTRACTION ACTIVE',
+      pulsePerHour: [200, 230, 215, 180, 225, 235, 210, 220, 230, 240],
+      currentHourlyRate: 240,
+      targetHourlyRate: 215,
+      color: '#0E7C7B',
+    },
+    {
+      benchId: 'ms-stope',
+      benchName: 'North Sub-Level Stope',
+      zone: 'Underground North Block',
+      status: 'STOPE EXTRACTION',
+      pulsePerHour: [100, 110, 105, 90, 110, 115, 100, 110, 115, 120],
+      currentHourlyRate: 120,
+      targetHourlyRate: 110,
+      color: '#3B82F6',
+    },
+    {
+      benchId: 'ms-pad',
+      benchName: 'Secondary Ore Siding & Dispatch',
+      zone: 'Rail Siding Pad',
+      status: 'RAIL DISPATCH',
+      pulsePerHour: [40, 40, 40, 40, 40, 40, 40, 40, 40, 40],
+      currentHourlyRate: 40,
+      targetHourlyRate: 35,
+      color: '#F59E0B',
+    },
+  ],
 };
 
 interface SiteProductionPulseEChartProps {
@@ -149,8 +281,9 @@ export const SiteProductionPulseEChart: React.FC<SiteProductionPulseEChartProps>
   const [pulseMode, setPulseMode] = useState<'HOURLY_STREAM' | 'BENCH_BREAKDOWN' | 'STATUTORY_RADAR'>('HOURLY_STREAM');
 
   const isDark = themeMode === 'dark';
-  const currentSitePulse = DEFAULT_HOURLY_PULSE[selectedMineId] || DEFAULT_HOURLY_PULSE['dongri-buzurg'];
-  const benchList = SITE_BENCH_COMPARISONS[selectedMineId] || SITE_BENCH_COMPARISONS['dongri-buzurg'];
+  const normMineId = selectedMineId === 'mansar' ? 'munsar' : selectedMineId;
+  const currentSitePulse = DEFAULT_HOURLY_PULSE[normMineId] || DEFAULT_HOURLY_PULSE['dongri-buzurg'];
+  const benchList = SITE_BENCH_COMPARISONS[normMineId] || SITE_BENCH_COMPARISONS['dongri-buzurg'];
 
   useEffect(() => {
     if (!chartRef.current) return;

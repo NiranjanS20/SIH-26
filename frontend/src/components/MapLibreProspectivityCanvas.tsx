@@ -63,6 +63,8 @@ export default function MapLibreProspectivityCanvas({
 
   // View Mode: 2D Flat Image View vs 3D Terrain DEM View
   const [viewDimension, setViewDimension] = useState<'2D' | '3D'>('2D');
+  // 3D Terrain actual photorealistic satellite color mode vs multispectral overlay
+  const [terrainActualColor, setTerrainActualColor] = useState<boolean>(true);
 
   // Filter Mode Dropdown (Standard: Prospectivity, NDVI, Soil Moisture, LST, Elevation)
   const [activeFilter, setActiveFilter] = useState<ProspectivityFilterMode>(() => {
@@ -91,6 +93,42 @@ export default function MapLibreProspectivityCanvas({
   const mineConfig: MineBoundaryConfig = getMineBoundary(selectedMineName);
   const filterConfig = FILTER_MODES[activeFilter];
 
+  const mineConfigRef = useRef<MineBoundaryConfig>(mineConfig);
+  const activeFilterRef = useRef<ProspectivityFilterMode>(activeFilter);
+  const onSelectPointRef = useRef(onSelectPoint);
+
+  useEffect(() => {
+    mineConfigRef.current = mineConfig;
+  }, [mineConfig]);
+
+  useEffect(() => {
+    activeFilterRef.current = activeFilter;
+  }, [activeFilter]);
+
+  useEffect(() => {
+    onSelectPointRef.current = onSelectPoint;
+  }, [onSelectPoint]);
+
+  // Dynamic Opacity: in 3D terrain mode, displays the actual real-world satellite ground colour
+  const computeLayerOpacity = useCallback(
+    (filter: ProspectivityFilterMode, dimension: '2D' | '3D', actualColor: boolean) => {
+      if (dimension === '3D') {
+        if (actualColor) {
+          // Pure photorealistic satellite ground imagery (0.0 opacity) for ALL filters across ALL mines
+          return 0.0;
+        }
+        if (filter === 'elevation') {
+          // Topographic elevation overlay tint in 3D
+          return 0.40;
+        }
+        // Multispectral overlay in 3D
+        return FILTER_MODES[filter].fillOpacity;
+      }
+      return FILTER_MODES[filter].fillOpacity;
+    },
+    []
+  );
+
   // Set up GeoJSON vector layers & Continuous Raster Heatmap overlay
   const setupLayers = useCallback((map: maplibregl.Map, config: MineBoundaryConfig) => {
     if (!map) return;
@@ -101,6 +139,9 @@ export default function MapLibreProspectivityCanvas({
     try {
       const rasterInfo = getMineRasterHeatmapBounds(config, activeFilter);
       const existingRasterSource = map.getSource('pit-raster-heatmap-source') as any;
+      const initialOpacity = computeLayerOpacity(activeFilter, viewDimension, terrainActualColor);
+      const is3DActual = viewDimension === '3D' && terrainActualColor;
+      const initialVisibility = showHeatmap && !is3DActual ? 'visible' : 'none';
 
       if (existingRasterSource && existingRasterSource.updateImage) {
         existingRasterSource.updateImage({
@@ -118,14 +159,24 @@ export default function MapLibreProspectivityCanvas({
           id: 'pit-raster-heatmap-layer',
           type: 'raster',
           source: 'pit-raster-heatmap-source',
+          layout: {
+            visibility: initialVisibility,
+          },
           paint: {
-            'raster-opacity': filterConfig.fillOpacity,
+            'raster-opacity': initialOpacity,
             'raster-hue-rotate': 0,
             'raster-contrast': 0.10,
             'raster-saturation': 0.10,
-            'raster-fade-duration': 200,
+            'raster-fade-duration': 0, // CRITICAL: 0ms fade so camera movements never trigger fade-in pulses
           },
         });
+      }
+
+      // Synchronize existing layer paint & visibility
+      if (map.getLayer('pit-raster-heatmap-layer')) {
+        map.setPaintProperty('pit-raster-heatmap-layer', 'raster-fade-duration', 0);
+        map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', initialOpacity);
+        map.setLayoutProperty('pit-raster-heatmap-layer', 'visibility', initialVisibility);
       }
     } catch (err) {
       console.warn('Raster heatmap setup notice:', err);
@@ -309,7 +360,7 @@ export default function MapLibreProspectivityCanvas({
           const f = e.features[0];
           const props = f.properties || {};
 
-          onSelectPoint({
+          onSelectPointRef.current({
             lat: e.lngLat.lat,
             lng: e.lngLat.lng,
             siteName: config.name,
@@ -347,7 +398,7 @@ export default function MapLibreProspectivityCanvas({
     } catch (err) {
       console.warn('Pit zones setup notice:', err);
     }
-  }, [filterConfig, onSelectPoint]);
+  }, [filterConfig]);
 
   // Initialize MapLibre GL
   useEffect(() => {
@@ -384,7 +435,9 @@ export default function MapLibreProspectivityCanvas({
     // Clicking anywhere on the pit canvas selects a point for 0-400m Cross-Section
     // STRICT BOUNDS CHECK: Only sample within the trained mine range!
     map.on('click', (e: maplibregl.MapMouseEvent) => {
-      const currentRaster = getMineRasterHeatmapBounds(mineConfig, activeFilter);
+      const currentConfig = mineConfigRef.current;
+      const currentFilter = activeFilterRef.current;
+      const currentRaster = getMineRasterHeatmapBounds(currentConfig, currentFilter);
       const [sw, ne] = currentRaster.restrictedBounds;
       const isWithinTrainedBounds =
         e.lngLat.lng >= sw[0] &&
@@ -393,7 +446,7 @@ export default function MapLibreProspectivityCanvas({
         e.lngLat.lat <= ne[1];
 
       if (!isWithinTrainedBounds) {
-        setOutOfBoundsWarning(`Sampling restricted to within ${mineConfig.name} boundary.`);
+        setOutOfBoundsWarning(`Sampling restricted to within ${currentConfig.name} boundary.`);
         setTimeout(() => setOutOfBoundsWarning(null), 3500);
         return;
       }
@@ -401,7 +454,7 @@ export default function MapLibreProspectivityCanvas({
       onSelectPoint({
         lat: e.lngLat.lat,
         lng: e.lngLat.lng,
-        siteName: mineConfig.name,
+        siteName: currentConfig.name,
         zoneName: 'In-Pit Subsurface Core',
       });
     });
@@ -446,6 +499,17 @@ export default function MapLibreProspectivityCanvas({
         if (map.getLayer('hillshading-layer')) {
           map.setLayoutProperty('hillshading-layer', 'visibility', 'visible');
         }
+        const targetOpacity = computeLayerOpacity(activeFilter, '3D', terrainActualColor);
+        const is3DActual = terrainActualColor;
+        if (map.getLayer('pit-raster-heatmap-layer')) {
+          map.setPaintProperty('pit-raster-heatmap-layer', 'raster-fade-duration', 0);
+          map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', targetOpacity);
+          map.setLayoutProperty(
+            'pit-raster-heatmap-layer',
+            'visibility',
+            showHeatmap && !is3DActual ? 'visible' : 'none'
+          );
+        }
         map.easeTo({
           pitch: 62,
           bearing: -22,
@@ -462,6 +526,11 @@ export default function MapLibreProspectivityCanvas({
         if (map.getLayer('hillshading-layer')) {
           map.setLayoutProperty('hillshading-layer', 'visibility', 'none');
         }
+        if (map.getLayer('pit-raster-heatmap-layer')) {
+          map.setPaintProperty('pit-raster-heatmap-layer', 'raster-fade-duration', 0);
+          map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', FILTER_MODES[activeFilter].fillOpacity);
+          map.setLayoutProperty('pit-raster-heatmap-layer', 'visibility', showHeatmap ? 'visible' : 'none');
+        }
         map.easeTo({
           pitch: 0,
           bearing: 0,
@@ -473,47 +542,72 @@ export default function MapLibreProspectivityCanvas({
     }
   };
 
-  // Fly to mine when mine changes
+  const prevMineRef = useRef<string>(selectedMineName);
+
+  // Fly smoothly to mine when selected mine changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
 
-    const rasterInfo = getMineRasterHeatmapBounds(mineConfig, activeFilter);
-    map.setMaxBounds(rasterInfo.restrictedBounds);
-    map.fitBounds([
-      [mineConfig.center[0] - 0.024, mineConfig.center[1] - 0.016],
-      [mineConfig.center[0] + 0.024, mineConfig.center[1] + 0.016],
-    ], {
-      pitch: viewDimension === '3D' ? 62 : 0,
-      bearing: viewDimension === '3D' ? -22 : 0,
-      duration: 1000,
-      padding: viewDimension === '3D' ? 20 : 0,
-    });
+    const mineChanged = prevMineRef.current !== selectedMineName;
+    prevMineRef.current = selectedMineName;
 
-    setupLayers(map, mineConfig);
-  }, [selectedMineName, mapLoaded, mineConfig, setupLayers, viewDimension]);
+    const rasterInfo = getMineRasterHeatmapBounds(mineConfig, activeFilter);
+
+    if (mineChanged) {
+      // Clear maxBounds first so camera is not trapped in previous mine district
+      map.setMaxBounds(null);
+
+      // Smoothly travel to the newly selected mine
+      map.easeTo({
+        center: mineConfig.center,
+        zoom: mineConfig.zoom,
+        pitch: viewDimension === '3D' ? 62 : 0,
+        bearing: viewDimension === '3D' ? -22 : 0,
+        duration: 1200,
+      });
+
+      // Re-lock to the new mine's boundary box after transition completes
+      const timer = setTimeout(() => {
+        if (mapRef.current) {
+          mapRef.current.setMaxBounds(rasterInfo.restrictedBounds);
+        }
+      }, 1300);
+
+      setupLayers(map, mineConfig);
+
+      return () => clearTimeout(timer);
+    } else {
+      setupLayers(map, mineConfig);
+    }
+  }, [selectedMineName, mapLoaded, mineConfig]);
 
   // Recenter Pit View directly onto the active quarry pit
   const handleRecenterPit = () => {
     const map = mapRef.current;
     if (!map) return;
     const rasterInfo = getMineRasterHeatmapBounds(mineConfig, activeFilter);
-    map.setMaxBounds(rasterInfo.restrictedBounds);
-    map.fitBounds([
-      [mineConfig.center[0] - 0.024, mineConfig.center[1] - 0.016],
-      [mineConfig.center[0] + 0.024, mineConfig.center[1] + 0.016],
-    ], {
+    map.setMaxBounds(null);
+    map.easeTo({
+      center: mineConfig.center,
+      zoom: mineConfig.zoom,
       pitch: viewDimension === '3D' ? 62 : 0,
       bearing: viewDimension === '3D' ? -22 : 0,
       duration: 800,
-      padding: viewDimension === '3D' ? 20 : 0,
     });
+    setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.setMaxBounds(rasterInfo.restrictedBounds);
+      }
+    }, 850);
   };
 
   // React to Filter Mode changes from Dropdown - loads actual distinct raster layer
   const handleSelectFilter = (mode: ProspectivityFilterMode) => {
     setActiveFilter(mode);
     setIsFilterDropdownOpen(false);
+    // Explicit selection of a filter switches to Overlay Mode so user can view the selected layer
+    setTerrainActualColor(false);
 
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
@@ -527,9 +621,16 @@ export default function MapLibreProspectivityCanvas({
       });
     }
 
-    const currentFilter = FILTER_MODES[mode];
+    const is3D = viewDimension === '3D';
+    const targetOpacity = is3D && mode === 'elevation' ? 0.40 : FILTER_MODES[mode].fillOpacity;
     if (map.getLayer('pit-raster-heatmap-layer')) {
-      map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', currentFilter.fillOpacity);
+      map.setPaintProperty('pit-raster-heatmap-layer', 'raster-fade-duration', 0);
+      map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', targetOpacity);
+      map.setLayoutProperty(
+        'pit-raster-heatmap-layer',
+        'visibility',
+        showHeatmap ? 'visible' : 'none'
+      );
       map.setPaintProperty('pit-raster-heatmap-layer', 'raster-hue-rotate', 0);
       map.setPaintProperty('pit-raster-heatmap-layer', 'raster-contrast', 0.10);
       map.setPaintProperty('pit-raster-heatmap-layer', 'raster-saturation', 0.10);
@@ -573,7 +674,15 @@ export default function MapLibreProspectivityCanvas({
     if (!map || !mapLoaded) return;
 
     if (map.getLayer('pit-raster-heatmap-layer')) {
-      map.setLayoutProperty('pit-raster-heatmap-layer', 'visibility', showHeatmap ? 'visible' : 'none');
+      const targetOpacity = computeLayerOpacity(activeFilter, viewDimension, terrainActualColor);
+      const is3DActual = viewDimension === '3D' && terrainActualColor;
+      map.setPaintProperty('pit-raster-heatmap-layer', 'raster-fade-duration', 0);
+      map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', targetOpacity);
+      map.setLayoutProperty(
+        'pit-raster-heatmap-layer',
+        'visibility',
+        showHeatmap && !is3DActual ? 'visible' : 'none'
+      );
     }
     if (map.getLayer('pit-zones-fill')) {
       map.setLayoutProperty('pit-zones-fill', 'visibility', showZones ? 'visible' : 'none');
@@ -587,9 +696,9 @@ export default function MapLibreProspectivityCanvas({
     if (map.getLayer('mine-pit-boundary-layer')) {
       map.setLayoutProperty('mine-pit-boundary-layer', 'visibility', showPitBoundary ? 'visible' : 'none');
     }
-  }, [showHeatmap, showZones, showFaults, showPitBoundary, mapLoaded]);
+  }, [showHeatmap, showZones, showFaults, showPitBoundary, mapLoaded, activeFilter, viewDimension, terrainActualColor, computeLayerOpacity]);
 
-  // Dedicated reactive effect for Multispectral Filter Mode changes
+  // Dedicated reactive effect for Multispectral Filter Mode and 2D/3D dimension changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
@@ -603,14 +712,21 @@ export default function MapLibreProspectivityCanvas({
       });
     }
 
-    const currentFilter = FILTER_MODES[activeFilter];
+    const targetOpacity = computeLayerOpacity(activeFilter, viewDimension, terrainActualColor);
+    const is3DActual = viewDimension === '3D' && terrainActualColor;
     if (map.getLayer('pit-raster-heatmap-layer')) {
-      map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', currentFilter.fillOpacity);
+      map.setPaintProperty('pit-raster-heatmap-layer', 'raster-fade-duration', 0);
+      map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', targetOpacity);
+      map.setLayoutProperty(
+        'pit-raster-heatmap-layer',
+        'visibility',
+        showHeatmap && !is3DActual ? 'visible' : 'none'
+      );
       map.setPaintProperty('pit-raster-heatmap-layer', 'raster-hue-rotate', 0);
       map.setPaintProperty('pit-raster-heatmap-layer', 'raster-contrast', 0.10);
       map.setPaintProperty('pit-raster-heatmap-layer', 'raster-saturation', 0.10);
     }
-  }, [activeFilter, mapLoaded, mineConfig]);
+  }, [activeFilter, mapLoaded, mineConfig, viewDimension, terrainActualColor, showHeatmap, computeLayerOpacity]);
 
   // Robust Fullscreen Toggle (supports both native requestFullscreen and CSS overlay without DOM remount)
   const toggleFullScreen = async () => {
@@ -720,34 +836,76 @@ export default function MapLibreProspectivityCanvas({
 
       {/* TOP COMPACT HUD: Single sleek line that never clusters */}
       <div className="absolute top-2.5 inset-x-2.5 z-20 flex items-center justify-between gap-1.5 flex-nowrap pointer-events-none">
-        {/* Left: 2D vs 3D Terrain DEM Switcher */}
-        <div className={`flex items-center gap-0.5 p-1 rounded-xl pointer-events-auto ${hudStyle}`}>
-          <button
-            type="button"
-            onClick={() => handleDimensionChange('2D')}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
-              viewDimension === '2D'
-                ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30'
-                : 'text-slate-300 hover:text-white hover:bg-white/10'
-            }`}
-            title="2D Top-Down Orthographic Satellite View"
-          >
-            <MapIcon size={12} />
-            <span>2D View</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleDimensionChange('3D')}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
-              viewDimension === '3D'
-                ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30'
-                : 'text-slate-300 hover:text-white hover:bg-white/10'
-            }`}
-            title="3D DEM Terrain Elevation Model with Draped Heatmap"
-          >
-            <Mountain size={12} />
-            <span>3D Terrain DEM</span>
-          </button>
+        {/* Left: 2D vs 3D Terrain DEM Switcher & 3D Terrain Colour Mode Toggle */}
+        <div className="flex items-center gap-1.5 pointer-events-auto">
+          <div className={`flex items-center gap-0.5 p-1 rounded-xl ${hudStyle}`}>
+            <button
+              type="button"
+              onClick={() => handleDimensionChange('2D')}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                viewDimension === '2D'
+                  ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30'
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
+              }`}
+              title="2D Top-Down Orthographic Satellite View"
+            >
+              <MapIcon size={12} />
+              <span>2D View</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDimensionChange('3D')}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                viewDimension === '3D'
+                  ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30'
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
+              }`}
+              title="3D DEM Terrain Elevation Model with Draped Heatmap"
+            >
+              <Mountain size={12} />
+              <span>3D Terrain DEM</span>
+            </button>
+          </div>
+
+          {/* 3D Actual Colour Mode Toggle */}
+          {viewDimension === '3D' && (
+            <button
+              type="button"
+              onClick={() => {
+                const nextActual = !terrainActualColor;
+                setTerrainActualColor(nextActual);
+
+                // Synchronously update MapLibre layer immediately
+                const map = mapRef.current;
+                if (map && map.getLayer('pit-raster-heatmap-layer')) {
+                  const targetOpacity = nextActual
+                    ? 0.0
+                    : (activeFilter === 'elevation' ? 0.40 : FILTER_MODES[activeFilter].fillOpacity);
+                  map.setPaintProperty('pit-raster-heatmap-layer', 'raster-fade-duration', 0);
+                  map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', targetOpacity);
+                  map.setLayoutProperty(
+                    'pit-raster-heatmap-layer',
+                    'visibility',
+                    showHeatmap && !nextActual ? 'visible' : 'none'
+                  );
+                }
+              }}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer border shadow-xl ${
+                terrainActualColor
+                  ? 'bg-emerald-600 text-white border-emerald-400 ring-2 ring-emerald-500/40 shadow-emerald-500/30'
+                  : 'bg-slate-950/90 text-amber-300 border-white/15 hover:bg-slate-900'
+              }`}
+              title={
+                terrainActualColor
+                  ? 'Showing actual photorealistic terrain ground colour (True Satellite). Click for overlay.'
+                  : 'Showing multispectral/elevation overlay. Click for actual terrain satellite colour.'
+              }
+            >
+              <Eye size={12} className={terrainActualColor ? 'text-emerald-200' : 'text-amber-400'} />
+              <span className="hidden sm:inline">{terrainActualColor ? 'Actual Colour' : 'Overlay Mode'}</span>
+              <span className="sm:hidden">{terrainActualColor ? 'Actual' : 'Overlay'}</span>
+            </button>
+          )}
         </div>
 
         {/* Center: Standard Filter Dropdown */}
@@ -921,18 +1079,37 @@ export default function MapLibreProspectivityCanvas({
                   <span className="font-bold">{filterConfig.shortName}</span>
                   <span className="text-teal-400 font-bold">{filterConfig.unit}</span>
                 </div>
-                <div
-                  className="w-full h-2 rounded-full border border-white/20 shadow-inner"
-                  style={{ background: filterConfig.colorScale }}
-                />
-                <div className="flex items-center justify-between text-[8.5px] font-mono text-slate-400 mt-0.5">
-                  <span>{filterConfig.minVal}</span>
-                  <span>{filterConfig.midVal}</span>
-                  <span className="font-bold text-white">{filterConfig.maxVal}</span>
-                </div>
-                {activeFilter === 'prospectivity' && (
+                {viewDimension === '3D' && terrainActualColor ? (
+                  <div className="p-2 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-[9.5px] text-emerald-200 font-mono flex items-center gap-1.5 mt-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    <span>3D Photorealistic DEM • Actual ground colour with natural relief</span>
+                  </div>
+                ) : (
+                  <>
+                    <div
+                      className="w-full h-2 rounded-full border border-white/20 shadow-inner"
+                      style={{ background: filterConfig.colorScale }}
+                    />
+                    <div className="flex items-center justify-between text-[8.5px] font-mono text-slate-400 mt-0.5">
+                      <span>{filterConfig.minVal}</span>
+                      <span>{filterConfig.midVal}</span>
+                      <span className="font-bold text-white">{filterConfig.maxVal}</span>
+                    </div>
+                  </>
+                )}
+                {activeFilter === 'prospectivity' && (viewDimension === '2D' || !terrainActualColor) && (
                   <div className="text-[8.5px] text-purple-300 font-mono mt-1 px-1.5 py-0.5 rounded bg-purple-950/60 border border-purple-800/40">
                     <span className="font-bold text-purple-300">Purple:</span> Low-Grade Host Rock (&lt;28% MnO) • <span className="font-bold text-amber-300">Gold:</span> High-Grade Ore
+                  </div>
+                )}
+                {activeFilter === 'elevation' && (viewDimension === '2D' || !terrainActualColor) && (
+                  <div className="text-[8.5px] text-amber-200 font-mono mt-1 px-1.5 py-0.5 rounded bg-amber-950/40 border border-amber-800/40">
+                    <span className="font-bold text-amber-300">Quarry Slate:</span> Pit Floor • <span className="font-bold text-emerald-300">Olive:</span> Plains • <span className="font-bold text-rose-300">Terracotta:</span> Ridge
+                  </div>
+                )}
+                {activeFilter === 'lst' && (viewDimension === '2D' || !terrainActualColor) && (
+                  <div className="text-[8.5px] text-orange-200 font-mono mt-1 px-1.5 py-0.5 rounded bg-orange-950/40 border border-orange-800/40">
+                    <span className="font-bold text-slate-300">Dark:</span> Host Rock • <span className="font-bold text-red-400">Crimson:</span> Alteration • <span className="font-bold text-yellow-300">Gold:</span> Gossan Cap
                   </div>
                 )}
               </div>

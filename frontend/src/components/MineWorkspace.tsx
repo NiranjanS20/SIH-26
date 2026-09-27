@@ -17,6 +17,7 @@ import {
   getMineProductionProfile,
   MINE_PRODUCTION_PROFILES,
 } from '../data/mineProductionData';
+import { MINE_BOUNDARIES } from '../lib/prospectivityMapConfig';
 import { apiGet } from '../services/apiClient';
 
 interface MineWorkspaceProps {
@@ -110,7 +111,20 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
 
   // Multi-Mine State
   const [selectedMineId, setSelectedMineId] = useState<string>(initialMineId);
+  const normSelectedMineId = selectedMineId === 'mansar' ? 'munsar' : selectedMineId;
   const [mineProfile, setMineProfile] = useState<any>(getMineProductionProfile(initialMineId));
+
+  const statutoryManagerName =
+    normSelectedMineId === 'balaghat' ? 'Er. S. N. Mukherjee' :
+    normSelectedMineId === 'kandri' ? 'Er. V. Gaikwad' :
+    normSelectedMineId === 'beldongri' ? 'Er. D. K. Borkar' :
+    normSelectedMineId === 'munsar' ? 'Er. H. S. Charde' :
+    normSelectedMineId === 'chikla' ? 'Er. P. K. Mandloi' :
+    normSelectedMineId === 'tirodi' ? 'Er. R. S. Bisen' :
+    normSelectedMineId === 'gumgaon' ? 'Er. K. B. Deshmukh' :
+    normSelectedMineId === 'sitapatore' ? 'Er. V. N. Wanjari' :
+    normSelectedMineId === 'ukwa' ? 'Er. S. Maravi' :
+    'Er. S. K. Meshram';
 
   // Sync state if prop changes
   useEffect(() => {
@@ -118,39 +132,49 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
     setMineProfile(getMineProductionProfile(initialMineId));
   }, [initialMineId]);
 
+  // Immediate sync on mine switch
+  useEffect(() => {
+    setMineProfile(getMineProductionProfile(normSelectedMineId));
+  }, [normSelectedMineId]);
+
   useEffect(() => {
     let isMounted = true;
-    apiGet<any>(`/mines/${selectedMineId}/workspace`)
+    apiGet<any>(`/mines/${normSelectedMineId}/workspace`)
       .then((data) => {
         if (isMounted && data) {
+          const localFallback = getMineProductionProfile(normSelectedMineId);
           const mappedProfile = {
-            mineName: data.mineInfo?.name || 'Unknown Mine',
-            shortCode: data.mineInfo?.name === 'Balaghat' ? 'BG' : data.mineInfo?.name === 'Tirodi' ? 'TR' : data.mineInfo?.name === 'Sitapatore' ? 'SP' : 'DB',
-            type: data.mineInfo?.type || 'UNDERGROUND',
-            state: data.mineInfo?.state || 'Maharashtra',
-            district: data.mineInfo?.district || 'Bhandara',
-            potentialSourceZone: data.futureSourceZone?.name || 'Unknown Zone',
-            currentOutputTons: data.production?.actual || 0,
-            plannedTargetTons: data.production?.target || 0,
-            predictedOutputTons: data.production?.forecast || 0,
-            projectedGapTons: data.production?.gap || 0,
-            gapPct: data.production?.target ? Math.abs(Math.round((data.production.gap / data.production.target) * 100)) : 0,
-            monthlyTrend: (data.production?.monthlyTrend || []).map((mt: any) => ({
-              label: mt.month,
-              actual: mt.actual,
-              target: mt.target,
-              forecast: mt.forecast,
-              confidenceLower: mt.lowerBound,
-              confidenceUpper: mt.upperBound,
-              isMonsoon: ['Jun', 'Jul', 'Aug', 'Sep'].some(m => mt.month.includes(m))
-            })),
-            featureImportance: (data.riskContributors || []).map((rc: any, idx: number) => ({
-              feature: rc.factor,
-              weightPct: rc.importancePct,
-              category: rc.factor.toLowerCase().includes('rain') ? 'Environmental' : 'Operational',
-              color: ['#3B82F6', '#10B981', '#06B6D4', '#F59E0B', '#8B5CF6'][idx % 5]
-            })),
-            environmentalFactors: {
+            mineName: data.mineInfo?.name || localFallback.mineName,
+            shortCode: localFallback.shortCode,
+            type: data.mineInfo?.type || localFallback.type,
+            state: data.mineInfo?.state || localFallback.state,
+            district: (data.mineInfo?.district || localFallback.district || '').replace(/\s+District$/i, ''),
+            potentialSourceZone: data.futureSourceZone?.name || localFallback.potentialSourceZone,
+            currentOutputTons: data.production?.actual || localFallback.currentOutputTons,
+            plannedTargetTons: data.production?.target || localFallback.plannedTargetTons,
+            predictedOutputTons: data.production?.forecast || localFallback.predictedOutputTons,
+            projectedGapTons: data.production?.gap || localFallback.projectedGapTons,
+            gapPct: data.production?.target ? Math.abs(Math.round((data.production.gap / data.production.target) * 100)) : localFallback.gapPct,
+            monthlyTrend: (data.production?.monthlyTrend && data.production.monthlyTrend.length > 0)
+              ? data.production.monthlyTrend.map((mt: any) => ({
+                  label: mt.month,
+                  actual: mt.actual,
+                  target: mt.target,
+                  forecast: mt.forecast,
+                  confidenceLower: mt.lowerBound,
+                  confidenceUpper: mt.upperBound,
+                  isMonsoon: ['Jun', 'Jul', 'Aug', 'Sep'].some(m => String(mt.month).includes(m))
+                }))
+              : localFallback.monthlyTrend,
+            featureImportance: (data.riskContributors && data.riskContributors.length > 0)
+              ? data.riskContributors.map((rc: any, idx: number) => ({
+                  feature: rc.factor,
+                  weightPct: rc.importancePct,
+                  category: rc.factor.toLowerCase().includes('rain') || rc.factor.toLowerCase().includes('water') ? 'Environmental' : 'Operational',
+                  color: ['#3B82F6', '#10B981', '#06B6D4', '#F59E0B', '#8B5CF6'][idx % 5]
+                }))
+              : localFallback.featureImportance,
+            environmentalFactors: localFallback.environmentalFactors || {
               rainfallPct: 70,
               rainfallMm: 45,
               ndvi: 0.42,
@@ -549,12 +573,14 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
   const [liveWeather, setLiveWeather] = useState<LiveWeatherData | null>(null);
 
   useEffect(() => {
-    const lat = selectedMineId === 'balaghat' ? 21.870 : (selectedMineId === 'tirodi' || selectedMineId === 'sitapatore') ? 21.680 : 21.554;
-    const lng = selectedMineId === 'balaghat' ? 80.185 : (selectedMineId === 'tirodi' || selectedMineId === 'sitapatore') ? 79.720 : 79.702;
+    const normId = selectedMineId === 'mansar' ? 'munsar' : selectedMineId;
+    const boundary = MINE_BOUNDARIES[normId] || MINE_BOUNDARIES['dongri-buzurg'];
+    const lat = boundary?.center[1] ?? 21.554;
+    const lng = boundary?.center[0] ?? 79.702;
     fetchLiveMineWeather(lat, lng, mineProfile.mineName).then((data) => {
       setLiveWeather(data);
     });
-  }, [selectedMineId]);
+  }, [selectedMineId, mineProfile.mineName]);
 
   // Corrective Actions State & In-Place Expansion
   const [expandedActionId, setExpandedActionId] = useState<string | null>(null);
@@ -952,6 +978,234 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
         notes: 'Airflow velocity maintained at 0.42 m/s; DGMS MMR ventilation par verified.',
       },
     ],
+    kandri: [
+      {
+        id: 'kd-b1',
+        benchName: 'Kandri Hill Top Opencast Cut',
+        zone: 'Kandri Hillcrest Section',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 1550,
+        shiftTargetTons: 1600,
+        assignedMachinery: 'Komatsu PC450 Hydraulic Shovel • Tipper Fleet KD-1',
+        dgmsSlopeIndex: 96.8,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. V. Gaikwad',
+        notes: 'High-grade 46.2% Mn braunite reef extraction pacing on schedule.',
+      },
+      {
+        id: 'kd-ug1',
+        benchName: 'Kandri Underground Incline Drift Level -1',
+        zone: 'Underground Decline Shaft',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+        shiftActualTons: 450,
+        shiftTargetTons: 500,
+        assignedMachinery: 'Sandvik LH307 LHD • Electro-Hydraulic Jumbo',
+        dgmsSlopeIndex: 95.1,
+        geotechRisk: 'MEDIUM',
+        operatorInCharge: 'Er. A. R. Tayade',
+        notes: 'Crown pillar support bolting active in accordance with DGMS MMR standard.',
+      },
+      {
+        id: 'kd-b2',
+        benchName: 'Kandri South Syncline Bench',
+        zone: 'South Syncline Highwall',
+        phase: 'HAULAGE ACTIVE',
+        statusColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+        shiftActualTons: 1100,
+        shiftTargetTons: 1200,
+        assignedMachinery: 'BEML Excavator EX-03 • Dumper Circuit KD-2',
+        dgmsSlopeIndex: 97.4,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. K. L. Mate',
+        notes: 'Haul road spiral incline 8% grade well-graded, cycle time 12.8 min.',
+      },
+    ],
+    beldongri: [
+      {
+        id: 'bd-b1',
+        benchName: 'Beldongri North Pit Cut (Bench 1)',
+        zone: 'North Highwall Reef',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 950,
+        shiftTargetTons: 1050,
+        assignedMachinery: 'Excavator EX-07 • Tipper Fleet BD-A (3x 25T)',
+        dgmsSlopeIndex: 97.2,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. D. K. Borkar',
+        notes: 'Braunite-pyrolusite ore reef bench operating nominal; pit moisture managed.',
+      },
+      {
+        id: 'bd-b2',
+        benchName: 'Beldongri South Extension Bench',
+        zone: 'South Boundary Lens',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+        shiftActualTons: 700,
+        shiftTargetTons: 850,
+        assignedMachinery: 'L&T 300 Shovel • Dumper Fleet BD-B',
+        dgmsSlopeIndex: 94.5,
+        geotechRisk: 'MEDIUM',
+        operatorInCharge: 'Er. P. B. Nimje',
+        notes: 'Stripping overburden ratio 1:3.2; advance blast holes logged.',
+      },
+      {
+        id: 'bd-sump',
+        benchName: 'Beldongri Central Pit Sump',
+        zone: 'Pit Incline Sump Floor',
+        phase: 'DEWATERING IN PROGRESS',
+        statusColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
+        shiftActualTons: 0,
+        shiftTargetTons: 0,
+        assignedMachinery: '1x 450 m³/hr Kirloskar Submersible Pump',
+        dgmsSlopeIndex: 93.0,
+        geotechRisk: 'HIGH',
+        operatorInCharge: 'Er. S. M. Gawande',
+        notes: 'Groundwater seepage pump rate at 380 m³/hr under CGWB allowance.',
+      },
+    ],
+    munsar: [
+      {
+        id: 'ms-b1',
+        benchName: 'Munsar Main Pit Ridge Face',
+        zone: 'Ridge Crest Section',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 1850,
+        shiftTargetTons: 1950,
+        assignedMachinery: 'CAT 336D Shovel • Fleet MS-A (4x 30T Dumpers)',
+        dgmsSlopeIndex: 95.8,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. H. S. Charde',
+        notes: 'High-grade pyrolusite reef face loading at 230 t/hr steady velocity.',
+      },
+      {
+        id: 'ms-b2',
+        benchName: 'Munsar North Sub-Level Stope',
+        zone: 'Underground North Block',
+        phase: 'HAULAGE ACTIVE',
+        statusColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+        shiftActualTons: 850,
+        shiftTargetTons: 950,
+        assignedMachinery: 'Sandvik Toro LHD • Electric Winch Haulage',
+        dgmsSlopeIndex: 94.0,
+        geotechRisk: 'MEDIUM',
+        operatorInCharge: 'Er. M. T. Kolhe',
+        notes: 'Secondary stope mucking and timber support inspection logged.',
+      },
+      {
+        id: 'ms-sump',
+        benchName: 'Munsar Lower Sump Pit Dewatering',
+        zone: 'Central Pit Floor',
+        phase: 'DEWATERING IN PROGRESS',
+        statusColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
+        shiftActualTons: 0,
+        shiftTargetTons: 0,
+        assignedMachinery: '2x 500 m³/hr Submersible Dewatering Units',
+        dgmsSlopeIndex: 92.5,
+        geotechRisk: 'MEDIUM',
+        operatorInCharge: 'Er. N. V. Raut',
+        notes: 'Sump runoff controlled; pH and TSS within SPCB industrial discharge par.',
+      },
+    ],
+    mansar: [
+      {
+        id: 'ms-b1',
+        benchName: 'Munsar Main Pit Ridge Face',
+        zone: 'Ridge Crest Section',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 1850,
+        shiftTargetTons: 1950,
+        assignedMachinery: 'CAT 336D Shovel • Fleet MS-A',
+        dgmsSlopeIndex: 95.8,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. H. S. Charde',
+        notes: 'High-grade pyrolusite reef face loading at steady velocity.',
+      },
+    ],
+    chikla: [
+      {
+        id: 'ck-s1',
+        benchName: 'Chikla Deep Stope Level 5',
+        zone: 'West Ore Body Shaft',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 900,
+        shiftTargetTons: 950,
+        assignedMachinery: 'Underground LHD • Pneumatic Rock Drills',
+        dgmsSlopeIndex: 96.5,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. P. K. Mandloi',
+        notes: 'Deep stope extraction steady; manganese ore recovery at 43.5%.',
+      },
+    ],
+    tirodi: [
+      {
+        id: 'tr-b1',
+        benchName: 'Tirodi North Pit Main Reef',
+        zone: 'North Highwall Cut',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 1250,
+        shiftTargetTons: 1300,
+        assignedMachinery: 'Hydraulic Excavator EX-05 • 35T Dumpers',
+        dgmsSlopeIndex: 97.0,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. R. S. Bisen',
+        notes: 'Opencast reef mining operating at high operational throughput.',
+      },
+    ],
+    gumgaon: [
+      {
+        id: 'gg-s1',
+        benchName: 'Gumgaon Shaft Level -4 Stope',
+        zone: 'Central Vertical Shaft',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 750,
+        shiftTargetTons: 800,
+        assignedMachinery: 'Shaft Hoist & Cage • Underground LHD',
+        dgmsSlopeIndex: 95.5,
+        geotechRisk: 'MEDIUM',
+        operatorInCharge: 'Er. K. B. Deshmukh',
+        notes: 'Underground hoisting cycle nominal; water sump pumping on schedule.',
+      },
+    ],
+    sitapatore: [
+      {
+        id: 'sp-b1',
+        benchName: 'Sitapatore Central Pit Cut',
+        zone: 'Main Reef Zone',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 650,
+        shiftTargetTons: 700,
+        assignedMachinery: 'Excavator EX-02 • Tipper Fleet',
+        dgmsSlopeIndex: 96.0,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. V. N. Wanjari',
+        notes: 'Selective mining on high-grade lens with prompt blending.',
+      },
+    ],
+    ukwa: [
+      {
+        id: 'uk-s1',
+        benchName: 'Ukwa Incline Drift Stope Level 3',
+        zone: 'East Low-Phos Seam',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 820,
+        shiftTargetTons: 850,
+        assignedMachinery: 'Sandvik LH307 LHD • Electric Winch',
+        dgmsSlopeIndex: 97.8,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. S. Maravi',
+        notes: 'Ultra-low phosphorus ore extraction proceeding smoothly.',
+      },
+    ],
   };
 
   const SITE_SPECIFIC_RISK_EVENTS: Record<string, {
@@ -1084,6 +1338,192 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
         updatedAt: '06:45 Today',
       },
     ],
+    kandri: [
+      {
+        id: 'rsk-kd-1',
+        code: 'RSK-VENT-04',
+        title: 'Decline Shaft Level -1 Auxiliary Ventilation Pressure Check',
+        severity: 'HIGH',
+        category: 'STATUTORY / DGMS',
+        statutoryAuthority: 'DGMS Metalliferous Mines Reg. 131',
+        benchZone: 'Decline Level -1 Face',
+        description: 'Underground decline auxiliary fan ducting slight vibration detected; static airflow pacing at 0.44 m/s.',
+        quantitativeImpact: '-180 t/shift potential pace constraint if airflow dips below 0.35 m/s threshold',
+        mitigationStrategy: 'Inspect flexible ventilation coupling and boost secondary fan frequency.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '10:45 Today',
+      },
+      {
+        id: 'rsk-kd-2',
+        code: 'RSK-MECH-03',
+        title: 'Komatsu PC450 Hydraulic Filter Differential Pressure Alert',
+        severity: 'MEDIUM',
+        category: 'MECHANICAL FLEET',
+        statutoryAuthority: 'OEM Fleet Maintenance Protocol',
+        benchZone: 'South Pit Face',
+        description: 'Hydraulic return oil filter pressure differential reached warning threshold during heavy loading cycle.',
+        quantitativeImpact: '-120 t/shift loading delay during filter swap',
+        mitigationStrategy: 'Complete scheduled filter cartridge swap during 30-min shift overlap.',
+        linkedActionId: 'SMACT-02',
+        updatedAt: '08:00 Today',
+      },
+    ],
+    beldongri: [
+      {
+        id: 'rsk-bd-1',
+        code: 'RSK-HYDRO-03',
+        title: 'Pit Sump Seepage Water Accumulation Rate Check',
+        severity: 'HIGH',
+        category: 'HYDROLOGICAL',
+        statutoryAuthority: 'CGWB & DGMS Sec. 22A Dewatering Standards',
+        benchZone: 'Central Pit Sump',
+        description: 'Groundwater seepage into lower sump pit reached 380 m³/hr; pump staging required to prevent blast floor saturation.',
+        quantitativeImpact: '-210 t/day output risk | Haul ramp slickness',
+        mitigationStrategy: 'Engage auxiliary 450 m³/hr submersible pump and deploy grader gravel dressing.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '11:15 Today',
+      },
+      {
+        id: 'rsk-bd-2',
+        code: 'RSK-HAUL-02',
+        title: 'Haul Ramp Incline Slickness & Cycle Turnaround Slowdown',
+        severity: 'MEDIUM',
+        category: 'MINE LOGISTICS',
+        statutoryAuthority: 'Mines Rules 1955 Traffic Safety Regs',
+        benchZone: 'North Pit Haul Road',
+        description: 'Surface slickness on 8.2% ramp reduced cycle rate to 10 trips/hr for tipper fleet BD-A.',
+        quantitativeImpact: '-140 t/shift haulage rate deficit',
+        mitigationStrategy: 'Apply crushed quartz dressing and grade wet haulage curves.',
+        linkedActionId: 'SMACT-02',
+        updatedAt: '09:30 Today',
+      },
+    ],
+    munsar: [
+      {
+        id: 'rsk-ms-1',
+        code: 'RSK-GEOTECH-01',
+        title: 'Ridge Face Highwall Geotechnical Tension Crack Monitoring',
+        severity: 'HIGH',
+        category: 'GEOTECHNICAL / DGMS',
+        statutoryAuthority: 'DGMS Geotechnical Tech Circular No. 03/2026',
+        benchZone: 'Main Pit Ridge Face',
+        description: 'Prism laser sensor detected 2.8mm displacement along crest tension crack after rain event.',
+        quantitativeImpact: 'Precautionary exclusion buffer enforced along 40m crest',
+        mitigationStrategy: 'Install continuous wire extensometers and berm drainage ditches.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '12:00 Today',
+      },
+      {
+        id: 'rsk-ms-2',
+        code: 'RSK-MECH-02',
+        title: 'CAT 336D Shovel Bucket Tooth Replacement Maintenance',
+        severity: 'MEDIUM',
+        category: 'MECHANICAL FLEET',
+        statutoryAuthority: 'OEM Fleet Standard Protocol',
+        benchZone: 'Munsar Main Pit Face',
+        description: 'High-abrasion ore wear required scheduled replacement of 3 bucket teeth on primary excavator.',
+        quantitativeImpact: '-190 t loading deficit over 1.2h duration',
+        mitigationStrategy: 'Deploy quick-attach weld teeth and swap with backup loader during procedure.',
+        linkedActionId: 'SMACT-02',
+        updatedAt: '09:15 Today',
+      },
+    ],
+    mansar: [
+      {
+        id: 'rsk-ms-1',
+        code: 'RSK-GEOTECH-01',
+        title: 'Ridge Face Highwall Geotechnical Tension Crack Monitoring',
+        severity: 'HIGH',
+        category: 'GEOTECHNICAL / DGMS',
+        statutoryAuthority: 'DGMS Geotechnical Tech Circular No. 03/2026',
+        benchZone: 'Main Pit Ridge Face',
+        description: 'Prism laser sensor detected 2.8mm displacement along crest tension crack after rain event.',
+        quantitativeImpact: 'Precautionary exclusion buffer enforced along 40m crest',
+        mitigationStrategy: 'Install continuous wire extensometers and berm drainage ditches.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '12:00 Today',
+      },
+    ],
+    chikla: [
+      {
+        id: 'rsk-ck-1',
+        code: 'RSK-VENT-05',
+        title: 'Chikla Deep Stope Auxiliary Airflow Monitoring',
+        severity: 'MEDIUM',
+        category: 'STATUTORY / DGMS',
+        statutoryAuthority: 'DGMS Metalliferous Mines Regulations (MMR) 1961',
+        benchZone: 'Chikla Level 5 Stope',
+        description: 'Ventilation velocity nominal at 0.45 m/s across deep production face.',
+        quantitativeImpact: 'Nominal operational status',
+        mitigationStrategy: 'Routine weekly anemometer inspection and airflow logging.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '08:15 Today',
+      },
+    ],
+    tirodi: [
+      {
+        id: 'rsk-tr-1',
+        code: 'RSK-PIT-02',
+        title: 'Tirodi North Pit Ramp Grading & Traffic Flow Optimization',
+        severity: 'LOW',
+        category: 'MINE LOGISTICS',
+        statutoryAuthority: 'Mines Rules 1955',
+        benchZone: 'North Highwall Cut',
+        description: 'Routine surface dressing completed on main haul road.',
+        quantitativeImpact: 'No impact on shift production target',
+        mitigationStrategy: 'Maintain bi-hourly water sprinkler rounds for dust suppression.',
+        linkedActionId: 'SMACT-02',
+        updatedAt: '07:00 Today',
+      },
+    ],
+    gumgaon: [
+      {
+        id: 'rsk-gg-1',
+        code: 'RSK-SHAFT-01',
+        title: 'Gumgaon Shaft Hoisting Counterweight Guide Rail Inspection',
+        severity: 'MEDIUM',
+        category: 'MECHANICAL FLEET',
+        statutoryAuthority: 'DGMS Shaft Hoisting Code',
+        benchZone: 'Vertical Shaft Level -4',
+        description: 'Guide shoe wear tolerances inspected during scheduled shift maintenance window.',
+        quantitativeImpact: 'Scheduled 1.0h hoisting slowdown',
+        mitigationStrategy: 'Lubricate guide rails and re-torque mounting brackets.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '09:45 Today',
+      },
+    ],
+    sitapatore: [
+      {
+        id: 'rsk-sp-1',
+        code: 'RSK-BENCH-01',
+        title: 'Sitapatore High-Grade Lens Selective Blasting Precision',
+        severity: 'LOW',
+        category: 'GEOTECHNICAL',
+        statutoryAuthority: 'IBM Mining Plan Specifications',
+        benchZone: 'Central Pit Cut',
+        description: 'Staggered blast hole spacing tuned to minimize ore dilution with footwall quartzite.',
+        quantitativeImpact: '+1.5% Mn grade preservation achieved',
+        mitigationStrategy: 'Laser scanner validation of post-blast muckpile boundary.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '10:00 Today',
+      },
+    ],
+    ukwa: [
+      {
+        id: 'rsk-uk-1',
+        code: 'RSK-DRIFT-01',
+        title: 'Ukwa Incline Drift Timber & Friction Prop Support Integrity',
+        severity: 'MEDIUM',
+        category: 'GEOTECHNICAL',
+        statutoryAuthority: 'DGMS Support Rules for Underground Metalliferous Mines',
+        benchZone: 'Stope Level 3 Seam',
+        description: 'Roof bolt torque audit completed across 60m strike length; all anchors holding > 6.0 tonnes.',
+        quantitativeImpact: 'Zero loss of stope availability',
+        mitigationStrategy: 'Maintain regular acoustic sounding tests along hanging wall contacts.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '08:30 Today',
+      },
+    ],
   };
 
   // Reusable Theme Helper Classes
@@ -1164,6 +1604,8 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                   key={m.id}
                   onClick={() => {
                     setSelectedMineId(m.id);
+                    setMineProfile(getMineProductionProfile(m.id));
+                    onNavigate(`workspace/${m.id}` as PortalRoute);
                     setIsMineDropdownOpen(false);
                   }}
                   className={`w-full text-left px-3 py-2 rounded text-xs font-bold flex items-center justify-between cursor-pointer transition-colors ${
@@ -1446,7 +1888,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                   {/* Location Badge */}
                   <p className="text-sm sm:text-base md:text-lg text-slate-100 font-bold flex items-center gap-2 pt-1 drop-shadow-md">
                     <span className="material-symbols-outlined text-[#FEA619] text-xl shrink-0">location_on</span>
-                    <span>{mineProfile.district} District, {mineProfile.state}</span>
+                    <span>{mineProfile.district?.replace(/\s+District$/i, '')} District, {mineProfile.state}</span>
                   </p>
                 </div>
 
@@ -1492,7 +1934,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                         DESCRIPTION & GEOLOGICAL STRATA
                       </span>
                       <p className={`text-sm leading-relaxed font-medium ${textSecondary}`}>
-                        "{mineProfile.mineName} is an active {mineProfile.type.toLowerCase()} manganese ore lease in {mineProfile.district} district, {mineProfile.state}, producing metallurgical and high-grade battery oxide ores." 
+                        "{mineProfile.mineName} is an active {mineProfile.type.toLowerCase()} manganese ore lease in {mineProfile.district?.replace(/\s+District$/i, '')} district, {mineProfile.state}, producing metallurgical and high-grade battery oxide ores." 
                       </p>
                     </div>
                   </div>
@@ -2293,7 +2735,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                           {mineProfile.mineName}
                         </span>
                         <span className="text-[10px] text-slate-300 block">
-                          {mineProfile.type} • {mineProfile.district || 'Bhandara'}
+                          {mineProfile.type} • {mineProfile.district?.replace(/\s+District$/i, '') || 'Bhandara'}
                         </span>
                       </div>
                       <span className="font-mono text-xs font-black px-2 py-1 rounded bg-[#002452] text-amber-300 border border-amber-400/30 shrink-0">
@@ -2303,7 +2745,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
 
                     <div className="flex items-center justify-between text-[10px] text-slate-300 pt-0.5 border-t border-white/10">
                       <span>Statutory First-Class Mgr:</span>
-                      <span className="text-emerald-300 font-bold font-mono">Er. S. K. Meshram</span>
+                      <span className="text-emerald-300 font-bold font-mono">{statutoryManagerName}</span>
                     </div>
                   </div>
                 </div>
@@ -2323,7 +2765,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                   </div>
                   <div>
                     <span className="font-headline font-black text-3xl sm:text-4xl text-rose-600 dark:text-rose-400 block">
-                      {(SITE_SPECIFIC_RISK_EVENTS[selectedMineId] || SITE_SPECIFIC_RISK_EVENTS['dongri-buzurg']).length}
+                      {(SITE_SPECIFIC_RISK_EVENTS[normSelectedMineId] || SITE_SPECIFIC_RISK_EVENTS['dongri-buzurg']).length}
                     </span>
                     <span className="text-[10px] font-bold block text-rose-700 dark:text-rose-300 mt-0.5">
                       1 Critical • 2 High • 1 Med • 1 Low
@@ -2458,7 +2900,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {(CURRENT_MINE_INTERNAL_BENCHES[selectedMineId] || CURRENT_MINE_INTERNAL_BENCHES['dongri-buzurg'])
+                  {(CURRENT_MINE_INTERNAL_BENCHES[normSelectedMineId] || CURRENT_MINE_INTERNAL_BENCHES['dongri-buzurg'])
                     .filter((bench) =>
                       siteStatusSearch === '' ||
                       bench.benchName.toLowerCase().includes(siteStatusSearch.toLowerCase()) ||
@@ -2602,7 +3044,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
 
                 {/* Risk Register List Cards */}
                 <div className="space-y-3.5">
-                  {(SITE_SPECIFIC_RISK_EVENTS[selectedMineId] || SITE_SPECIFIC_RISK_EVENTS['dongri-buzurg'])
+                  {(SITE_SPECIFIC_RISK_EVENTS[normSelectedMineId] || SITE_SPECIFIC_RISK_EVENTS['dongri-buzurg'])
                     .filter((rsk) => {
                       if (siteRiskFilter === 'ALL') return true;
                       if (siteRiskFilter === 'STATUTORY') return rsk.category.includes('STATUTORY') || rsk.statutoryAuthority.includes('DGMS');
@@ -2848,7 +3290,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
             <div className="space-y-8 animate-in fade-in duration-300">
               <ProspectivityView
                 isDark={isDark}
-                selectedMineName={selectedMineId}
+                selectedMineName={normSelectedMineId}
                 onSendToForecast={() => setActiveTab('production-forecast')}
                 onNavigateToTab={(tab) => setActiveTab(tab as OverviewTab)}
               />

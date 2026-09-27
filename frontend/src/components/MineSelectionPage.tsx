@@ -56,12 +56,11 @@ export const MineSelectionPage: React.FC<MineSelectionPageProps> = ({
   });
 
   const handleSelectMine = (mine: MineItem) => {
-    const id = mine.id;
-    if (id === 'dongri-buzurg' || id === 'tirodi' || id === 'sitapatore' || id === 'balaghat' || id === 'ukwa' || id === 'chikla' || id === 'gumgaon') {
-      onNavigate(`workspace/${id}` as PortalRoute);
+    if (mine.isImplemented) {
+      onNavigate(`workspace/${mine.id}` as PortalRoute);
     } else {
       setToastMessage(
-        `Digital Telemetry for ${mine.name} is currently under Phase II onboarding. Select Dongri Buzurg, Tirodi, or Sitapatore for active pilot telemetry.`
+        `Digital Telemetry for ${mine.name} is currently under Phase II onboarding. Full workspace is available for all 10 active MOIL mines.`
       );
       setTimeout(() => setToastMessage(null), 4500);
     }

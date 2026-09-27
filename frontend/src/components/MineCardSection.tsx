@@ -122,7 +122,7 @@ export const minesList: MineData[] = [
     ]
   },
   {
-    id: 'mansar',
+    id: 'munsar',
     name: 'MANSAR',
     leaseId: 'MOIL-MS-04',
     location: 'Nagpur District, Maharashtra',

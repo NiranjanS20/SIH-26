@@ -147,27 +147,29 @@ export const FILTER_MODES: Record<ProspectivityFilterMode, FilterModeConfig> = {
   },
   lst: {
     id: 'lst',
-    name: 'Iron Oxide Index — Hydrothermal Alteration Proxy',
+    name: 'Iron Oxide / Gossan Alteration Proxy',
     shortName: 'Iron Oxide / LST',
-    sourceType: 'Landsat-8/9 TIR',
+    sourceType: 'Landsat-8/9 TIR & Sentinel-2',
     geojsonField: 'iron_oxide_index',
     domain: [0.0, 0.998],
     unit: 'Alteration Ratio (0–1)',
     minVal: '0.0 (Unaltered)',
     midVal: '0.5 (Moderate)',
     maxVal: '1.0 (Gossan)',
-    colorScale: 'linear-gradient(to right, #1e1b4b 0%, #581c87 25%, #dc2626 50%, #f59e0b 75%, #fef08a 100%)',
+    colorScale: 'linear-gradient(to right, #0f172a 0%, #1e1b4b 15%, #581c87 30%, #9f1239 45%, #dc2626 60%, #ea580c 75%, #f59e0b 88%, #fef08a 100%)',
     fillOpacity: 0.82,
     rasterHueRotate: 0,
     rasterContrast: 0.10,
     rasterSaturation: 0.10,
     colorStops: [
-      [0.0, '#1e1b4b'],
-      [0.2, '#581c87'],
-      [0.4, '#dc2626'],
-      [0.6, '#f59e0b'],
-      [0.8, '#fef08a'],
-      [1.0, '#ffffff'],
+      [0.0, '#0f172a'],
+      [0.15, '#1e1b4b'],
+      [0.30, '#581c87'],
+      [0.45, '#9f1239'],
+      [0.60, '#dc2626'],
+      [0.75, '#ea580c'],
+      [0.88, '#f59e0b'],
+      [1.0, '#fef08a'],
     ],
   },
   elevation: {
@@ -178,22 +180,23 @@ export const FILTER_MODES: Record<ProspectivityFilterMode, FilterModeConfig> = {
     geojsonField: 'slope',
     domain: [298.0, 455.0],
     unit: 'Meters ASL',
-    minVal: '298m (Pit Floor)',
-    midVal: '345m (Surface)',
-    maxVal: '455m (Ridge Rim)',
-    colorScale: 'linear-gradient(to right, #0f172a 0%, #1e3a8a 18%, #0284c7 35%, #3f6212 50%, #78716c 68%, #b45309 85%, #7f1d1d 100%)',
+    minVal: 'Low (Pit Floor)',
+    midVal: 'Mid (Plains / Bench)',
+    maxVal: 'High (Ridge Crest)',
+    colorScale: 'linear-gradient(to right, #382f2d 0%, #52453c 14%, #736456 28%, #657b53 44%, #8ea16c 58%, #bca061 72%, #c98a38 86%, #782b13 100%)',
     fillOpacity: 0.80,
     rasterHueRotate: 0,
     rasterContrast: 0.10,
     rasterSaturation: 0.10,
     colorStops: [
-      [0.00, '#0f172a'],
-      [0.18, '#1e3a8a'],
-      [0.35, '#0284c7'],
-      [0.50, '#3f6212'],
-      [0.68, '#78716c'],
-      [0.85, '#b45309'],
-      [1.00, '#7f1d1d'],
+      [0.00, '#382f2d'],
+      [0.14, '#52453c'],
+      [0.28, '#736456'],
+      [0.44, '#657b53'],
+      [0.58, '#8ea16c'],
+      [0.72, '#bca061'],
+      [0.86, '#c98a38'],
+      [1.00, '#782b13'],
     ],
   },
 };
@@ -229,11 +232,11 @@ export const MINE_BOUNDARIES: Record<string, MineBoundaryConfig> = {
   'dongri-buzurg': {
     id: 'dongri-buzurg',
     name: 'Dongri Buzurg Mine',
-    center: [79.6880, 21.5480],
+    center: [79.6901, 21.5500],
     zoom: 14.2,
     minZoom: 11.0,
     maxZoom: 18.0,
-    bounds: [[79.6400, 21.5000], [79.7400, 21.6000]],
+    bounds: [[79.6611, 21.5228], [79.7191, 21.5772]],
     district: 'Bhandara',
     state: 'Maharashtra',
     type: 'Open Cast',
@@ -244,11 +247,11 @@ export const MINE_BOUNDARIES: Record<string, MineBoundaryConfig> = {
   'chikla': {
     id: 'chikla',
     name: 'Chikla Mine',
-    center: [79.7540, 21.5510],
+    center: [79.7540, 21.5431],
     zoom: 14.2,
     minZoom: 11.0,
     maxZoom: 18.0,
-    bounds: [[79.7000, 21.5000], [79.8000, 21.6000]],
+    bounds: [[79.7250, 21.5160], [79.7829, 21.5702]],
     district: 'Bhandara',
     state: 'Maharashtra',
     type: 'Underground',
@@ -259,11 +262,11 @@ export const MINE_BOUNDARIES: Record<string, MineBoundaryConfig> = {
   'tirodi': {
     id: 'tirodi',
     name: 'Tirodi Mine',
-    center: [79.7250, 21.6840],
+    center: [79.7251, 21.6835],
     zoom: 14.2,
     minZoom: 11.0,
     maxZoom: 18.0,
-    bounds: [[79.6700, 21.6300], [79.7800, 21.7400]],
+    bounds: [[79.6962, 21.6564], [79.7541, 21.7106]],
     district: 'Balaghat',
     state: 'Madhya Pradesh',
     type: 'Open Cast',
@@ -274,11 +277,11 @@ export const MINE_BOUNDARIES: Record<string, MineBoundaryConfig> = {
   'sitapatore': {
     id: 'sitapatore',
     name: 'Sitapatore Mine',
-    center: [79.7050, 21.6620],
+    center: [79.6667, 21.6667],
     zoom: 14.2,
     minZoom: 11.0,
     maxZoom: 18.0,
-    bounds: [[79.6500, 21.6100], [79.7600, 21.7200]],
+    bounds: [[79.6377, 21.6395], [79.6956, 21.6939]],
     district: 'Balaghat',
     state: 'Madhya Pradesh',
     type: 'Open Cast',
@@ -289,11 +292,11 @@ export const MINE_BOUNDARIES: Record<string, MineBoundaryConfig> = {
   'balaghat': {
     id: 'balaghat',
     name: 'Balaghat Mine (Bharweli)',
-    center: [80.2080, 21.8470],
+    center: [80.2268, 21.8499],
     zoom: 14.2,
     minZoom: 11.0,
     maxZoom: 18.0,
-    bounds: [[80.1500, 21.7900], [80.2600, 21.9000]],
+    bounds: [[80.1977, 21.8227], [80.2559, 21.8772]],
     district: 'Balaghat',
     state: 'Madhya Pradesh',
     type: 'Underground',
@@ -304,11 +307,11 @@ export const MINE_BOUNDARIES: Record<string, MineBoundaryConfig> = {
   'ukwa': {
     id: 'ukwa',
     name: 'Ukwa Mine',
-    center: [80.4680, 21.9680],
+    center: [80.4664, 21.9711],
     zoom: 14.2,
     minZoom: 11.0,
     maxZoom: 18.0,
-    bounds: [[80.4000, 21.9100], [80.5300, 22.0200]],
+    bounds: [[80.4373, 21.9440], [80.4955, 21.9982]],
     district: 'Balaghat',
     state: 'Madhya Pradesh',
     type: 'Underground',
@@ -319,11 +322,11 @@ export const MINE_BOUNDARIES: Record<string, MineBoundaryConfig> = {
   'kandri': {
     id: 'kandri',
     name: 'Kandri Mine',
-    center: [79.2700, 21.4170],
+    center: [79.2640, 21.4780],
     zoom: 14.2,
     minZoom: 11.0,
     maxZoom: 18.0,
-    bounds: [[79.2200, 21.3600], [79.3200, 21.4700]],
+    bounds: [[79.2351, 21.4508], [79.2930, 21.5053]],
     district: 'Nagpur',
     state: 'Maharashtra',
     type: 'Hybrid',
@@ -334,11 +337,11 @@ export const MINE_BOUNDARIES: Record<string, MineBoundaryConfig> = {
   'beldongri': {
     id: 'beldongri',
     name: 'Beldongri Mine',
-    center: [79.3080, 21.4330],
+    center: [79.2891, 21.3370],
     zoom: 14.2,
     minZoom: 11.0,
     maxZoom: 18.0,
-    bounds: [[79.2500, 21.3800], [79.3600, 21.4900]],
+    bounds: [[79.2601, 21.3099], [79.3181, 21.3640]],
     district: 'Nagpur',
     state: 'Maharashtra',
     type: 'Underground',
@@ -349,11 +352,11 @@ export const MINE_BOUNDARIES: Record<string, MineBoundaryConfig> = {
   'munsar': {
     id: 'munsar',
     name: 'Munsar Mine',
-    center: [79.2880, 21.4010],
+    center: [79.2801, 21.4010],
     zoom: 14.2,
     minZoom: 11.0,
     maxZoom: 18.0,
-    bounds: [[79.2300, 21.3500], [79.3400, 21.4600]],
+    bounds: [[79.2512, 21.3737], [79.3089, 21.4282]],
     district: 'Nagpur',
     state: 'Maharashtra',
     type: 'Underground',
@@ -364,11 +367,11 @@ export const MINE_BOUNDARIES: Record<string, MineBoundaryConfig> = {
   'gumgaon': {
     id: 'gumgaon',
     name: 'Gumgaon Mine',
-    center: [78.9950, 21.3780],
+    center: [78.9870, 21.4130],
     zoom: 14.2,
     minZoom: 11.0,
     maxZoom: 18.0,
-    bounds: [[78.9400, 21.3200], [79.0500, 21.4300]],
+    bounds: [[78.9580, 21.3859], [79.0160, 21.4400]],
     district: 'Nagpur',
     state: 'Maharashtra',
     type: 'Underground',
@@ -380,7 +383,8 @@ export const MINE_BOUNDARIES: Record<string, MineBoundaryConfig> = {
 
 export function getMineBoundary(mineNameOrId?: string): MineBoundaryConfig {
   if (!mineNameOrId) return MINE_BOUNDARIES['dongri-buzurg'];
-  const s = mineNameOrId.toLowerCase();
+  let s = mineNameOrId.toLowerCase().trim();
+  if (s === 'mansar') s = 'munsar';
   for (const [key, config] of Object.entries(MINE_BOUNDARIES)) {
     if (s.includes(key) || key.includes(s.replace(/\s+mine$/, '').trim())) {
       return config;
@@ -602,30 +606,27 @@ export function getMineRasterHeatmapBounds(
   coordinates: [[number, number], [number, number], [number, number], [number, number]];
   restrictedBounds: [[number, number], [number, number]];
 } {
-  const [lng, lat] = config.center;
-  // Span covers the active opencast pit and surrounding prospective strike
-  const dLng = 0.024;
-  const dLat = 0.016;
+  const [[minLng, minLat], [maxLng, maxLat]] = config.bounds;
 
   // Use dedicated multispectral layer for each mine
   const folder = config.id;
-  const url = `/prospectivity/layers/${folder}/${filterMode}.png`;
+  const url = `/prospectivity/layers/${folder}/${filterMode}.png?v=20260927_real_dem`;
 
   // Buffer around heatmap box (~300m) to strictly prevent panning out of the mine area
-  const bufferLng = 0.0035;
-  const bufferLat = 0.0025;
+  const bufferLng = 0.0050;
+  const bufferLat = 0.0040;
   const restrictedBounds: [[number, number], [number, number]] = [
-    [lng - dLng - bufferLng, lat - dLat - bufferLat], // SW [minLng, minLat]
-    [lng + dLng + bufferLng, lat + dLat + bufferLat], // NE [maxLng, maxLat]
+    [minLng - bufferLng, minLat - bufferLat], // SW [minLng, minLat]
+    [maxLng + bufferLng, maxLat + bufferLat], // NE [maxLng, maxLat]
   ];
 
   return {
     url,
     coordinates: [
-      [lng - dLng, lat + dLat], // top-left
-      [lng + dLng, lat + dLat], // top-right
-      [lng + dLng, lat - dLat], // bottom-right
-      [lng - dLng, lat - dLat], // bottom-left
+      [minLng, maxLat], // top-left
+      [maxLng, maxLat], // top-right
+      [maxLng, minLat], // bottom-right
+      [minLng, minLat], // bottom-left
     ],
     restrictedBounds,
   };
@@ -636,9 +637,7 @@ export function getMineRasterHeatmapBounds(
 // Completely removes the "extra map" outside the mine boundaries
 // ─────────────────────────────────────────────────────────────────────────────
 export function getMineWorldMask(config: MineBoundaryConfig): any {
-  const [lng, lat] = config.center;
-  const dLng = 0.024;
-  const dLat = 0.016;
+  const [[minLng, minLat], [maxLng, maxLat]] = config.bounds;
 
   // Exterior ring covering the entire globe
   const worldRing = [
@@ -651,11 +650,11 @@ export function getMineWorldMask(config: MineBoundaryConfig): any {
 
   // Interior cutout hole (clockwise) for the mine heatmap
   const mineHole = [
-    [lng - dLng, lat - dLat],
-    [lng - dLng, lat + dLat],
-    [lng + dLng, lat + dLat],
-    [lng + dLng, lat - dLat],
-    [lng - dLng, lat - dLat],
+    [minLng, minLat],
+    [minLng, maxLat],
+    [maxLng, maxLat],
+    [maxLng, minLat],
+    [minLng, minLat],
   ];
 
   return {

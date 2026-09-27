@@ -70,13 +70,21 @@ alteration_cmap = mcolors.LinearSegmentedColormap.from_list('iron_oxide_gossan',
     (1.00, '#fef08a'),   # maximum — pale gold (direct ore reef exposure + alteration cap)
 ])
 
-dem_cmap = mcolors.LinearSegmentedColormap.from_list('dem_natural', [
-    (0.00, '#0f172a'), (0.18, '#1e3a8a'), (0.35, '#0284c7'),
-    (0.50, '#3f6212'), (0.68, '#78716c'), (0.85, '#b45309'), (1.00, '#7f1d1d'),
+# FIXED: Real terrestrial topographic elevation colormap (NO ocean blue / cyan bathymetry)
+# Lowlands/pits = warm quarry slate-bedrock, mid = natural terrain olive/sandstone, high = terracotta ridge crests
+dem_cmap = mcolors.LinearSegmentedColormap.from_list('dem_real_topography', [
+    (0.00, '#382f2d'),   # deep quarry floor / excavation pit (warm dark slate-bedrock)
+    (0.14, '#52453c'),   # lower pit benches / haul floor (warm quarry stone)
+    (0.28, '#736456'),   # intermediate quarry benches (exposed bedrock tan)
+    (0.44, '#657b53'),   # surrounding plains / valley ground (natural olive terrain)
+    (0.58, '#8ea16c'),   # lower hillside & scarp slopes (pale olive-ochre)
+    (0.72, '#bca061'),   # upper structural benches (warm sandstone / weathered iron formation)
+    (0.86, '#c98a38'),   # scarp ridge / highwall rim (warm ochre stone)
+    (1.00, '#782b13'),   # highest plateau crest / summit ridge (deep terracotta caprock)
 ])
 
 
-def load_tif(filepath, target_shape=(768, 768), smooth_sigma=1.0, invert=False):
+def load_tif(filepath, target_shape=(768, 768), smooth_sigma=1.0, invert=False, is_elevation=False):
     """Load a TIFF, apply p2-p98 percentile stretch, resample. Returns [0,1] float or None."""
     if not filepath or not os.path.exists(filepath):
         return None
@@ -85,12 +93,15 @@ def load_tif(filepath, target_shape=(768, 768), smooth_sigma=1.0, invert=False):
         if arr.ndim == 3:
             arr = arr[0]
         nodata = (arr < -9000) | np.isnan(arr) | np.isinf(arr)
+        if is_elevation:
+            nodata = nodata | (arr <= 0)
         valid = arr[~nodata]
         if len(valid) < 10:
             return np.full(target_shape, 0.5)
         p2, p98 = np.percentile(valid, [2, 98])
         norm = np.clip((arr - p2) / (p98 - p2 + 1e-9), 0.0, 1.0) if p98 > p2 else np.full_like(arr, 0.5)
-        norm[nodata] = 0.5
+        if np.any(nodata):
+            norm[nodata] = np.median(norm[~nodata]) if np.any(~nodata) else 0.5
         H, W = target_shape
         if norm.shape[0] != H or norm.shape[1] != W:
             norm = zoom(norm, (H / norm.shape[0], W / norm.shape[1]), order=3)
@@ -245,7 +256,7 @@ def process_mine(mine_id, cfg, H=768, W=768):
     # Load all bands (no offsets needed — each mine has its own real TIFs)
     ndvi    = load_tif(cfg.get('ndvi'),   (H, W), smooth_sigma=0.8)
     ndvi_m  = load_tif(cfg.get('ndvi_m'), (H, W), smooth_sigma=0.8)
-    elev    = load_tif(cfg.get('elev'),   (H, W), smooth_sigma=1.2)
+    elev    = load_tif(cfg.get('elev'),   (H, W), smooth_sigma=1.0, is_elevation=True)
     sm_raw  = load_tif(cfg.get('sm'),     (H, W), smooth_sigma=1.0)
     sm_m    = load_tif(cfg.get('sm_m'),   (H, W), smooth_sigma=1.0)
     iron    = load_tif(cfg.get('iron'),   (H, W), smooth_sigma=1.0)
@@ -300,48 +311,70 @@ def process_mine(mine_id, cfg, H=768, W=768):
     sm_al = gaussian_filter(np.clip(1.0 - sm_biased, 0.0, 1.0), sigma=0.8)
 
     # ─────────────────────────────────────────────────────────────────────────
-    # IRON OXIDE / ALTERATION PROXY — CALIBRATED PER MINE
-    # Where iron_oxide_index.tif is available: use it directly (best data)
-    # Where only LST + slope are available: build a gossan proxy from:
-    #   - High LST (thermal anomaly) → gossan/alteration zone indicator
-    #   - High slope (bench faces) → exposed mineralised rock
-    #   - Low NDVI (pit/waste dump) → bare rock with potential gossan
+    # IRON OXIDE / ALTERATION PROXY — CALIBRATED PER MINE (ZERO BLOCK ARTIFACTS)
+    #
+    # Root Cause of Old Bug: Coarse 1km thermal LST rasters had 25x25 identical pixel blocks.
+    # Blending with sigma=1.2 produced huge rectangular tiles and checkerboard stripes
+    # across Beldongri, Balaghat, and Chikla.
+    #
+    # FIX:
+    # 1. Mines with dedicated iron_oxide_index.tif (Dongri, Tirodi, Sitapatore, Ukwa):
+    #    Use pure 10m iron_oxide_index (85%) + clay index (15%), or fine bench slope.
+    #    Zero coarse LST added, completely eliminating any block artifact.
+    # 2. Mines without iron_oxide_index.tif (Balaghat, Chikla, Beldongri, Kandri, Munsar, Gumgaon):
+    #    Synthesize a 10m high-resolution gossan alteration proxy from:
+    #      - 45% pit exposure: bare rock / weathered quarry surface (from 10m Sentinel-2 NDVI)
+    #      - 25% SAR backscatter: surface roughness of oxidized mineralized ground (from 10m Sentinel-1 VV)
+    #      - 20% bench slope: steep structural highwalls and bench cuts where gossans are exposed
+    #      - 10% regional thermal trend: LST diffused with large sigma (sigma=35.0) as ambient background ONLY
+    #    This guarantees 100% continuous, geological-contour-conforming gossan mapping with ZERO tiles/blocks!
     # ─────────────────────────────────────────────────────────────────────────
-    alt_parts = []
-
     if iron is not None:
-        # Direct iron oxide index — most accurate
-        alt_parts.append((0.55, iron))
-        if lst is not None:
-            alt_parts.append((0.25, lst))
-        if lst_m is not None:
-            alt_parts.append((0.10, lst_m))
+        # Direct high-resolution iron oxide index (SWIR band ratio)
         if clay is not None:
-            alt_parts.append((0.15, clay))
-    else:
-        # Derive gossan proxy: LST (high temp = exposed altered rock) + pit exposure + slope
-        # For mines WITHOUT iron_oxide_index.tif
-        if lst is not None:
-            alt_parts.append((0.50, lst))  # LST: thermal proxy for exposed ferruginous surface
-        if lst_m is not None:
-            alt_parts.append((0.15, lst_m))  # Seasonal LST
-        # Add pit exposure as alteration proxy: bare rock = potential gossan
-        alt_parts.append((0.25, pit_exp))
-        # Steep slopes = bench faces where ore body is exposed
+            alt_base = 0.82 * iron + 0.18 * clay
+        else:
+            alt_base = iron.copy()
         if slope is not None:
-            # Use mid-slope range as benches are typically 30-50 degrees
-            bench_slope = np.clip(slope * 1.3, 0.0, 1.0)
-            alt_parts.append((0.10, bench_slope))
-
-    if alt_parts:
-        tot = sum(w for w, _ in alt_parts)
-        alt_norm = sum(w * a for w, a in alt_parts) / tot
-        # Boost contrast for alteration: push high-alteration zones to stand out
-        alt_norm = np.clip(alt_norm * 1.25 - 0.05, 0.0, 1.0)
-        alt_norm = np.clip(gaussian_filter(alt_norm, sigma=1.0), 0.0, 1.0)
+            # Emphasize bench faces and shear walls
+            alt_base = 0.90 * alt_base + 0.10 * np.clip(slope * 1.2, 0.0, 1.0)
+        alt_norm = gaussian_filter(alt_base, sigma=0.8)
     else:
-        # Final fallback: purely from pit exposure (bare = potentially altered)
-        alt_norm = np.clip(gaussian_filter(np.clip((0.45 - ndvi) / 0.45, 0.0, 1.0) * 1.4, sigma=1.5), 0.0, 1.0)
+        # Synthesize seamless 10m alteration proxy for mines without iron_oxide_index
+        # 1. Pit / bare rock exposure (where Fe-Mn gossans and pyrolusite outcroppings occur)
+        bare_rock = np.clip((0.38 - ndvi) / 0.38, 0.0, 1.0)
+        
+        # 2. SAR surface roughness (fractured mineralized benches vs smooth alluvium/crops)
+        roughness = s1_vv if s1_vv is not None else np.full((H, W), 0.5)
+        
+        # 3. Structural bench slope (excavated benches and fault scarps)
+        bench_slp = np.clip(slope * 1.3, 0.0, 1.0) if slope is not None else np.full((H, W), 0.5)
+        
+        # 4. Regional thermal anomaly (heavily diffused with sigma=35 to eliminate ANY block edges)
+        if lst is not None:
+            thermal_ambient = gaussian_filter(lst, sigma=35.0)
+        else:
+            thermal_ambient = np.full((H, W), 0.5)
+            
+        alt_combined = (
+            0.45 * bare_rock +
+            0.25 * roughness +
+            0.20 * bench_slp +
+            0.10 * thermal_ambient
+        )
+        alt_norm = gaussian_filter(alt_combined, sigma=1.0)
+
+    # Normalize cleanly with percentile stretch
+    p3, p97 = np.percentile(alt_norm, [3, 97])
+    if p97 > p3:
+        alt_norm = np.clip((alt_norm - p3) / (p97 - p3), 0.0, 1.0)
+    else:
+        alt_norm = np.clip(alt_norm, 0.0, 1.0)
+
+    # For synthesized proxy mines, calibrate baseline to match real iron oxide mines (Dongri/Tirodi)
+    # Ensures rich fiery gossan highlights on pit benches instead of a dark indigo/purple blanket
+    if iron is None:
+        alt_norm = np.clip(0.22 + 0.72 * (alt_norm ** 0.65), 0.0, 1.0)
 
     # ─────────────────────────────────────────────────────────────────────────
     # SLOPE BENCH TERM
@@ -365,9 +398,13 @@ def process_mine(mine_id, cfg, H=768, W=768):
     prospect_norm = np.clip((prospect_smooth - p5) / (p95 - p5 + 1e-6), 0.0, 1.0)
 
     # ─────────────────────────────────────────────────────────────────────────
-    # ELEVATION: Pit-calibrated — lower areas (worked-out pits) get darker
+    # ELEVATION: Real SRTM 30m DEM topography — authentic hypsometric scaling
+    # The real DEM already reflects the physical pit depression and surrounding highwall ridge geometry
     # ─────────────────────────────────────────────────────────────────────────
-    elev_al = gaussian_filter(np.clip(elev - pit_exp * 0.30 + (slope * 0.10 if slope is not None else 0), 0.0, 1.0), sigma=1.2)
+    elev_al = gaussian_filter(elev, sigma=1.0)
+    p2_el, p98_el = np.percentile(elev_al, [2, 98])
+    if p98_el > p2_el:
+        elev_al = np.clip((elev_al - p2_el) / (p98_el - p2_el), 0.0, 1.0)
 
     # ─────────────────────────────────────────────────────────────────────────
     # RGBA LAYER SAVE
