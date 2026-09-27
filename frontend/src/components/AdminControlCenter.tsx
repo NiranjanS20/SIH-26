@@ -3,6 +3,7 @@ import { type PortalRoute } from './Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import { MOIL_MINES } from '../data/minesData';
 import { apiGet } from '../services/apiClient';
+import { MineProspectivityIntelligence } from './MineProspectivityIntelligence';
 
 interface AdminControlCenterProps {
   onNavigate: (route: PortalRoute) => void;
@@ -15,7 +16,8 @@ type AdminTab =
   | 'mine-network'
   | 'alert-center'
   | 'compliance-oversight'
-  | 'reports-center';
+  | 'reports-center'
+  | 'prospectivity-intelligence';
 
 interface AlertItem {
   id: string;
@@ -828,6 +830,7 @@ export const AdminControlCenter: React.FC<AdminControlCenterProps> = ({
             { id: 'alert-center', label: 'Risk & Alert Command', icon: 'crisis_alert' },
             { id: 'compliance-oversight', label: 'Statutory Compliance', icon: 'verified_user' },
             { id: 'reports-center', label: 'Reports & Dossiers', icon: 'description' },
+            { id: 'prospectivity-intelligence', label: 'Prospectivity & Confidence', icon: 'diamond' },
           ].map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -2499,6 +2502,13 @@ export const AdminControlCenter: React.FC<AdminControlCenterProps> = ({
               ))}
             </div>
           </div>
+        )}
+
+        {/* ===================================================================== */}
+        {/* TAB 6: PROSPECTIVITY & CONFIDENCE INTELLIGENCE                        */}
+        {/* ===================================================================== */}
+        {activeTab === 'prospectivity-intelligence' && (
+          <MineProspectivityIntelligence isDark={isDark} />
         )}
 
       </main>

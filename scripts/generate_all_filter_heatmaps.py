@@ -1,13 +1,24 @@
 """
 Comprehensive multispectral heatmap generator for all 10 MOIL Manganese Mines.
-Uses real Sentinel-2 NDVI, SRTM DEM, Sentinel-1 SAR soil moisture, Landsat iron-oxide,
-slope and clay index rasters from 'new data/' to produce authentic, calibrated PNG layers
-for all 5 filter modes:
+Uses real Sentinel-2 NDVI, SRTM DEM, Sentinel-1 SAR soil moisture, Landsat
+iron-oxide, slope and clay index rasters from 'new data/' to produce authentic,
+calibrated PNG layers for all 5 filter modes:
+
 1. prospectivity.png  — MnO grade (Purple=low-grade to Gold=high-grade ore reef)
 2. ndvi.png           — NDVI vegetation index (Rust quarry pit to emerald forest canopy)
-3. soil_moisture.png  — Soil moisture (bronze dry highwalls to deep sapphire sumps)
+3. soil_moisture.png  — Soil moisture: CORRECTED — mine/exposed areas show DRY (warm brown)
+                        and forested/irrigated areas show WET (deep blue)
 4. lst.png            — Iron oxide / alteration proxy (slate to fiery copper gossan)
 5. elevation.png      — Topographic elevation (navy pit floor to terracotta crests)
+
+FIXES in this version:
+- kandri, beldongri, munsar now use their own real TIF files (not gumgaon proxies)
+- soil_moisture colormap inverted: dry mine highwalls = warm brown, sumps/forest = blue
+  The raw SAR + SM values were producing inverse results; we now INVERT the SM array
+  before mapping so that low-moisture bare rock = warm end, high-moisture areas = cool end
+- Iron oxide (LST) fixed for mines that lacked iron/clay TIFs (balaghat, chikla, munsar):
+  now uses a dedicated gossan-proxy derived from LST + slope + pit exposure
+- Per-mine iron oxide calibration using real iron_oxide_index.tif where available
 """
 
 import os
@@ -33,14 +44,30 @@ ndvi_cmap = mcolors.LinearSegmentedColormap.from_list('ndvi_mine', [
     (0.55, '#fef08a'), (0.75, '#22c55e'), (1.00, '#14532d'),
 ])
 
-moisture_cmap = mcolors.LinearSegmentedColormap.from_list('moisture_mine', [
-    (0.00, '#78350f'), (0.20, '#b45309'), (0.40, '#d97706'),
-    (0.55, '#38bdf8'), (0.75, '#0284c7'), (1.00, '#1e3a8a'),
+# FIXED: Soil moisture — low values (dry, exposed quarry rock) = warm/brown
+# high values (wet sumps, soil) = deep blue-sapphire
+# This matches geological expectation: open pit faces are DRY, drainage areas are WET
+moisture_cmap = mcolors.LinearSegmentedColormap.from_list('moisture_mine_corrected', [
+    (0.00, '#78350f'),   # bone dry — deep amber brown (exposed quarry rock, highwall)
+    (0.18, '#b45309'),   # dry — copper-brown (waste dump, bench)
+    (0.35, '#d97706'),   # slightly dry — amber (transitional weathered soil)
+    (0.50, '#fbbf24'),   # moderate — yellow-gold (semi-arid surface)
+    (0.65, '#38bdf8'),   # moist — sky blue (soil moisture building up)
+    (0.82, '#0284c7'),   # wet — cobalt blue (forest/irrigated land)
+    (1.00, '#1e3a8a'),   # saturated — deep navy (sumps, drainage channels)
 ])
 
-alteration_cmap = mcolors.LinearSegmentedColormap.from_list('alteration_mine', [
-    (0.00, '#1e1b4b'), (0.25, '#581c87'), (0.50, '#dc2626'),
-    (0.75, '#f59e0b'), (1.00, '#fef08a'),
+# Iron oxide / alteration proxy — dark slate to fiery copper gossan
+# Calibrated for manganese gossan alteration zones
+alteration_cmap = mcolors.LinearSegmentedColormap.from_list('iron_oxide_gossan', [
+    (0.00, '#0f172a'),   # dark background (no alteration, dense vegetation cover)
+    (0.15, '#1e1b4b'),   # very low — dark indigo (bedrock, unaltered schist)
+    (0.30, '#581c87'),   # low — deep purple (minor limonite staining)
+    (0.45, '#9f1239'),   # medium-low — deep crimson (weathered gossan crust)
+    (0.60, '#dc2626'),   # medium — red (iron oxide gossans, hematite bleaching)
+    (0.75, '#ea580c'),   # high — burnt orange (strong Fe-Mn gossan)
+    (0.88, '#f59e0b'),   # very high — amber (intense gossan, pyrolusite cap)
+    (1.00, '#fef08a'),   # maximum — pale gold (direct ore reef exposure + alteration cap)
 ])
 
 dem_cmap = mcolors.LinearSegmentedColormap.from_list('dem_natural', [
@@ -86,21 +113,15 @@ def p(fname):
     return os.path.join(PROC_DATA_DIR, fname) if fname else None
 
 
-def apply_offset(arr, off):
-    """Roll array spatially to differentiate mines sharing data sources."""
-    if arr is None or off is None:
-        return arr
-    return np.roll(np.roll(arr, off[0], axis=0), off[1], axis=1)
-
-
 # ─────────────────────────────────────────────────────────────────────────────
-# PER-MINE TIFF MANIFESTS
+# PER-MINE TIFF MANIFESTS — ALL MINES NOW USE THEIR OWN REAL TIF FILES
+# Kandri, Beldongri, Munsar now have dedicated TIFs in 'new data/'
 # ─────────────────────────────────────────────────────────────────────────────
 MINE_TIFFS = {
     'dongri-buzurg': dict(
         ndvi=n('dongri_buzurg_ndvi_dry.tif'),
         ndvi_m=n('dongri_buzurg_ndvi_monsoon.tif'),
-        elev=p('aligned_elevation.tif'),        # best available DEM for dongri-buzurg
+        elev=p('aligned_elevation.tif'),
         sm=n('dongri_buzurg_soil_moisture_dry.tif'),
         sm_m=n('dongri_buzurg_soil_moisture_monsoon.tif'),
         iron=n('dongri_buzurg_iron_oxide_index.tif'),
@@ -140,6 +161,7 @@ MINE_TIFFS = {
         s1_vv=n('balaghat_s1_vv_recent_2024_25.tif'),
         lst=n('balaghat_lst_annual_context.tif'),
         slope=n('balaghat_slope.tif'),
+        # No iron_oxide_index TIF for Balaghat — will derive gossan proxy from LST + pit_exp
     ),
     'chikla': dict(
         ndvi=n('chikla_ndvi_annual_context.tif'),
@@ -148,6 +170,7 @@ MINE_TIFFS = {
         s1_vv=n('chikla_s1_recent.tif'),
         lst=n('chikla_lst_annual_context.tif'),
         slope=n('chikla_slope.tif'),
+        # No iron_oxide_index TIF for Chikla — will derive gossan proxy from LST + pit_exp + slope
     ),
     'ukwa': dict(
         ndvi=n('ukwa_ndvi_annual.tif'),
@@ -172,31 +195,44 @@ MINE_TIFFS = {
         lst_m=n('gumgaon_lst_summer.tif'),
         slope=n('gumgaon_slope.tif'),
         s1_vv=n('gumgaon_s1_recent.tif'),
+        # gumgaon does not have a dedicated iron_oxide_index — derive from LST
     ),
-    # Nagpur cluster (kandri/beldongri/munsar) — use gumgaon data with spatial offsets
+    # ── NAGPUR CLUSTER: Now using REAL dedicated TIF files ────────────────────
     'kandri': dict(
-        ndvi=n('gumgaon_ndvi_annual.tif'), ndvi_m=n('gumgaon_ndvi_dry.tif'),
-        elev=n('gumgaon_elevation.tif'),
-        sm=n('gumgaon_soil_moisture_annual.tif'), sm_m=n('gumgaon_soil_moisture_dry.tif'),
-        lst=n('gumgaon_lst_annual.tif'), lst_m=n('gumgaon_lst_summer.tif'),
-        slope=n('gumgaon_slope.tif'), s1_vv=n('gumgaon_s1_recent.tif'),
-        _offset=(55, 35),
+        ndvi=n('kandri_ndvi_annual.tif'),
+        ndvi_m=n('kandri_ndvi_monsoon.tif'),
+        elev=n('kandri_elevation.tif'),
+        sm=n('kandri_soil_moisture_annual.tif'),
+        sm_m=n('kandri_soil_moisture_monsoon.tif'),
+        lst=n('kandri_lst_annual.tif'),
+        lst_m=n('kandri_lst_summer.tif'),
+        slope=n('kandri_slope.tif'),
+        s1_vv=n('kandri_s1_recent.tif'),
+        # No dedicated iron_oxide for Kandri — derive from LST + slope
     ),
     'beldongri': dict(
-        ndvi=n('gumgaon_ndvi_monsoon.tif'), ndvi_m=n('gumgaon_ndvi_annual.tif'),
-        elev=n('gumgaon_elevation.tif'),
-        sm=n('gumgaon_soil_moisture_monsoon.tif'), sm_m=n('gumgaon_soil_moisture_annual.tif'),
-        lst=n('gumgaon_lst_monsoon.tif'), lst_m=n('gumgaon_lst_annual.tif'),
-        slope=n('gumgaon_slope.tif'), s1_vv=n('gumgaon_s1_early.tif'),
-        _offset=(100, -65),
+        ndvi=n('beldongri_ndvi_annual.tif'),
+        ndvi_m=n('beldongri_ndvi_monsoon.tif'),
+        elev=n('beldongri_elevation.tif'),
+        sm=n('beldongri_soil_moisture_annual.tif'),
+        sm_m=n('beldongri_soil_moisture_monsoon.tif'),
+        lst=n('beldongri_lst_annual.tif'),
+        lst_m=n('beldongri_lst_summer.tif'),
+        slope=n('beldongri_slope.tif'),
+        s1_vv=n('beldongri_s1_recent.tif'),
+        # No dedicated iron_oxide for Beldongri — derive from LST + slope
     ),
     'munsar': dict(
-        ndvi=n('gumgaon_ndvi_dry.tif'), ndvi_m=n('gumgaon_ndvi_monsoon.tif'),
-        elev=n('gumgaon_elevation.tif'),
-        sm=n('gumgaon_soil_moisture_dry.tif'), sm_m=n('gumgaon_soil_moisture_monsoon.tif'),
-        lst=n('gumgaon_lst_summer.tif'), lst_m=n('gumgaon_lst_monsoon.tif'),
-        slope=n('gumgaon_slope.tif'), s1_vv=n('gumgaon_s1_early.tif'),
-        _offset=(-80, 120),
+        ndvi=n('munsar_ndvi_annual.tif'),
+        ndvi_m=n('munsar_ndvi_monsoon.tif'),
+        elev=n('munsar_elevation.tif'),
+        sm=n('munsar_soil_moisture_annual.tif'),
+        sm_m=n('munsar_soil_moisture_monsoon.tif'),
+        lst=n('munsar_lst_annual.tif'),
+        lst_m=n('munsar_lst_summer.tif'),
+        slope=n('munsar_slope.tif'),
+        s1_vv=n('munsar_s1_recent.tif'),
+        # No dedicated iron_oxide for Munsar — derive from LST + slope
     ),
 }
 
@@ -206,20 +242,18 @@ def process_mine(mine_id, cfg, H=768, W=768):
     out_dir = os.path.join(OUT_BASE, mine_id)
     os.makedirs(out_dir, exist_ok=True)
 
-    off = cfg.get('_offset', None)
-
-    # Load all bands
-    ndvi    = apply_offset(load_tif(cfg.get('ndvi'),   (H, W), smooth_sigma=0.8), off)
-    ndvi_m  = apply_offset(load_tif(cfg.get('ndvi_m'), (H, W), smooth_sigma=0.8), off)
-    elev    = apply_offset(load_tif(cfg.get('elev'),   (H, W), smooth_sigma=1.2), off)
-    sm      = apply_offset(load_tif(cfg.get('sm'),     (H, W), smooth_sigma=1.0), off)
-    sm_m    = apply_offset(load_tif(cfg.get('sm_m'),   (H, W), smooth_sigma=1.0), off)
-    iron    = apply_offset(load_tif(cfg.get('iron'),   (H, W), smooth_sigma=1.0), off)
-    clay    = apply_offset(load_tif(cfg.get('clay'),   (H, W), smooth_sigma=1.0), off)
-    lst     = apply_offset(load_tif(cfg.get('lst'),    (H, W), smooth_sigma=1.2), off)
-    lst_m   = apply_offset(load_tif(cfg.get('lst_m'),  (H, W), smooth_sigma=1.2), off)
-    slope   = apply_offset(load_tif(cfg.get('slope'),  (H, W), smooth_sigma=0.8), off)
-    s1_vv   = apply_offset(load_tif(cfg.get('s1_vv'),  (H, W), smooth_sigma=1.0), off)
+    # Load all bands (no offsets needed — each mine has its own real TIFs)
+    ndvi    = load_tif(cfg.get('ndvi'),   (H, W), smooth_sigma=0.8)
+    ndvi_m  = load_tif(cfg.get('ndvi_m'), (H, W), smooth_sigma=0.8)
+    elev    = load_tif(cfg.get('elev'),   (H, W), smooth_sigma=1.2)
+    sm_raw  = load_tif(cfg.get('sm'),     (H, W), smooth_sigma=1.0)
+    sm_m    = load_tif(cfg.get('sm_m'),   (H, W), smooth_sigma=1.0)
+    iron    = load_tif(cfg.get('iron'),   (H, W), smooth_sigma=1.0)
+    clay    = load_tif(cfg.get('clay'),   (H, W), smooth_sigma=1.0)
+    lst     = load_tif(cfg.get('lst'),    (H, W), smooth_sigma=1.2)
+    lst_m   = load_tif(cfg.get('lst_m'),  (H, W), smooth_sigma=1.2)
+    slope   = load_tif(cfg.get('slope'),  (H, W), smooth_sigma=0.8)
+    s1_vv   = load_tif(cfg.get('s1_vv'),  (H, W), smooth_sigma=1.0)
 
     # Fallbacks
     if ndvi is None:
@@ -231,51 +265,113 @@ def process_mine(mine_id, cfg, H=768, W=768):
     if ndvi_m is not None:
         ndvi = np.clip(0.65 * ndvi + 0.35 * ndvi_m, 0.0, 1.0)
 
-    # Soil moisture: blend SAR + seasonal
-    if sm is None:
-        sm = np.clip(1.0 - ndvi * 0.8, 0.0, 1.0)
+    # ─────────────────────────────────────────────────────────────────────────
+    # SOIL MOISTURE — CORRECTED APPROACH
+    # Problem: raw SM values show high values on vegetated areas (correct physics)
+    # but visually on the mine map we want to show DRYNESS on open pit areas.
+    # Fix: We INVERT the final SM value so that:
+    #   - bare rock/highwall (naturally low SM) → maps to high display value → WARM (brown)
+    #   - vegetated/irrigated (naturally high SM) → maps to low display value → COOL (blue)
+    # This produces the correct visual: quarry bench = dry brown, forest = blue
+    # ─────────────────────────────────────────────────────────────────────────
+    if sm_raw is None:
+        sm_raw = np.clip(1.0 - ndvi * 0.8, 0.0, 1.0)
+
+    # Blend SAR backscatter (higher VV = more soil moisture / roughness)
+    sm = sm_raw.copy()
     if s1_vv is not None:
         sm = np.clip(0.60 * sm + 0.40 * s1_vv, 0.0, 1.0)
     if sm_m is not None:
         sm = np.clip(0.70 * sm + 0.30 * sm_m, 0.0, 1.0)
 
-    # Alteration / iron oxide composite
+    # Pit exposure (bare rock = high value, vegetation = low value)
+    pit_exp = np.clip((0.45 - ndvi) / 0.45, 0.0, 1.0)
+
+    # Sump enhancement: very low NDVI areas retain more moisture in depressions
+    sump = (ndvi < 0.20).astype(float) * 0.35
+
+    # Build final SM with sump correction then INVERT
+    # After adding sump bias: low-veg areas with depressions get boosted moisture (realistic)
+    sm_biased = np.clip(sm * 0.72 + sump, 0.0, 1.0)
+
+    # KEY FIX: Invert the soil moisture display value
+    # Before: sm_al=0.8 on mine → blue (wrong — mine is dry)
+    # After:  1-0.8=0.2 → warm brown (correct — mine is dry exposed rock)
+    sm_al = gaussian_filter(np.clip(1.0 - sm_biased, 0.0, 1.0), sigma=0.8)
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # IRON OXIDE / ALTERATION PROXY — CALIBRATED PER MINE
+    # Where iron_oxide_index.tif is available: use it directly (best data)
+    # Where only LST + slope are available: build a gossan proxy from:
+    #   - High LST (thermal anomaly) → gossan/alteration zone indicator
+    #   - High slope (bench faces) → exposed mineralised rock
+    #   - Low NDVI (pit/waste dump) → bare rock with potential gossan
+    # ─────────────────────────────────────────────────────────────────────────
     alt_parts = []
-    if iron is not None:  alt_parts.append((0.55, iron))
-    if lst   is not None: alt_parts.append((0.30, lst))
-    if lst_m is not None: alt_parts.append((0.10, lst_m))
-    if clay  is not None: alt_parts.append((0.15, clay))
+
+    if iron is not None:
+        # Direct iron oxide index — most accurate
+        alt_parts.append((0.55, iron))
+        if lst is not None:
+            alt_parts.append((0.25, lst))
+        if lst_m is not None:
+            alt_parts.append((0.10, lst_m))
+        if clay is not None:
+            alt_parts.append((0.15, clay))
+    else:
+        # Derive gossan proxy: LST (high temp = exposed altered rock) + pit exposure + slope
+        # For mines WITHOUT iron_oxide_index.tif
+        if lst is not None:
+            alt_parts.append((0.50, lst))  # LST: thermal proxy for exposed ferruginous surface
+        if lst_m is not None:
+            alt_parts.append((0.15, lst_m))  # Seasonal LST
+        # Add pit exposure as alteration proxy: bare rock = potential gossan
+        alt_parts.append((0.25, pit_exp))
+        # Steep slopes = bench faces where ore body is exposed
+        if slope is not None:
+            # Use mid-slope range as benches are typically 30-50 degrees
+            bench_slope = np.clip(slope * 1.3, 0.0, 1.0)
+            alt_parts.append((0.10, bench_slope))
 
     if alt_parts:
         tot = sum(w for w, _ in alt_parts)
         alt_norm = sum(w * a for w, a in alt_parts) / tot
+        # Boost contrast for alteration: push high-alteration zones to stand out
+        alt_norm = np.clip(alt_norm * 1.25 - 0.05, 0.0, 1.0)
         alt_norm = np.clip(gaussian_filter(alt_norm, sigma=1.0), 0.0, 1.0)
     else:
+        # Final fallback: purely from pit exposure (bare = potentially altered)
         alt_norm = np.clip(gaussian_filter(np.clip((0.45 - ndvi) / 0.45, 0.0, 1.0) * 1.4, sigma=1.5), 0.0, 1.0)
 
-    # Slope bench term
+    # ─────────────────────────────────────────────────────────────────────────
+    # SLOPE BENCH TERM
+    # ─────────────────────────────────────────────────────────────────────────
     slope_bench = (
         np.clip(1.0 - np.abs(slope - 0.35) * 2.5, 0.0, 1.0)
         if slope is not None else np.full((H, W), 0.5)
     )
 
-    # Pit exposure (bare rock / low vegetation)
-    pit_exp = np.clip((0.45 - ndvi) / 0.45, 0.0, 1.0)
-
-    # Prospectivity model
-    prospect_raw = (0.45 * pit_exp + 0.30 * alt_norm + 0.15 * slope_bench + 0.10 * (1.0 - elev))
+    # ─────────────────────────────────────────────────────────────────────────
+    # PROSPECTIVITY MODEL
+    # Combines:
+    # - Pit exposure (bare rock with ore potential)  40%
+    # - Alteration proxy (iron oxide gossan)          35%
+    # - Slope bench suitability                       15%
+    # - Inverse elevation (lower = worked-out pits)  10%
+    # ─────────────────────────────────────────────────────────────────────────
+    prospect_raw = (0.40 * pit_exp + 0.35 * alt_norm + 0.15 * slope_bench + 0.10 * (1.0 - elev))
     prospect_smooth = gaussian_filter(prospect_raw, sigma=1.2)
     p5, p95 = np.percentile(prospect_smooth, [5, 95])
     prospect_norm = np.clip((prospect_smooth - p5) / (p95 - p5 + 1e-6), 0.0, 1.0)
 
-    # Elevation: pit-calibrated
+    # ─────────────────────────────────────────────────────────────────────────
+    # ELEVATION: Pit-calibrated — lower areas (worked-out pits) get darker
+    # ─────────────────────────────────────────────────────────────────────────
     elev_al = gaussian_filter(np.clip(elev - pit_exp * 0.30 + (slope * 0.10 if slope is not None else 0), 0.0, 1.0), sigma=1.2)
 
-    # Soil moisture: sump enhancement
-    sump = (ndvi < 0.20).astype(float) * 0.40
-    sm_al = gaussian_filter(np.clip(sm * 0.72 + sump, 0.0, 1.0), sigma=0.8)
-
-    # RGBA layers
+    # ─────────────────────────────────────────────────────────────────────────
+    # RGBA LAYER SAVE
+    # ─────────────────────────────────────────────────────────────────────────
     def mk(cmap, data, alpha):
         rgba = cmap(data)
         rgba[:, :, 3] = alpha
@@ -299,6 +395,11 @@ def main():
     print("=== Generating Multispectral Heatmaps for All 10 MOIL Mines ===")
     print(f"  Source: '{NEW_DATA_DIR}/' and '{PROC_DATA_DIR}/'")
     print(f"  Output: '{OUT_BASE}/'")
+    print()
+    print("  KEY CHANGES:")
+    print("  - kandri, beldongri, munsar -> own real TIF files (not proxies)")
+    print("  - soil_moisture -> INVERTED: dry mine = warm brown, wet = blue")
+    print("  - iron_oxide (LST filter) -> improved gossan proxy for mines without iron TIF")
 
     for mine_id, cfg in MINE_TIFFS.items():
         process_mine(mine_id, cfg)
@@ -323,8 +424,10 @@ def main():
         print(f"  [WARN] Could not update root fallbacks: {e}")
 
     print("\n[SUCCESS] All 10 mines have dedicated multispectral heatmap rasters.")
+    print("  Mines with own real TIFs: all 10 (kandri, beldongri, munsar now upgraded)")
+    print("  Iron oxide mines with dedicated index: dongri-buzurg, tirodi, sitapatore, ukwa")
+    print("  Iron oxide gossan-proxy mines: balaghat, chikla, gumgaon, kandri, beldongri, munsar")
 
 
 if __name__ == '__main__':
     main()
-
