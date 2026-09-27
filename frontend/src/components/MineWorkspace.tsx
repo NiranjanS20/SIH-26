@@ -89,6 +89,739 @@ const INDUSTRY_VIEWER_TABS: OverviewTab[] = [
 ];
 
 
+
+
+  interface MineBenchStatusItem {
+    id: string;
+    benchName: string;
+    zone: string;
+    phase: 'EXTRACTION ACTIVE' | 'CHARGING & PRIMING' | 'DEWATERING IN PROGRESS' | 'HAULAGE ACTIVE' | 'SIZING & CRUSHING' | 'WASTE DISPOSAL';
+    statusColor: string;
+    shiftActualTons: number;
+    shiftTargetTons: number;
+    assignedMachinery: string;
+    dgmsSlopeIndex: number;
+    geotechRisk: 'LOW' | 'MEDIUM' | 'HIGH';
+    operatorInCharge: string;
+    notes: string;
+  }
+
+
+  const CURRENT_MINE_INTERNAL_BENCHES: Record<string, MineBenchStatusItem[]> = {
+    'dongri-buzurg': [
+      {
+        id: 'db-b3',
+        benchName: 'Pit Bench 3 (High-Grade Reef)',
+        zone: 'Zone 14 South Reef',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 1800,
+        shiftTargetTons: 2200,
+        assignedMachinery: 'Excavator EX-04 • Dumper Fleet A (4x CAT 773E)',
+        dgmsSlopeIndex: 96.5,
+        geotechRisk: 'HIGH',
+        operatorInCharge: 'Er. S. K. Meshram',
+        notes: 'EX-04 hydraulic seal leak reduced output pace by 1.8h; reef grade at 44.2% Mn.',
+      },
+      {
+        id: 'db-z14',
+        benchName: 'Zone 14 South Blast Pattern',
+        zone: 'South Boundary Highwall',
+        phase: 'CHARGING & PRIMING',
+        statusColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+        shiftActualTons: 1100,
+        shiftTargetTons: 1400,
+        assignedMachinery: 'Atlas Copco Drill Rig D01 • ANFO Charging Van',
+        dgmsSlopeIndex: 94.2,
+        geotechRisk: 'MEDIUM',
+        operatorInCharge: 'Er. R. K. Sharma',
+        notes: 'Shot #DB-Z14-P3-SHOT88 charged (48 holes); DGMS bench vibration clearance audit logged.',
+      },
+      {
+        id: 'db-b2',
+        benchName: 'Pit Bench 2 (Secondary Loading Face)',
+        zone: 'North Highwall Face',
+        phase: 'HAULAGE ACTIVE',
+        statusColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+        shiftActualTons: 1200,
+        shiftTargetTons: 1400,
+        assignedMachinery: 'Excavator EX-02 • Dumper Fleet B (3x BEML 35T)',
+        dgmsSlopeIndex: 98.0,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. N. C. Baghel',
+        notes: 'Secondary loading operating steadily on 8.5% ramp gradient without congestion.',
+      },
+      {
+        id: 'db-sump',
+        benchName: 'Lower Pit Sump (Bench 4 Dewatering)',
+        zone: 'Central Deep Sump',
+        phase: 'DEWATERING IN PROGRESS',
+        statusColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
+        shiftActualTons: 0,
+        shiftTargetTons: 0,
+        assignedMachinery: '2x 600 m³/hr Kirloskar Submersible Pumps',
+        dgmsSlopeIndex: 91.0,
+        geotechRisk: 'HIGH',
+        operatorInCharge: 'Er. S. Rao',
+        notes: 'Monsoon inflow rate at 1,450 m³/hr; CGWB discharge quota strictly monitored.',
+      },
+      {
+        id: 'db-crusher',
+        benchName: 'Primary Crusher Hopper Siding',
+        zone: 'Surface ROM Pad',
+        phase: 'SIZING & CRUSHING',
+        statusColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+        shiftActualTons: 580,
+        shiftTargetTons: 600,
+        assignedMachinery: 'Grizzly Sizing Screen 01 • Mist Cannon M02',
+        dgmsSlopeIndex: 99.0,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. P. V. Nair',
+        notes: 'Dust suppression mist operating at 4.1 bar; SPCB ambient PM10 at 82 µg/m³.',
+      },
+      {
+        id: 'db-dump',
+        benchName: 'Waste Rock Dump Terrace 3',
+        zone: 'North Waste Overburden Area',
+        phase: 'WASTE DISPOSAL',
+        statusColor: 'bg-slate-500/20 text-slate-300 border-slate-500/40',
+        shiftActualTons: 3400,
+        shiftTargetTons: 3500,
+        assignedMachinery: 'CAT D8R Bulldozer • Wheel Loader WL-03',
+        dgmsSlopeIndex: 99.2,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. T. S. Yadav',
+        notes: 'Terrace slope berm angle maintained at 26.5° (IBM MCDR standard limit: 28°).',
+      },
+    ],
+    balaghat: [
+      {
+        id: 'bg-bharveli',
+        benchName: 'Bharveli Stope L7 (Open Stope Face)',
+        zone: 'Bharveli Deep Ore Body',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 1600,
+        shiftTargetTons: 1500,
+        assignedMachinery: 'Sandvik LH410 LHD • Tamrock Jumbo Drill',
+        dgmsSlopeIndex: 98.0,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. S. N. Mukherjee',
+        notes: 'High-grade 46.8% Mn ore extraction pacing at 107% of shift target.',
+      },
+      {
+        id: 'bg-holmes',
+        benchName: 'Holmes Shaft Friction Winder',
+        zone: 'Central Production Shaft',
+        phase: 'HAULAGE ACTIVE',
+        statusColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+        shiftActualTons: 1400,
+        shiftTargetTons: 1400,
+        assignedMachinery: 'Multi-Rope Friction Winder (ABB Drive)',
+        dgmsSlopeIndex: 97.5,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. A. K. Biswas',
+        notes: 'Hoisting payload index nominal; NDT laser scan scheduled for shift change.',
+      },
+      {
+        id: 'bg-l12',
+        benchName: 'Deep Level -12 Stope Face',
+        zone: 'Sub-Level Stope Block',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+        shiftActualTons: 600,
+        shiftTargetTons: 600,
+        assignedMachinery: 'Electro-Hydraulic Jumbo J02',
+        dgmsSlopeIndex: 94.0,
+        geotechRisk: 'MEDIUM',
+        operatorInCharge: 'Er. R. D. Roy',
+        notes: 'Airflow velocity maintained at 0.42 m/s; DGMS MMR ventilation par verified.',
+      },
+    ],
+    kandri: [
+      {
+        id: 'kd-b1',
+        benchName: 'Kandri Hill Top Opencast Cut',
+        zone: 'Kandri Hillcrest Section',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 1550,
+        shiftTargetTons: 1600,
+        assignedMachinery: 'Komatsu PC450 Hydraulic Shovel • Tipper Fleet KD-1',
+        dgmsSlopeIndex: 96.8,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. V. Gaikwad',
+        notes: 'High-grade 46.2% Mn braunite reef extraction pacing on schedule.',
+      },
+      {
+        id: 'kd-ug1',
+        benchName: 'Kandri Underground Incline Drift Level -1',
+        zone: 'Underground Decline Shaft',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+        shiftActualTons: 450,
+        shiftTargetTons: 500,
+        assignedMachinery: 'Sandvik LH307 LHD • Electro-Hydraulic Jumbo',
+        dgmsSlopeIndex: 95.1,
+        geotechRisk: 'MEDIUM',
+        operatorInCharge: 'Er. A. R. Tayade',
+        notes: 'Crown pillar support bolting active in accordance with DGMS MMR standard.',
+      },
+      {
+        id: 'kd-b2',
+        benchName: 'Kandri South Syncline Bench',
+        zone: 'South Syncline Highwall',
+        phase: 'HAULAGE ACTIVE',
+        statusColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+        shiftActualTons: 1100,
+        shiftTargetTons: 1200,
+        assignedMachinery: 'BEML Excavator EX-03 • Dumper Circuit KD-2',
+        dgmsSlopeIndex: 97.4,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. K. L. Mate',
+        notes: 'Haul road spiral incline 8% grade well-graded, cycle time 12.8 min.',
+      },
+    ],
+    beldongri: [
+      {
+        id: 'bd-b1',
+        benchName: 'Beldongri North Pit Cut (Bench 1)',
+        zone: 'North Highwall Reef',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 950,
+        shiftTargetTons: 1050,
+        assignedMachinery: 'Excavator EX-07 • Tipper Fleet BD-A (3x 25T)',
+        dgmsSlopeIndex: 97.2,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. D. K. Borkar',
+        notes: 'Braunite-pyrolusite ore reef bench operating nominal; pit moisture managed.',
+      },
+      {
+        id: 'bd-b2',
+        benchName: 'Beldongri South Extension Bench',
+        zone: 'South Boundary Lens',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+        shiftActualTons: 700,
+        shiftTargetTons: 850,
+        assignedMachinery: 'L&T 300 Shovel • Dumper Fleet BD-B',
+        dgmsSlopeIndex: 94.5,
+        geotechRisk: 'MEDIUM',
+        operatorInCharge: 'Er. P. B. Nimje',
+        notes: 'Stripping overburden ratio 1:3.2; advance blast holes logged.',
+      },
+      {
+        id: 'bd-sump',
+        benchName: 'Beldongri Central Pit Sump',
+        zone: 'Pit Incline Sump Floor',
+        phase: 'DEWATERING IN PROGRESS',
+        statusColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
+        shiftActualTons: 0,
+        shiftTargetTons: 0,
+        assignedMachinery: '1x 450 m³/hr Kirloskar Submersible Pump',
+        dgmsSlopeIndex: 93.0,
+        geotechRisk: 'HIGH',
+        operatorInCharge: 'Er. S. M. Gawande',
+        notes: 'Groundwater seepage pump rate at 380 m³/hr under CGWB allowance.',
+      },
+    ],
+    munsar: [
+      {
+        id: 'ms-b1',
+        benchName: 'Munsar Main Pit Ridge Face',
+        zone: 'Ridge Crest Section',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 1850,
+        shiftTargetTons: 1950,
+        assignedMachinery: 'CAT 336D Shovel • Fleet MS-A (4x 30T Dumpers)',
+        dgmsSlopeIndex: 95.8,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. H. S. Charde',
+        notes: 'High-grade pyrolusite reef face loading at 230 t/hr steady velocity.',
+      },
+      {
+        id: 'ms-b2',
+        benchName: 'Munsar North Sub-Level Stope',
+        zone: 'Underground North Block',
+        phase: 'HAULAGE ACTIVE',
+        statusColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+        shiftActualTons: 850,
+        shiftTargetTons: 950,
+        assignedMachinery: 'Sandvik Toro LHD • Electric Winch Haulage',
+        dgmsSlopeIndex: 94.0,
+        geotechRisk: 'MEDIUM',
+        operatorInCharge: 'Er. M. T. Kolhe',
+        notes: 'Secondary stope mucking and timber support inspection logged.',
+      },
+      {
+        id: 'ms-sump',
+        benchName: 'Munsar Lower Sump Pit Dewatering',
+        zone: 'Central Pit Floor',
+        phase: 'DEWATERING IN PROGRESS',
+        statusColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
+        shiftActualTons: 0,
+        shiftTargetTons: 0,
+        assignedMachinery: '2x 500 m³/hr Submersible Dewatering Units',
+        dgmsSlopeIndex: 92.5,
+        geotechRisk: 'MEDIUM',
+        operatorInCharge: 'Er. N. V. Raut',
+        notes: 'Sump runoff controlled; pH and TSS within SPCB industrial discharge par.',
+      },
+    ],
+    mansar: [
+      {
+        id: 'ms-b1',
+        benchName: 'Munsar Main Pit Ridge Face',
+        zone: 'Ridge Crest Section',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 1850,
+        shiftTargetTons: 1950,
+        assignedMachinery: 'CAT 336D Shovel • Fleet MS-A',
+        dgmsSlopeIndex: 95.8,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. H. S. Charde',
+        notes: 'High-grade pyrolusite reef face loading at steady velocity.',
+      },
+    ],
+    chikla: [
+      {
+        id: 'ck-s1',
+        benchName: 'Chikla Deep Stope Level 5',
+        zone: 'West Ore Body Shaft',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 900,
+        shiftTargetTons: 950,
+        assignedMachinery: 'Underground LHD • Pneumatic Rock Drills',
+        dgmsSlopeIndex: 96.5,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. P. K. Mandloi',
+        notes: 'Deep stope extraction steady; manganese ore recovery at 43.5%.',
+      },
+    ],
+    tirodi: [
+      {
+        id: 'tr-b1',
+        benchName: 'Tirodi North Pit Main Reef',
+        zone: 'North Highwall Cut',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 1250,
+        shiftTargetTons: 1300,
+        assignedMachinery: 'Hydraulic Excavator EX-05 • 35T Dumpers',
+        dgmsSlopeIndex: 97.0,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. R. S. Bisen',
+        notes: 'Opencast reef mining operating at high operational throughput.',
+      },
+    ],
+    gumgaon: [
+      {
+        id: 'gg-s1',
+        benchName: 'Gumgaon Shaft Level -4 Stope',
+        zone: 'Central Vertical Shaft',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 750,
+        shiftTargetTons: 800,
+        assignedMachinery: 'Shaft Hoist & Cage • Underground LHD',
+        dgmsSlopeIndex: 95.5,
+        geotechRisk: 'MEDIUM',
+        operatorInCharge: 'Er. K. B. Deshmukh',
+        notes: 'Underground hoisting cycle nominal; water sump pumping on schedule.',
+      },
+    ],
+    sitapatore: [
+      {
+        id: 'sp-b1',
+        benchName: 'Sitapatore Central Pit Cut',
+        zone: 'Main Reef Zone',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 650,
+        shiftTargetTons: 700,
+        assignedMachinery: 'Excavator EX-02 • Tipper Fleet',
+        dgmsSlopeIndex: 96.0,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. V. N. Wanjari',
+        notes: 'Selective mining on high-grade lens with prompt blending.',
+      },
+    ],
+    ukwa: [
+      {
+        id: 'uk-s1',
+        benchName: 'Ukwa Incline Drift Stope Level 3',
+        zone: 'East Low-Phos Seam',
+        phase: 'EXTRACTION ACTIVE',
+        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+        shiftActualTons: 820,
+        shiftTargetTons: 850,
+        assignedMachinery: 'Sandvik LH307 LHD • Electric Winch',
+        dgmsSlopeIndex: 97.8,
+        geotechRisk: 'LOW',
+        operatorInCharge: 'Er. S. Maravi',
+        notes: 'Ultra-low phosphorus ore extraction proceeding smoothly.',
+      },
+    ],
+  };
+
+
+  const SITE_SPECIFIC_RISK_EVENTS: Record<string, {
+    id: string;
+    code: string;
+    title: string;
+    severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+    category: string;
+    statutoryAuthority: string;
+    benchZone: string;
+    description: string;
+    quantitativeImpact: string;
+    mitigationStrategy: string;
+    linkedActionId: string;
+    updatedAt: string;
+  }[]> = {
+    'dongri-buzurg': [
+      {
+        id: 'rsk-1',
+        code: 'RSK-DGMS-04',
+        title: 'DGMS Statutory Bench Vibration Clearance Stoppage',
+        severity: 'CRITICAL',
+        category: 'STATUTORY / DGMS',
+        statutoryAuthority: 'DGMS Safety Tech Circular No. 04/2026 (Sec. 22A)',
+        benchZone: 'Pit Bench 3 (Zone 14 South Reef)',
+        description: 'Detonation delay of +2.25h caused by statutory bench vibration audit and flyrock perimeter clearance. Restricts active muckpile turnover by 350 t.',
+        quantitativeImpact: '-350 t/day output risk | Statutory stop-work risk if PPV > 5.0 mm/s',
+        mitigationStrategy: 'Advance DGMS notice by 2.0h; implement air-decking nonel relays to restrict vibration to < 4.5 mm/s.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '15:45 Today',
+      },
+      {
+        id: 'rsk-2',
+        code: 'RSK-MECH-01',
+        title: 'Excavator EX-04 Hydraulic System Seal Degradation',
+        severity: 'HIGH',
+        category: 'MECHANICAL FLEET',
+        statutoryAuthority: 'OEM Fleet Mechanical Standard & IBM MCDR Mining Regs',
+        benchZone: 'Pit Bench 3 - Loading Face',
+        description: 'Hydraulic cylinder seal rupture caused 1.8h active loading downtime, idling 4 dumpers in haul circuit.',
+        quantitativeImpact: '-420 t/shift loading deficit | Fleet turnaround slowed to 14 trips/h',
+        mitigationStrategy: 'Deploy rapid mobile mechanical crew for high-pressure seal replacement on EX-04.',
+        linkedActionId: 'SMACT-02',
+        updatedAt: '10:15 Today',
+      },
+      {
+        id: 'rsk-3',
+        code: 'RSK-HYDRO-08',
+        title: 'Monsoon Sump Inflow & CGWB Dewatering Ceiling',
+        severity: 'HIGH',
+        category: 'HYDROLOGICAL',
+        statutoryAuthority: 'Central Ground Water Board (CGWB) & SPCB Water Quota',
+        benchZone: 'Lower Sump Pit Bench 4',
+        description: 'Sump accumulation rate (1,450 m³/hr) approaching statutory discharge cap (1,500 m³/hr); waterlogged 8 blast holes.',
+        quantitativeImpact: '-200 t blasting readiness | Potential ramp gradient siltation',
+        mitigationStrategy: 'Engage 2x 600 m³/hr auxiliary submersible pumps and mobile drill hole blowers.',
+        linkedActionId: 'SMACT-03',
+        updatedAt: '11:30 Today',
+      },
+      {
+        id: 'rsk-4',
+        code: 'RSK-HAUL-03',
+        title: 'Haul Road Ramp Gradient Siltation & Siding Bottleneck',
+        severity: 'MEDIUM',
+        category: 'MINE LOGISTICS',
+        statutoryAuthority: 'Mines Rules 1955 (Ramp Gradient & Traffic Safety)',
+        benchZone: 'Ramp Road 2 (450m incline)',
+        description: 'Surface siltation on 8.5% incline increased dumper cycle turnaround time by +3.4 minutes per trip.',
+        quantitativeImpact: '-120 t/shift haulage rate deficit',
+        mitigationStrategy: 'Deploy road grader MG-02 with gravel dressing; balance dumper siding dispatch.',
+        linkedActionId: 'SMACT-04',
+        updatedAt: '08:45 Today',
+      },
+      {
+        id: 'rsk-5',
+        code: 'RSK-ENV-05',
+        title: 'Highwall Crest Dust Suppression Nozzle Pressure Drop',
+        severity: 'LOW',
+        category: 'ENVIRONMENTAL',
+        statutoryAuthority: 'State Pollution Control Board (MPCB PM10 Standard)',
+        benchZone: 'Crusher Hopper & Highwall Crest',
+        description: 'Dust suppression mist cannon water line pressure dropped from 6.0 bar to 4.1 bar.',
+        quantitativeImpact: 'Minor PM10 elevation (<85 µg/m³; statutory limit 100 µg/m³)',
+        mitigationStrategy: 'Flush nozzle manifold strainer and adjust booster pump line valve.',
+        linkedActionId: 'SMACT-04',
+        updatedAt: '07:30 Today',
+      },
+    ],
+    balaghat: [
+      {
+        id: 'rsk-bg-1',
+        code: 'RSK-VENT-02',
+        title: 'Bharveli Main Shaft Auxiliary Fan Static Pressure Fluctuation',
+        severity: 'HIGH',
+        category: 'STATUTORY / DGMS',
+        statutoryAuthority: 'DGMS Metalliferous Mines Regulations (MMR) 1961 Reg. 131',
+        benchZone: 'Bharveli Deep Level -12 Stope',
+        description: 'Airflow velocity in Deep Level -12 dropped to 0.42 m/s (statutory threshold: 0.35 m/s) due to ducting leakage.',
+        quantitativeImpact: '-180 t/shift production pace | Requires secondary booster fan activation',
+        mitigationStrategy: 'Seal flexible ventilation duct joint at Cross-Cut 4 and ramp up auxiliary booster fan.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '12:15 Today',
+      },
+      {
+        id: 'rsk-bg-2',
+        code: 'RSK-HOIST-01',
+        title: 'Holmes Shaft Winder Rope NDT Inspection Due',
+        severity: 'MEDIUM',
+        category: 'MECHANICAL FLEET',
+        statutoryAuthority: 'DGMS Statutory Winder Inspection Circular',
+        benchZone: 'Holmes Shaft Headframe',
+        description: 'Quarterly electromagnetic NDT testing of multi-rope friction hoist scheduled for maintenance window.',
+        quantitativeImpact: 'Planned 2.0h hoisting slowdown during shift handover',
+        mitigationStrategy: 'Perform automated laser rope scan during 14:00 shift change.',
+        linkedActionId: 'SMACT-02',
+        updatedAt: '09:00 Today',
+      },
+      {
+        id: 'rsk-bg-3',
+        code: 'RSK-STOPE-03',
+        title: 'Stope Fill Curing Lag at Level 7 South',
+        severity: 'LOW',
+        category: 'GEOTECHNICAL',
+        statutoryAuthority: 'IBM Mine Plan Approved Stope Cycle',
+        benchZone: 'Level 7 South Cut-and-Fill Stope',
+        description: 'Cemented tailings paste backfill cure reached 78% compressive strength at Day 4 (target: 80%).',
+        quantitativeImpact: 'Delayed next lift drilling by 4 hours',
+        mitigationStrategy: 'Monitor digital load cells in fill bulkhead before firing blast holes.',
+        linkedActionId: 'SMACT-03',
+        updatedAt: '06:45 Today',
+      },
+    ],
+    kandri: [
+      {
+        id: 'rsk-kd-1',
+        code: 'RSK-VENT-04',
+        title: 'Decline Shaft Level -1 Auxiliary Ventilation Pressure Check',
+        severity: 'HIGH',
+        category: 'STATUTORY / DGMS',
+        statutoryAuthority: 'DGMS Metalliferous Mines Reg. 131',
+        benchZone: 'Decline Level -1 Face',
+        description: 'Underground decline auxiliary fan ducting slight vibration detected; static airflow pacing at 0.44 m/s.',
+        quantitativeImpact: '-180 t/shift potential pace constraint if airflow dips below 0.35 m/s threshold',
+        mitigationStrategy: 'Inspect flexible ventilation coupling and boost secondary fan frequency.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '10:45 Today',
+      },
+      {
+        id: 'rsk-kd-2',
+        code: 'RSK-MECH-03',
+        title: 'Komatsu PC450 Hydraulic Filter Differential Pressure Alert',
+        severity: 'MEDIUM',
+        category: 'MECHANICAL FLEET',
+        statutoryAuthority: 'OEM Fleet Maintenance Protocol',
+        benchZone: 'South Pit Face',
+        description: 'Hydraulic return oil filter pressure differential reached warning threshold during heavy loading cycle.',
+        quantitativeImpact: '-120 t/shift loading delay during filter swap',
+        mitigationStrategy: 'Complete scheduled filter cartridge swap during 30-min shift overlap.',
+        linkedActionId: 'SMACT-02',
+        updatedAt: '08:00 Today',
+      },
+    ],
+    beldongri: [
+      {
+        id: 'rsk-bd-1',
+        code: 'RSK-HYDRO-03',
+        title: 'Pit Sump Seepage Water Accumulation Rate Check',
+        severity: 'HIGH',
+        category: 'HYDROLOGICAL',
+        statutoryAuthority: 'CGWB & DGMS Sec. 22A Dewatering Standards',
+        benchZone: 'Central Pit Sump',
+        description: 'Groundwater seepage into lower sump pit reached 380 m³/hr; pump staging required to prevent blast floor saturation.',
+        quantitativeImpact: '-210 t/day output risk | Haul ramp slickness',
+        mitigationStrategy: 'Engage auxiliary 450 m³/hr submersible pump and deploy grader gravel dressing.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '11:15 Today',
+      },
+      {
+        id: 'rsk-bd-2',
+        code: 'RSK-HAUL-02',
+        title: 'Haul Ramp Incline Slickness & Cycle Turnaround Slowdown',
+        severity: 'MEDIUM',
+        category: 'MINE LOGISTICS',
+        statutoryAuthority: 'Mines Rules 1955 Traffic Safety Regs',
+        benchZone: 'North Pit Haul Road',
+        description: 'Surface slickness on 8.2% ramp reduced cycle rate to 10 trips/hr for tipper fleet BD-A.',
+        quantitativeImpact: '-140 t/shift haulage rate deficit',
+        mitigationStrategy: 'Apply crushed quartz dressing and grade wet haulage curves.',
+        linkedActionId: 'SMACT-02',
+        updatedAt: '09:30 Today',
+      },
+    ],
+    munsar: [
+      {
+        id: 'rsk-ms-1',
+        code: 'RSK-GEOTECH-01',
+        title: 'Ridge Face Highwall Geotechnical Tension Crack Monitoring',
+        severity: 'HIGH',
+        category: 'GEOTECHNICAL / DGMS',
+        statutoryAuthority: 'DGMS Geotechnical Tech Circular No. 03/2026',
+        benchZone: 'Main Pit Ridge Face',
+        description: 'Prism laser sensor detected 2.8mm displacement along crest tension crack after rain event.',
+        quantitativeImpact: 'Precautionary exclusion buffer enforced along 40m crest',
+        mitigationStrategy: 'Install continuous wire extensometers and berm drainage ditches.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '12:00 Today',
+      },
+      {
+        id: 'rsk-ms-2',
+        code: 'RSK-MECH-02',
+        title: 'CAT 336D Shovel Bucket Tooth Replacement Maintenance',
+        severity: 'MEDIUM',
+        category: 'MECHANICAL FLEET',
+        statutoryAuthority: 'OEM Fleet Standard Protocol',
+        benchZone: 'Munsar Main Pit Face',
+        description: 'High-abrasion ore wear required scheduled replacement of 3 bucket teeth on primary excavator.',
+        quantitativeImpact: '-190 t loading deficit over 1.2h duration',
+        mitigationStrategy: 'Deploy quick-attach weld teeth and swap with backup loader during procedure.',
+        linkedActionId: 'SMACT-02',
+        updatedAt: '09:15 Today',
+      },
+    ],
+    mansar: [
+      {
+        id: 'rsk-ms-1',
+        code: 'RSK-GEOTECH-01',
+        title: 'Ridge Face Highwall Geotechnical Tension Crack Monitoring',
+        severity: 'HIGH',
+        category: 'GEOTECHNICAL / DGMS',
+        statutoryAuthority: 'DGMS Geotechnical Tech Circular No. 03/2026',
+        benchZone: 'Main Pit Ridge Face',
+        description: 'Prism laser sensor detected 2.8mm displacement along crest tension crack after rain event.',
+        quantitativeImpact: 'Precautionary exclusion buffer enforced along 40m crest',
+        mitigationStrategy: 'Install continuous wire extensometers and berm drainage ditches.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '12:00 Today',
+      },
+    ],
+    chikla: [
+      {
+        id: 'rsk-ck-1',
+        code: 'RSK-VENT-05',
+        title: 'Chikla Deep Stope Auxiliary Airflow Monitoring',
+        severity: 'MEDIUM',
+        category: 'STATUTORY / DGMS',
+        statutoryAuthority: 'DGMS Metalliferous Mines Regulations (MMR) 1961',
+        benchZone: 'Chikla Level 5 Stope',
+        description: 'Ventilation velocity nominal at 0.45 m/s across deep production face.',
+        quantitativeImpact: 'Nominal operational status',
+        mitigationStrategy: 'Routine weekly anemometer inspection and airflow logging.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '08:15 Today',
+      },
+    ],
+    tirodi: [
+      {
+        id: 'rsk-tr-1',
+        code: 'RSK-PIT-02',
+        title: 'Tirodi North Pit Ramp Grading & Traffic Flow Optimization',
+        severity: 'LOW',
+        category: 'MINE LOGISTICS',
+        statutoryAuthority: 'Mines Rules 1955',
+        benchZone: 'North Highwall Cut',
+        description: 'Routine surface dressing completed on main haul road.',
+        quantitativeImpact: 'No impact on shift production target',
+        mitigationStrategy: 'Maintain bi-hourly water sprinkler rounds for dust suppression.',
+        linkedActionId: 'SMACT-02',
+        updatedAt: '07:00 Today',
+      },
+    ],
+    gumgaon: [
+      {
+        id: 'rsk-gg-1',
+        code: 'RSK-SHAFT-01',
+        title: 'Gumgaon Shaft Hoisting Counterweight Guide Rail Inspection',
+        severity: 'MEDIUM',
+        category: 'MECHANICAL FLEET',
+        statutoryAuthority: 'DGMS Shaft Hoisting Code',
+        benchZone: 'Vertical Shaft Level -4',
+        description: 'Guide shoe wear tolerances inspected during scheduled shift maintenance window.',
+        quantitativeImpact: 'Scheduled 1.0h hoisting slowdown',
+        mitigationStrategy: 'Lubricate guide rails and re-torque mounting brackets.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '09:45 Today',
+      },
+    ],
+    sitapatore: [
+      {
+        id: 'rsk-sp-1',
+        code: 'RSK-BENCH-01',
+        title: 'Sitapatore High-Grade Lens Selective Blasting Precision',
+        severity: 'LOW',
+        category: 'GEOTECHNICAL',
+        statutoryAuthority: 'IBM Mining Plan Specifications',
+        benchZone: 'Central Pit Cut',
+        description: 'Staggered blast hole spacing tuned to minimize ore dilution with footwall quartzite.',
+        quantitativeImpact: '+1.5% Mn grade preservation achieved',
+        mitigationStrategy: 'Laser scanner validation of post-blast muckpile boundary.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '10:00 Today',
+      },
+    ],
+    ukwa: [
+      {
+        id: 'rsk-uk-1',
+        code: 'RSK-DRIFT-01',
+        title: 'Ukwa Incline Drift Timber & Friction Prop Support Integrity',
+        severity: 'MEDIUM',
+        category: 'GEOTECHNICAL',
+        statutoryAuthority: 'DGMS Support Rules for Underground Metalliferous Mines',
+        benchZone: 'Stope Level 3 Seam',
+        description: 'Roof bolt torque audit completed across 60m strike length; all anchors holding > 6.0 tonnes.',
+        quantitativeImpact: 'Zero loss of stope availability',
+        mitigationStrategy: 'Maintain regular acoustic sounding tests along hanging wall contacts.',
+        linkedActionId: 'SMACT-01',
+        updatedAt: '08:30 Today',
+      },
+    ],
+  };
+
+  const alertHistoryLog = [
+    {
+      time: '09:14 Today',
+      risk: 'HIGH',
+      zone: 'Zone 14',
+      title: 'Production shortfall',
+      status: 'Acknowledged',
+      by: 'Mine Officer',
+    },
+    {
+      time: 'Yesterday',
+      risk: 'MEDIUM',
+      zone: 'Zone 09',
+      title: 'Production variance',
+      status: 'Monitoring',
+      by: 'Mine Officer',
+    },
+    {
+      time: '2 days ago',
+      risk: 'HIGH',
+      zone: 'Zone 22',
+      title: 'Forecast threshold',
+      status: 'Resolved',
+      by: 'Mine Supervisor',
+    },
+    {
+      time: '5 days ago',
+      risk: 'MEDIUM',
+      zone: 'Zone 04',
+      title: 'Bench drainage warning',
+      status: 'Resolved',
+      by: 'Shift In-Charge',
+    },
+  ];
+
 export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
   onNavigate,
   themeMode = 'dark',
@@ -663,40 +1396,6 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
   ]);
 
   // Alert History Log Entries
-  const alertHistoryLog = [
-    {
-      time: '09:14 Today',
-      risk: 'HIGH',
-      zone: 'Zone 14',
-      title: 'Production shortfall',
-      status: 'Acknowledged',
-      by: 'Mine Officer',
-    },
-    {
-      time: 'Yesterday',
-      risk: 'MEDIUM',
-      zone: 'Zone 09',
-      title: 'Production variance',
-      status: 'Monitoring',
-      by: 'Mine Officer',
-    },
-    {
-      time: '2 days ago',
-      risk: 'HIGH',
-      zone: 'Zone 22',
-      title: 'Forecast threshold',
-      status: 'Resolved',
-      by: 'Mine Supervisor',
-    },
-    {
-      time: '5 days ago',
-      risk: 'MEDIUM',
-      zone: 'Zone 04',
-      title: 'Bench drainage warning',
-      status: 'Resolved',
-      by: 'Shift In-Charge',
-    },
-  ];
 
   // What-If Simulation Sliders State
   const [simEquipment, setSimEquipment] = useState<number>(80);
@@ -753,12 +1452,14 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
   const completedCount = actions.filter((a) => a.status === 'RESOLVED').length;
   const actionedCount = actions.filter((a) => a.status === 'ACTIONED' || a.status === 'RESOLVED').length;
 
-  const filteredAlerts = alertsList.filter((alt) => {
-    if (riskFilter !== 'ALL' && alt.risk !== riskFilter) return false;
-    if (statusFilter === 'UNACKNOWLEDGED' && alt.status !== 'UNACKNOWLEDGED') return false;
-    if (statusFilter === 'ACKNOWLEDGED' && alt.status !== 'ACKNOWLEDGED') return false;
-    return true;
-  });
+  const filteredAlerts = React.useMemo(() => {
+    return alertsList.filter((alt) => {
+      if (riskFilter !== 'ALL' && alt.risk !== riskFilter) return false;
+      if (statusFilter === 'UNACKNOWLEDGED' && alt.status !== 'UNACKNOWLEDGED') return false;
+      if (statusFilter === 'ACKNOWLEDGED' && alt.status !== 'ACKNOWLEDGED') return false;
+      return true;
+    });
+  }, [alertsList, riskFilter, statusFilter]);
 
   // =========================================================================
   // SITE MANAGER INTELLIGENCE & STATUTORY THREAT REGISTER STATE
@@ -818,7 +1519,27 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
     },
   ]);
 
-  const handleToggleSiteManagerAction = (id: string) => {
+
+  const filteredBenches = React.useMemo(() => {
+    const benches = CURRENT_MINE_INTERNAL_BENCHES[normSelectedMineId] || CURRENT_MINE_INTERNAL_BENCHES['dongri-buzurg'];
+    return benches.filter((bench) =>
+      siteStatusSearch === '' ||
+      bench.benchName.toLowerCase().includes(siteStatusSearch.toLowerCase()) ||
+      bench.zone.toLowerCase().includes(siteStatusSearch.toLowerCase()) ||
+      bench.assignedMachinery.toLowerCase().includes(siteStatusSearch.toLowerCase())
+    );
+  }, [normSelectedMineId, siteStatusSearch]);
+
+  const filteredRisks = React.useMemo(() => {
+    const risks = SITE_SPECIFIC_RISK_EVENTS[normSelectedMineId] || SITE_SPECIFIC_RISK_EVENTS['dongri-buzurg'];
+    return risks.filter((rsk) => {
+      if (siteRiskFilter === 'ALL') return true;
+      if (siteRiskFilter === 'STATUTORY') return rsk.category.includes('STATUTORY') || rsk.statutoryAuthority.includes('DGMS');
+      return rsk.severity === siteRiskFilter;
+    });
+  }, [normSelectedMineId, siteRiskFilter]);
+
+const handleToggleSiteManagerAction = (id: string) => {
     setSiteManagerActions((prev) =>
       prev.map((act) => {
         if (act.id === id) {
@@ -830,700 +1551,6 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
         return act;
       })
     );
-  };
-
-  interface MineBenchStatusItem {
-    id: string;
-    benchName: string;
-    zone: string;
-    phase: 'EXTRACTION ACTIVE' | 'CHARGING & PRIMING' | 'DEWATERING IN PROGRESS' | 'HAULAGE ACTIVE' | 'SIZING & CRUSHING' | 'WASTE DISPOSAL';
-    statusColor: string;
-    shiftActualTons: number;
-    shiftTargetTons: number;
-    assignedMachinery: string;
-    dgmsSlopeIndex: number;
-    geotechRisk: 'LOW' | 'MEDIUM' | 'HIGH';
-    operatorInCharge: string;
-    notes: string;
-  }
-
-  const CURRENT_MINE_INTERNAL_BENCHES: Record<string, MineBenchStatusItem[]> = {
-    'dongri-buzurg': [
-      {
-        id: 'db-b3',
-        benchName: 'Pit Bench 3 (High-Grade Reef)',
-        zone: 'Zone 14 South Reef',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-        shiftActualTons: 1800,
-        shiftTargetTons: 2200,
-        assignedMachinery: 'Excavator EX-04 • Dumper Fleet A (4x CAT 773E)',
-        dgmsSlopeIndex: 96.5,
-        geotechRisk: 'HIGH',
-        operatorInCharge: 'Er. S. K. Meshram',
-        notes: 'EX-04 hydraulic seal leak reduced output pace by 1.8h; reef grade at 44.2% Mn.',
-      },
-      {
-        id: 'db-z14',
-        benchName: 'Zone 14 South Blast Pattern',
-        zone: 'South Boundary Highwall',
-        phase: 'CHARGING & PRIMING',
-        statusColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
-        shiftActualTons: 1100,
-        shiftTargetTons: 1400,
-        assignedMachinery: 'Atlas Copco Drill Rig D01 • ANFO Charging Van',
-        dgmsSlopeIndex: 94.2,
-        geotechRisk: 'MEDIUM',
-        operatorInCharge: 'Er. R. K. Sharma',
-        notes: 'Shot #DB-Z14-P3-SHOT88 charged (48 holes); DGMS bench vibration clearance audit logged.',
-      },
-      {
-        id: 'db-b2',
-        benchName: 'Pit Bench 2 (Secondary Loading Face)',
-        zone: 'North Highwall Face',
-        phase: 'HAULAGE ACTIVE',
-        statusColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
-        shiftActualTons: 1200,
-        shiftTargetTons: 1400,
-        assignedMachinery: 'Excavator EX-02 • Dumper Fleet B (3x BEML 35T)',
-        dgmsSlopeIndex: 98.0,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. N. C. Baghel',
-        notes: 'Secondary loading operating steadily on 8.5% ramp gradient without congestion.',
-      },
-      {
-        id: 'db-sump',
-        benchName: 'Lower Pit Sump (Bench 4 Dewatering)',
-        zone: 'Central Deep Sump',
-        phase: 'DEWATERING IN PROGRESS',
-        statusColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
-        shiftActualTons: 0,
-        shiftTargetTons: 0,
-        assignedMachinery: '2x 600 m³/hr Kirloskar Submersible Pumps',
-        dgmsSlopeIndex: 91.0,
-        geotechRisk: 'HIGH',
-        operatorInCharge: 'Er. S. Rao',
-        notes: 'Monsoon inflow rate at 1,450 m³/hr; CGWB discharge quota strictly monitored.',
-      },
-      {
-        id: 'db-crusher',
-        benchName: 'Primary Crusher Hopper Siding',
-        zone: 'Surface ROM Pad',
-        phase: 'SIZING & CRUSHING',
-        statusColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
-        shiftActualTons: 580,
-        shiftTargetTons: 600,
-        assignedMachinery: 'Grizzly Sizing Screen 01 • Mist Cannon M02',
-        dgmsSlopeIndex: 99.0,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. P. V. Nair',
-        notes: 'Dust suppression mist operating at 4.1 bar; SPCB ambient PM10 at 82 µg/m³.',
-      },
-      {
-        id: 'db-dump',
-        benchName: 'Waste Rock Dump Terrace 3',
-        zone: 'North Waste Overburden Area',
-        phase: 'WASTE DISPOSAL',
-        statusColor: 'bg-slate-500/20 text-slate-300 border-slate-500/40',
-        shiftActualTons: 3400,
-        shiftTargetTons: 3500,
-        assignedMachinery: 'CAT D8R Bulldozer • Wheel Loader WL-03',
-        dgmsSlopeIndex: 99.2,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. T. S. Yadav',
-        notes: 'Terrace slope berm angle maintained at 26.5° (IBM MCDR standard limit: 28°).',
-      },
-    ],
-    balaghat: [
-      {
-        id: 'bg-bharveli',
-        benchName: 'Bharveli Stope L7 (Open Stope Face)',
-        zone: 'Bharveli Deep Ore Body',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-        shiftActualTons: 1600,
-        shiftTargetTons: 1500,
-        assignedMachinery: 'Sandvik LH410 LHD • Tamrock Jumbo Drill',
-        dgmsSlopeIndex: 98.0,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. S. N. Mukherjee',
-        notes: 'High-grade 46.8% Mn ore extraction pacing at 107% of shift target.',
-      },
-      {
-        id: 'bg-holmes',
-        benchName: 'Holmes Shaft Friction Winder',
-        zone: 'Central Production Shaft',
-        phase: 'HAULAGE ACTIVE',
-        statusColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
-        shiftActualTons: 1400,
-        shiftTargetTons: 1400,
-        assignedMachinery: 'Multi-Rope Friction Winder (ABB Drive)',
-        dgmsSlopeIndex: 97.5,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. A. K. Biswas',
-        notes: 'Hoisting payload index nominal; NDT laser scan scheduled for shift change.',
-      },
-      {
-        id: 'bg-l12',
-        benchName: 'Deep Level -12 Stope Face',
-        zone: 'Sub-Level Stope Block',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
-        shiftActualTons: 600,
-        shiftTargetTons: 600,
-        assignedMachinery: 'Electro-Hydraulic Jumbo J02',
-        dgmsSlopeIndex: 94.0,
-        geotechRisk: 'MEDIUM',
-        operatorInCharge: 'Er. R. D. Roy',
-        notes: 'Airflow velocity maintained at 0.42 m/s; DGMS MMR ventilation par verified.',
-      },
-    ],
-    kandri: [
-      {
-        id: 'kd-b1',
-        benchName: 'Kandri Hill Top Opencast Cut',
-        zone: 'Kandri Hillcrest Section',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-        shiftActualTons: 1550,
-        shiftTargetTons: 1600,
-        assignedMachinery: 'Komatsu PC450 Hydraulic Shovel • Tipper Fleet KD-1',
-        dgmsSlopeIndex: 96.8,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. V. Gaikwad',
-        notes: 'High-grade 46.2% Mn braunite reef extraction pacing on schedule.',
-      },
-      {
-        id: 'kd-ug1',
-        benchName: 'Kandri Underground Incline Drift Level -1',
-        zone: 'Underground Decline Shaft',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
-        shiftActualTons: 450,
-        shiftTargetTons: 500,
-        assignedMachinery: 'Sandvik LH307 LHD • Electro-Hydraulic Jumbo',
-        dgmsSlopeIndex: 95.1,
-        geotechRisk: 'MEDIUM',
-        operatorInCharge: 'Er. A. R. Tayade',
-        notes: 'Crown pillar support bolting active in accordance with DGMS MMR standard.',
-      },
-      {
-        id: 'kd-b2',
-        benchName: 'Kandri South Syncline Bench',
-        zone: 'South Syncline Highwall',
-        phase: 'HAULAGE ACTIVE',
-        statusColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
-        shiftActualTons: 1100,
-        shiftTargetTons: 1200,
-        assignedMachinery: 'BEML Excavator EX-03 • Dumper Circuit KD-2',
-        dgmsSlopeIndex: 97.4,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. K. L. Mate',
-        notes: 'Haul road spiral incline 8% grade well-graded, cycle time 12.8 min.',
-      },
-    ],
-    beldongri: [
-      {
-        id: 'bd-b1',
-        benchName: 'Beldongri North Pit Cut (Bench 1)',
-        zone: 'North Highwall Reef',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-        shiftActualTons: 950,
-        shiftTargetTons: 1050,
-        assignedMachinery: 'Excavator EX-07 • Tipper Fleet BD-A (3x 25T)',
-        dgmsSlopeIndex: 97.2,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. D. K. Borkar',
-        notes: 'Braunite-pyrolusite ore reef bench operating nominal; pit moisture managed.',
-      },
-      {
-        id: 'bd-b2',
-        benchName: 'Beldongri South Extension Bench',
-        zone: 'South Boundary Lens',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
-        shiftActualTons: 700,
-        shiftTargetTons: 850,
-        assignedMachinery: 'L&T 300 Shovel • Dumper Fleet BD-B',
-        dgmsSlopeIndex: 94.5,
-        geotechRisk: 'MEDIUM',
-        operatorInCharge: 'Er. P. B. Nimje',
-        notes: 'Stripping overburden ratio 1:3.2; advance blast holes logged.',
-      },
-      {
-        id: 'bd-sump',
-        benchName: 'Beldongri Central Pit Sump',
-        zone: 'Pit Incline Sump Floor',
-        phase: 'DEWATERING IN PROGRESS',
-        statusColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
-        shiftActualTons: 0,
-        shiftTargetTons: 0,
-        assignedMachinery: '1x 450 m³/hr Kirloskar Submersible Pump',
-        dgmsSlopeIndex: 93.0,
-        geotechRisk: 'HIGH',
-        operatorInCharge: 'Er. S. M. Gawande',
-        notes: 'Groundwater seepage pump rate at 380 m³/hr under CGWB allowance.',
-      },
-    ],
-    munsar: [
-      {
-        id: 'ms-b1',
-        benchName: 'Munsar Main Pit Ridge Face',
-        zone: 'Ridge Crest Section',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-        shiftActualTons: 1850,
-        shiftTargetTons: 1950,
-        assignedMachinery: 'CAT 336D Shovel • Fleet MS-A (4x 30T Dumpers)',
-        dgmsSlopeIndex: 95.8,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. H. S. Charde',
-        notes: 'High-grade pyrolusite reef face loading at 230 t/hr steady velocity.',
-      },
-      {
-        id: 'ms-b2',
-        benchName: 'Munsar North Sub-Level Stope',
-        zone: 'Underground North Block',
-        phase: 'HAULAGE ACTIVE',
-        statusColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
-        shiftActualTons: 850,
-        shiftTargetTons: 950,
-        assignedMachinery: 'Sandvik Toro LHD • Electric Winch Haulage',
-        dgmsSlopeIndex: 94.0,
-        geotechRisk: 'MEDIUM',
-        operatorInCharge: 'Er. M. T. Kolhe',
-        notes: 'Secondary stope mucking and timber support inspection logged.',
-      },
-      {
-        id: 'ms-sump',
-        benchName: 'Munsar Lower Sump Pit Dewatering',
-        zone: 'Central Pit Floor',
-        phase: 'DEWATERING IN PROGRESS',
-        statusColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
-        shiftActualTons: 0,
-        shiftTargetTons: 0,
-        assignedMachinery: '2x 500 m³/hr Submersible Dewatering Units',
-        dgmsSlopeIndex: 92.5,
-        geotechRisk: 'MEDIUM',
-        operatorInCharge: 'Er. N. V. Raut',
-        notes: 'Sump runoff controlled; pH and TSS within SPCB industrial discharge par.',
-      },
-    ],
-    mansar: [
-      {
-        id: 'ms-b1',
-        benchName: 'Munsar Main Pit Ridge Face',
-        zone: 'Ridge Crest Section',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-        shiftActualTons: 1850,
-        shiftTargetTons: 1950,
-        assignedMachinery: 'CAT 336D Shovel • Fleet MS-A',
-        dgmsSlopeIndex: 95.8,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. H. S. Charde',
-        notes: 'High-grade pyrolusite reef face loading at steady velocity.',
-      },
-    ],
-    chikla: [
-      {
-        id: 'ck-s1',
-        benchName: 'Chikla Deep Stope Level 5',
-        zone: 'West Ore Body Shaft',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-        shiftActualTons: 900,
-        shiftTargetTons: 950,
-        assignedMachinery: 'Underground LHD • Pneumatic Rock Drills',
-        dgmsSlopeIndex: 96.5,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. P. K. Mandloi',
-        notes: 'Deep stope extraction steady; manganese ore recovery at 43.5%.',
-      },
-    ],
-    tirodi: [
-      {
-        id: 'tr-b1',
-        benchName: 'Tirodi North Pit Main Reef',
-        zone: 'North Highwall Cut',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-        shiftActualTons: 1250,
-        shiftTargetTons: 1300,
-        assignedMachinery: 'Hydraulic Excavator EX-05 • 35T Dumpers',
-        dgmsSlopeIndex: 97.0,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. R. S. Bisen',
-        notes: 'Opencast reef mining operating at high operational throughput.',
-      },
-    ],
-    gumgaon: [
-      {
-        id: 'gg-s1',
-        benchName: 'Gumgaon Shaft Level -4 Stope',
-        zone: 'Central Vertical Shaft',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-        shiftActualTons: 750,
-        shiftTargetTons: 800,
-        assignedMachinery: 'Shaft Hoist & Cage • Underground LHD',
-        dgmsSlopeIndex: 95.5,
-        geotechRisk: 'MEDIUM',
-        operatorInCharge: 'Er. K. B. Deshmukh',
-        notes: 'Underground hoisting cycle nominal; water sump pumping on schedule.',
-      },
-    ],
-    sitapatore: [
-      {
-        id: 'sp-b1',
-        benchName: 'Sitapatore Central Pit Cut',
-        zone: 'Main Reef Zone',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-        shiftActualTons: 650,
-        shiftTargetTons: 700,
-        assignedMachinery: 'Excavator EX-02 • Tipper Fleet',
-        dgmsSlopeIndex: 96.0,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. V. N. Wanjari',
-        notes: 'Selective mining on high-grade lens with prompt blending.',
-      },
-    ],
-    ukwa: [
-      {
-        id: 'uk-s1',
-        benchName: 'Ukwa Incline Drift Stope Level 3',
-        zone: 'East Low-Phos Seam',
-        phase: 'EXTRACTION ACTIVE',
-        statusColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-        shiftActualTons: 820,
-        shiftTargetTons: 850,
-        assignedMachinery: 'Sandvik LH307 LHD • Electric Winch',
-        dgmsSlopeIndex: 97.8,
-        geotechRisk: 'LOW',
-        operatorInCharge: 'Er. S. Maravi',
-        notes: 'Ultra-low phosphorus ore extraction proceeding smoothly.',
-      },
-    ],
-  };
-
-  const SITE_SPECIFIC_RISK_EVENTS: Record<string, {
-    id: string;
-    code: string;
-    title: string;
-    severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-    category: string;
-    statutoryAuthority: string;
-    benchZone: string;
-    description: string;
-    quantitativeImpact: string;
-    mitigationStrategy: string;
-    linkedActionId: string;
-    updatedAt: string;
-  }[]> = {
-    'dongri-buzurg': [
-      {
-        id: 'rsk-1',
-        code: 'RSK-DGMS-04',
-        title: 'DGMS Statutory Bench Vibration Clearance Stoppage',
-        severity: 'CRITICAL',
-        category: 'STATUTORY / DGMS',
-        statutoryAuthority: 'DGMS Safety Tech Circular No. 04/2026 (Sec. 22A)',
-        benchZone: 'Pit Bench 3 (Zone 14 South Reef)',
-        description: 'Detonation delay of +2.25h caused by statutory bench vibration audit and flyrock perimeter clearance. Restricts active muckpile turnover by 350 t.',
-        quantitativeImpact: '-350 t/day output risk | Statutory stop-work risk if PPV > 5.0 mm/s',
-        mitigationStrategy: 'Advance DGMS notice by 2.0h; implement air-decking nonel relays to restrict vibration to < 4.5 mm/s.',
-        linkedActionId: 'SMACT-01',
-        updatedAt: '15:45 Today',
-      },
-      {
-        id: 'rsk-2',
-        code: 'RSK-MECH-01',
-        title: 'Excavator EX-04 Hydraulic System Seal Degradation',
-        severity: 'HIGH',
-        category: 'MECHANICAL FLEET',
-        statutoryAuthority: 'OEM Fleet Mechanical Standard & IBM MCDR Mining Regs',
-        benchZone: 'Pit Bench 3 - Loading Face',
-        description: 'Hydraulic cylinder seal rupture caused 1.8h active loading downtime, idling 4 dumpers in haul circuit.',
-        quantitativeImpact: '-420 t/shift loading deficit | Fleet turnaround slowed to 14 trips/h',
-        mitigationStrategy: 'Deploy rapid mobile mechanical crew for high-pressure seal replacement on EX-04.',
-        linkedActionId: 'SMACT-02',
-        updatedAt: '10:15 Today',
-      },
-      {
-        id: 'rsk-3',
-        code: 'RSK-HYDRO-08',
-        title: 'Monsoon Sump Inflow & CGWB Dewatering Ceiling',
-        severity: 'HIGH',
-        category: 'HYDROLOGICAL',
-        statutoryAuthority: 'Central Ground Water Board (CGWB) & SPCB Water Quota',
-        benchZone: 'Lower Sump Pit Bench 4',
-        description: 'Sump accumulation rate (1,450 m³/hr) approaching statutory discharge cap (1,500 m³/hr); waterlogged 8 blast holes.',
-        quantitativeImpact: '-200 t blasting readiness | Potential ramp gradient siltation',
-        mitigationStrategy: 'Engage 2x 600 m³/hr auxiliary submersible pumps and mobile drill hole blowers.',
-        linkedActionId: 'SMACT-03',
-        updatedAt: '11:30 Today',
-      },
-      {
-        id: 'rsk-4',
-        code: 'RSK-HAUL-03',
-        title: 'Haul Road Ramp Gradient Siltation & Siding Bottleneck',
-        severity: 'MEDIUM',
-        category: 'MINE LOGISTICS',
-        statutoryAuthority: 'Mines Rules 1955 (Ramp Gradient & Traffic Safety)',
-        benchZone: 'Ramp Road 2 (450m incline)',
-        description: 'Surface siltation on 8.5% incline increased dumper cycle turnaround time by +3.4 minutes per trip.',
-        quantitativeImpact: '-120 t/shift haulage rate deficit',
-        mitigationStrategy: 'Deploy road grader MG-02 with gravel dressing; balance dumper siding dispatch.',
-        linkedActionId: 'SMACT-04',
-        updatedAt: '08:45 Today',
-      },
-      {
-        id: 'rsk-5',
-        code: 'RSK-ENV-05',
-        title: 'Highwall Crest Dust Suppression Nozzle Pressure Drop',
-        severity: 'LOW',
-        category: 'ENVIRONMENTAL',
-        statutoryAuthority: 'State Pollution Control Board (MPCB PM10 Standard)',
-        benchZone: 'Crusher Hopper & Highwall Crest',
-        description: 'Dust suppression mist cannon water line pressure dropped from 6.0 bar to 4.1 bar.',
-        quantitativeImpact: 'Minor PM10 elevation (<85 µg/m³; statutory limit 100 µg/m³)',
-        mitigationStrategy: 'Flush nozzle manifold strainer and adjust booster pump line valve.',
-        linkedActionId: 'SMACT-04',
-        updatedAt: '07:30 Today',
-      },
-    ],
-    balaghat: [
-      {
-        id: 'rsk-bg-1',
-        code: 'RSK-VENT-02',
-        title: 'Bharveli Main Shaft Auxiliary Fan Static Pressure Fluctuation',
-        severity: 'HIGH',
-        category: 'STATUTORY / DGMS',
-        statutoryAuthority: 'DGMS Metalliferous Mines Regulations (MMR) 1961 Reg. 131',
-        benchZone: 'Bharveli Deep Level -12 Stope',
-        description: 'Airflow velocity in Deep Level -12 dropped to 0.42 m/s (statutory threshold: 0.35 m/s) due to ducting leakage.',
-        quantitativeImpact: '-180 t/shift production pace | Requires secondary booster fan activation',
-        mitigationStrategy: 'Seal flexible ventilation duct joint at Cross-Cut 4 and ramp up auxiliary booster fan.',
-        linkedActionId: 'SMACT-01',
-        updatedAt: '12:15 Today',
-      },
-      {
-        id: 'rsk-bg-2',
-        code: 'RSK-HOIST-01',
-        title: 'Holmes Shaft Winder Rope NDT Inspection Due',
-        severity: 'MEDIUM',
-        category: 'MECHANICAL FLEET',
-        statutoryAuthority: 'DGMS Statutory Winder Inspection Circular',
-        benchZone: 'Holmes Shaft Headframe',
-        description: 'Quarterly electromagnetic NDT testing of multi-rope friction hoist scheduled for maintenance window.',
-        quantitativeImpact: 'Planned 2.0h hoisting slowdown during shift handover',
-        mitigationStrategy: 'Perform automated laser rope scan during 14:00 shift change.',
-        linkedActionId: 'SMACT-02',
-        updatedAt: '09:00 Today',
-      },
-      {
-        id: 'rsk-bg-3',
-        code: 'RSK-STOPE-03',
-        title: 'Stope Fill Curing Lag at Level 7 South',
-        severity: 'LOW',
-        category: 'GEOTECHNICAL',
-        statutoryAuthority: 'IBM Mine Plan Approved Stope Cycle',
-        benchZone: 'Level 7 South Cut-and-Fill Stope',
-        description: 'Cemented tailings paste backfill cure reached 78% compressive strength at Day 4 (target: 80%).',
-        quantitativeImpact: 'Delayed next lift drilling by 4 hours',
-        mitigationStrategy: 'Monitor digital load cells in fill bulkhead before firing blast holes.',
-        linkedActionId: 'SMACT-03',
-        updatedAt: '06:45 Today',
-      },
-    ],
-    kandri: [
-      {
-        id: 'rsk-kd-1',
-        code: 'RSK-VENT-04',
-        title: 'Decline Shaft Level -1 Auxiliary Ventilation Pressure Check',
-        severity: 'HIGH',
-        category: 'STATUTORY / DGMS',
-        statutoryAuthority: 'DGMS Metalliferous Mines Reg. 131',
-        benchZone: 'Decline Level -1 Face',
-        description: 'Underground decline auxiliary fan ducting slight vibration detected; static airflow pacing at 0.44 m/s.',
-        quantitativeImpact: '-180 t/shift potential pace constraint if airflow dips below 0.35 m/s threshold',
-        mitigationStrategy: 'Inspect flexible ventilation coupling and boost secondary fan frequency.',
-        linkedActionId: 'SMACT-01',
-        updatedAt: '10:45 Today',
-      },
-      {
-        id: 'rsk-kd-2',
-        code: 'RSK-MECH-03',
-        title: 'Komatsu PC450 Hydraulic Filter Differential Pressure Alert',
-        severity: 'MEDIUM',
-        category: 'MECHANICAL FLEET',
-        statutoryAuthority: 'OEM Fleet Maintenance Protocol',
-        benchZone: 'South Pit Face',
-        description: 'Hydraulic return oil filter pressure differential reached warning threshold during heavy loading cycle.',
-        quantitativeImpact: '-120 t/shift loading delay during filter swap',
-        mitigationStrategy: 'Complete scheduled filter cartridge swap during 30-min shift overlap.',
-        linkedActionId: 'SMACT-02',
-        updatedAt: '08:00 Today',
-      },
-    ],
-    beldongri: [
-      {
-        id: 'rsk-bd-1',
-        code: 'RSK-HYDRO-03',
-        title: 'Pit Sump Seepage Water Accumulation Rate Check',
-        severity: 'HIGH',
-        category: 'HYDROLOGICAL',
-        statutoryAuthority: 'CGWB & DGMS Sec. 22A Dewatering Standards',
-        benchZone: 'Central Pit Sump',
-        description: 'Groundwater seepage into lower sump pit reached 380 m³/hr; pump staging required to prevent blast floor saturation.',
-        quantitativeImpact: '-210 t/day output risk | Haul ramp slickness',
-        mitigationStrategy: 'Engage auxiliary 450 m³/hr submersible pump and deploy grader gravel dressing.',
-        linkedActionId: 'SMACT-01',
-        updatedAt: '11:15 Today',
-      },
-      {
-        id: 'rsk-bd-2',
-        code: 'RSK-HAUL-02',
-        title: 'Haul Ramp Incline Slickness & Cycle Turnaround Slowdown',
-        severity: 'MEDIUM',
-        category: 'MINE LOGISTICS',
-        statutoryAuthority: 'Mines Rules 1955 Traffic Safety Regs',
-        benchZone: 'North Pit Haul Road',
-        description: 'Surface slickness on 8.2% ramp reduced cycle rate to 10 trips/hr for tipper fleet BD-A.',
-        quantitativeImpact: '-140 t/shift haulage rate deficit',
-        mitigationStrategy: 'Apply crushed quartz dressing and grade wet haulage curves.',
-        linkedActionId: 'SMACT-02',
-        updatedAt: '09:30 Today',
-      },
-    ],
-    munsar: [
-      {
-        id: 'rsk-ms-1',
-        code: 'RSK-GEOTECH-01',
-        title: 'Ridge Face Highwall Geotechnical Tension Crack Monitoring',
-        severity: 'HIGH',
-        category: 'GEOTECHNICAL / DGMS',
-        statutoryAuthority: 'DGMS Geotechnical Tech Circular No. 03/2026',
-        benchZone: 'Main Pit Ridge Face',
-        description: 'Prism laser sensor detected 2.8mm displacement along crest tension crack after rain event.',
-        quantitativeImpact: 'Precautionary exclusion buffer enforced along 40m crest',
-        mitigationStrategy: 'Install continuous wire extensometers and berm drainage ditches.',
-        linkedActionId: 'SMACT-01',
-        updatedAt: '12:00 Today',
-      },
-      {
-        id: 'rsk-ms-2',
-        code: 'RSK-MECH-02',
-        title: 'CAT 336D Shovel Bucket Tooth Replacement Maintenance',
-        severity: 'MEDIUM',
-        category: 'MECHANICAL FLEET',
-        statutoryAuthority: 'OEM Fleet Standard Protocol',
-        benchZone: 'Munsar Main Pit Face',
-        description: 'High-abrasion ore wear required scheduled replacement of 3 bucket teeth on primary excavator.',
-        quantitativeImpact: '-190 t loading deficit over 1.2h duration',
-        mitigationStrategy: 'Deploy quick-attach weld teeth and swap with backup loader during procedure.',
-        linkedActionId: 'SMACT-02',
-        updatedAt: '09:15 Today',
-      },
-    ],
-    mansar: [
-      {
-        id: 'rsk-ms-1',
-        code: 'RSK-GEOTECH-01',
-        title: 'Ridge Face Highwall Geotechnical Tension Crack Monitoring',
-        severity: 'HIGH',
-        category: 'GEOTECHNICAL / DGMS',
-        statutoryAuthority: 'DGMS Geotechnical Tech Circular No. 03/2026',
-        benchZone: 'Main Pit Ridge Face',
-        description: 'Prism laser sensor detected 2.8mm displacement along crest tension crack after rain event.',
-        quantitativeImpact: 'Precautionary exclusion buffer enforced along 40m crest',
-        mitigationStrategy: 'Install continuous wire extensometers and berm drainage ditches.',
-        linkedActionId: 'SMACT-01',
-        updatedAt: '12:00 Today',
-      },
-    ],
-    chikla: [
-      {
-        id: 'rsk-ck-1',
-        code: 'RSK-VENT-05',
-        title: 'Chikla Deep Stope Auxiliary Airflow Monitoring',
-        severity: 'MEDIUM',
-        category: 'STATUTORY / DGMS',
-        statutoryAuthority: 'DGMS Metalliferous Mines Regulations (MMR) 1961',
-        benchZone: 'Chikla Level 5 Stope',
-        description: 'Ventilation velocity nominal at 0.45 m/s across deep production face.',
-        quantitativeImpact: 'Nominal operational status',
-        mitigationStrategy: 'Routine weekly anemometer inspection and airflow logging.',
-        linkedActionId: 'SMACT-01',
-        updatedAt: '08:15 Today',
-      },
-    ],
-    tirodi: [
-      {
-        id: 'rsk-tr-1',
-        code: 'RSK-PIT-02',
-        title: 'Tirodi North Pit Ramp Grading & Traffic Flow Optimization',
-        severity: 'LOW',
-        category: 'MINE LOGISTICS',
-        statutoryAuthority: 'Mines Rules 1955',
-        benchZone: 'North Highwall Cut',
-        description: 'Routine surface dressing completed on main haul road.',
-        quantitativeImpact: 'No impact on shift production target',
-        mitigationStrategy: 'Maintain bi-hourly water sprinkler rounds for dust suppression.',
-        linkedActionId: 'SMACT-02',
-        updatedAt: '07:00 Today',
-      },
-    ],
-    gumgaon: [
-      {
-        id: 'rsk-gg-1',
-        code: 'RSK-SHAFT-01',
-        title: 'Gumgaon Shaft Hoisting Counterweight Guide Rail Inspection',
-        severity: 'MEDIUM',
-        category: 'MECHANICAL FLEET',
-        statutoryAuthority: 'DGMS Shaft Hoisting Code',
-        benchZone: 'Vertical Shaft Level -4',
-        description: 'Guide shoe wear tolerances inspected during scheduled shift maintenance window.',
-        quantitativeImpact: 'Scheduled 1.0h hoisting slowdown',
-        mitigationStrategy: 'Lubricate guide rails and re-torque mounting brackets.',
-        linkedActionId: 'SMACT-01',
-        updatedAt: '09:45 Today',
-      },
-    ],
-    sitapatore: [
-      {
-        id: 'rsk-sp-1',
-        code: 'RSK-BENCH-01',
-        title: 'Sitapatore High-Grade Lens Selective Blasting Precision',
-        severity: 'LOW',
-        category: 'GEOTECHNICAL',
-        statutoryAuthority: 'IBM Mining Plan Specifications',
-        benchZone: 'Central Pit Cut',
-        description: 'Staggered blast hole spacing tuned to minimize ore dilution with footwall quartzite.',
-        quantitativeImpact: '+1.5% Mn grade preservation achieved',
-        mitigationStrategy: 'Laser scanner validation of post-blast muckpile boundary.',
-        linkedActionId: 'SMACT-01',
-        updatedAt: '10:00 Today',
-      },
-    ],
-    ukwa: [
-      {
-        id: 'rsk-uk-1',
-        code: 'RSK-DRIFT-01',
-        title: 'Ukwa Incline Drift Timber & Friction Prop Support Integrity',
-        severity: 'MEDIUM',
-        category: 'GEOTECHNICAL',
-        statutoryAuthority: 'DGMS Support Rules for Underground Metalliferous Mines',
-        benchZone: 'Stope Level 3 Seam',
-        description: 'Roof bolt torque audit completed across 60m strike length; all anchors holding > 6.0 tonnes.',
-        quantitativeImpact: 'Zero loss of stope availability',
-        mitigationStrategy: 'Maintain regular acoustic sounding tests along hanging wall contacts.',
-        linkedActionId: 'SMACT-01',
-        updatedAt: '08:30 Today',
-      },
-    ],
   };
 
   // Reusable Theme Helper Classes
@@ -2918,14 +2945,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {(CURRENT_MINE_INTERNAL_BENCHES[normSelectedMineId] || CURRENT_MINE_INTERNAL_BENCHES['dongri-buzurg'])
-                    .filter((bench) =>
-                      siteStatusSearch === '' ||
-                      bench.benchName.toLowerCase().includes(siteStatusSearch.toLowerCase()) ||
-                      bench.zone.toLowerCase().includes(siteStatusSearch.toLowerCase()) ||
-                      bench.assignedMachinery.toLowerCase().includes(siteStatusSearch.toLowerCase())
-                    )
-                    .map((bench) => {
+                  {filteredBenches.map((bench) => {
                       const outputPct = bench.shiftTargetTons > 0
                         ? Math.min(100, Math.round((bench.shiftActualTons / bench.shiftTargetTons) * 100))
                         : 100;
@@ -3062,13 +3082,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
 
                 {/* Risk Register List Cards */}
                 <div className="space-y-3.5">
-                  {(SITE_SPECIFIC_RISK_EVENTS[normSelectedMineId] || SITE_SPECIFIC_RISK_EVENTS['dongri-buzurg'])
-                    .filter((rsk) => {
-                      if (siteRiskFilter === 'ALL') return true;
-                      if (siteRiskFilter === 'STATUTORY') return rsk.category.includes('STATUTORY') || rsk.statutoryAuthority.includes('DGMS');
-                      return rsk.severity === siteRiskFilter;
-                    })
-                    .map((risk) => (
+                  {filteredRisks.map((risk) => (
                       <div
                         key={risk.id}
                         className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
