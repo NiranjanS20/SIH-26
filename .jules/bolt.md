@@ -1,0 +1,4 @@
+
+## 2025-02-18 - [React Array Allocations & Filtering in Giant Components]
+**Learning:** Massive static arrays/objects defined inside a React functional component's body get recreated on every render. If the component is heavily stateful (like `MineWorkspace.tsx` which handles lots of rapid state changes for UI), this constant memory allocation creates garbage collection pressure. Inlining `.filter()` and `.map()` on these large arrays directly in JSX compounds the issue by recalculating the result on every render even if filter inputs haven't changed.
+**Action:** Always move static, immutable datasets *outside* the component function scope. Use `React.useMemo` to memoize the results of expensive filtering operations, ensuring the filter logic only reruns when its dependency values change.
