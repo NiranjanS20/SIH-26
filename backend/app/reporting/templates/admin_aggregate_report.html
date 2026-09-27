@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block classification %}Internal — MOIL Use Only{% endblock %}
+
+{% block content %}
+<div class="section no-break">
+    <h2>0. Multi-Mine Comparison</h2>
+    <table>
+        <tr>
+            <th>Mine Name</th>
+            <th>Actual Production (T)</th>
+            <th>Total Target (T)</th>
+            <th>Shortfall Events</th>
+        </tr>
+        {% for mine in all_mines_summary %}
+        <tr>
+            <td>{{ mine.name }}</td>
+            <td class="numeric">{{ "%.1f"|format(mine.actual) }}</td>
+            <td class="numeric">{{ "%.1f"|format(mine.target) }}</td>
+            <td class="numeric">{{ mine.shortfall_events }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="section">
+    <h2>1. Aggregate Production Summary</h2>
+    <div class="chart-container">
+        <img src="data:image/png;base64,{{ charts.production_chart }}" alt="Production Chart">
+        <div class="chart-caption">Actual vs. Target vs. Forecasted Production (All Mines)</div>
+    </div>
+</div>
+<!-- Assuming we append other aggregated charts here similarly -->
+{% endblock %}
+
+{% block provenance %}
+<ul>
+    <li><strong>Data Aggregation:</strong> This report aggregates metrics across all operational MOIL sites for macro-level governance.</li>
+</ul>
+{% endblock %}

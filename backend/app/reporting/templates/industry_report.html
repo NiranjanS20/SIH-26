@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block classification %}Prepared for Industry Distribution{% endblock %}
+
+{% block content %}
+<div class="section no-break">
+    <h2>1. Executive Summary</h2>
+    <p>
+        Manganese Ore India Limited (MOIL) continues to drive national priority production in alignment with import-substitution goals. This report outlines the aggregate supply reliability, product grade forecasting, and ESG compliance status across our national operational footprint. The data herein represents an aggregated and sanitized operational outlook for the upcoming periods.
+    </p>
+</div>
+
+<div class="section">
+    <h2>2. Supply Outlook (3-Month)</h2>
+    <div class="chart-container">
+        <img src="data:image/png;base64,{{ charts.supply_chart }}" alt="Supply Outlook Chart">
+        <div class="chart-caption">Aggregated & Mine-wise Forecasted Tonnage</div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>3. Product & Grade Overview</h2>
+    <table>
+        <tr>
+            <th>Grade Band</th>
+            <th>Producing Mines (Forecasted)</th>
+            <th>Base Price / Tonne</th>
+        </tr>
+        {% for grade in product_grades %}
+        <tr>
+            <td>{{ grade.band }}</td>
+            <td>{{ grade.mines }}</td>
+            <td class="numeric">₹{{ grade.price }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="section">
+    <h2>4. ESG & Compliance</h2>
+    <table>
+        <tr>
+            <th>Mine</th>
+            <th>Standard Code</th>
+            <th>Status</th>
+            <th>Last Audit</th>
+        </tr>
+        {% for comp in compliance %}
+        <tr>
+            <td>{{ comp.mine_name }}</td>
+            <td>{{ comp.standard_code }}</td>
+            <td>{{ comp.status }}</td>
+            <td>{{ comp.last_audit_date }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="section">
+    <h2>5. Source Comparison</h2>
+    <table>
+        <tr>
+            <th>Mine</th>
+            <th>Grade Range</th>
+            <th>Projected Value Output</th>
+        </tr>
+        {% for src in source_comparison %}
+        <tr>
+            <td>{{ src.mine_name }}</td>
+            <td>{{ src.grade_band }}</td>
+            <td class="numeric">₹{{ "%.2f"|format(src.value) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p><em>Justification:</em> Based on robust price indices, sustained high-grade output forecasting, and historical reliability, the highlighted operations offer the most secure supply matrix for the current quarter.</p>
+</div>
+
+<div class="section">
+    <h2>6. Value & Economic Context</h2>
+    <table>
+        <tr>
+            <th>Aggregate Forecast Tonnage</th>
+            <th>Estimated Aggregate Market Value</th>
+        </tr>
+        <tr>
+            <td class="numeric">{{ "%.1f"|format(total_tonnage) }} T</td>
+            <td class="numeric">₹{{ "%.2f"|format(total_value) }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <h2>7. Data Sources Cited</h2>
+    <ul>
+        <li>Indian Bureau of Mines (IBM) Returns</li>
+        <li>MOIL Internal Telemetry</li>
+        <li>India Meteorological Department (IMD) - Climate Proxies</li>
+        <li>National Geoscience Data Repository (NGDR)</li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block provenance %}
+<ul>
+    <li><strong>Forecast Data:</strong> Consists of {{ provenance.prod_synth }} model-synthesized records validated against {{ provenance.prod_real }} real anchor checkpoints.</li>
+</ul>
+{% endblock %}

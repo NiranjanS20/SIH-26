@@ -77,3 +77,14 @@ screenshots/
 sc.png
 test_*.png
 
+# Database & Environment
+*.sqlite
+*.sqlite3
+*.db
+*.sql.gz
+*.dump
+alembic.ini.backup
+
+# Agent Temporary Media
+.tempmediaStorage/
+

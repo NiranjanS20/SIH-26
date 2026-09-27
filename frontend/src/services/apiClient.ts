@@ -138,3 +138,31 @@ export async function apiGetRaw<T>(path: string, signal?: AbortSignal): Promise<
 
   return response.json();
 }
+
+/**
+ * Simple POST for endpoints that don't use the Envelope format
+ */
+export async function apiPostRaw<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
+  const url = `${API_BASE_URL}${path}`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      ...getAuthHeader(),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+    signal,
+  });
+
+  if (response.status === 401) {
+    logoutUser();
+    window.dispatchEvent(new Event('auth:unauthorized'));
+  }
+
+  if (!response.ok) {
+    throw new ApiError(`HTTP ${response.status}`, 'HTTP_ERROR', response.status);
+  }
+
+  return response.json();
+}

@@ -1,0 +1,154 @@
+@page {
+    size: A4;
+    margin: 20mm;
+    @top-center {
+        content: element(header);
+    }
+    @bottom-center {
+        content: element(footer);
+    }
+}
+
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #000000;
+    font-size: 11pt;
+    line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Georgia', serif;
+    color: #1F3864;
+}
+
+h1 { font-size: 24pt; border-bottom: 2px solid #1F3864; padding-bottom: 5px; }
+h2 { font-size: 18pt; border-bottom: 1px solid #1F3864; padding-bottom: 3px; page-break-after: avoid; }
+h3 { font-size: 14pt; page-break-after: avoid; }
+
+.header {
+    position: running(header);
+    text-align: center;
+    border-bottom: 2px solid #1F3864;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-family: 'Georgia', serif;
+    color: #1F3864;
+}
+
+.header img {
+    height: 40px;
+    vertical-align: middle;
+}
+
+.header-title {
+    font-size: 14pt;
+    font-weight: bold;
+    display: inline-block;
+    margin-left: 15px;
+    vertical-align: middle;
+}
+
+.header-tagline {
+    font-size: 9pt;
+    font-style: italic;
+    color: #666666;
+    display: block;
+    margin-top: 5px;
+}
+
+.footer {
+    position: running(footer);
+    border-top: 1px solid #1F3864;
+    padding-top: 10px;
+    font-size: 9pt;
+    color: #666666;
+    text-align: center;
+}
+
+.footer .page-number:after {
+    content: counter(page) " of " counter(pages);
+}
+
+.footer .classification {
+    font-weight: bold;
+    color: #1F3864;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.metadata-block {
+    background-color: #F8F9FA;
+    border: 1px solid #E2E8F0;
+    padding: 15px;
+    margin-bottom: 20px;
+    font-size: 10pt;
+}
+
+.metadata-block p {
+    margin: 3px 0;
+}
+
+.section {
+    page-break-before: always;
+}
+.section.no-break {
+    page-break-before: avoid;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 10pt;
+}
+
+th, td {
+    border: 1px solid #CBD5E1;
+    padding: 8px;
+}
+
+th {
+    background-color: #1F3864;
+    color: #FFFFFF;
+    text-align: left;
+    font-family: 'Georgia', serif;
+}
+
+tr:nth-child(even) {
+    background-color: #F2F2F2;
+}
+
+.numeric {
+    text-align: right;
+}
+
+.chart-container {
+    text-align: center;
+    margin: 20px 0;
+    page-break-inside: avoid;
+}
+
+.chart-container img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #E2E8F0;
+}
+
+.chart-caption {
+    font-style: italic;
+    font-size: 9pt;
+    color: #475569;
+    margin-top: 5px;
+}
+
+.status-high { color: #DC2626; font-weight: bold; }
+.status-medium { color: #F59E0B; font-weight: bold; }
+.status-low { color: #10B981; font-weight: bold; }
+
+.provenance-box {
+    border: 1px solid #1F3864;
+    padding: 15px;
+    background-color: #F0F4F8;
+    margin-top: 40px;
+    page-break-inside: avoid;
+}

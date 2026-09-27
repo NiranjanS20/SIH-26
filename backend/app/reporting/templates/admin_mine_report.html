@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block classification %}Internal — MOIL Use Only{% endblock %}
+
+{% block content %}
+<div class="section no-break">
+    <h2>1. Mine Profile</h2>
+    <table>
+        <tr>
+            <th>Mine Name</th>
+            <td>{{ mine.name }}</td>
+            <th>Status</th>
+            <td>{{ mine.status }}</td>
+        </tr>
+        <tr>
+            <th>Location</th>
+            <td>{{ mine.district }}, {{ mine.state }}</td>
+            <th>Type</th>
+            <td>{{ mine.type }}</td>
+        </tr>
+        <tr>
+            <th>Lease Area (ha)</th>
+            <td colspan="3">{{ mine.lease_area_ha }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <h2>2. Production Summary</h2>
+    <div class="chart-container">
+        <img src="data:image/png;base64,{{ charts.production_chart }}" alt="Production Chart">
+        <div class="chart-caption">Actual vs. Target vs. Forecasted Production</div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>3. Shortfall & Risk</h2>
+    <div class="chart-container">
+        <img src="data:image/png;base64,{{ charts.shortfall_chart }}" alt="Shortfall Risk Chart">
+        <div class="chart-caption">Shortfall Risk Frequency by Severity</div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>4. Cause Analysis (SHAP Features)</h2>
+    <div class="chart-container">
+        <img src="data:image/png;base64,{{ charts.cause_chart }}" alt="Cause Analysis Chart">
+        <div class="chart-caption">Top-ranked operational blockers by SHAP value impact</div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>5. Corrective Actions</h2>
+    <div class="chart-container">
+        <img src="data:image/png;base64,{{ charts.action_chart }}" alt="Corrective Actions Status">
+    </div>
+    <table>
+        <tr>
+            <th>Action Type</th>
+            <th>Status</th>
+            <th>Expected Gap Closure (T)</th>
+        </tr>
+        {% for action in corrective_actions %}
+        <tr>
+            <td>{{ action.action_type }}</td>
+            <td>{{ action.status }}</td>
+            <td class="numeric">{{ "%.1f"|format(action.expected_gap_closure_tonnage) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="section">
+    <h2>6. Prospectivity</h2>
+    <table>
+        <tr>
+            <th>Grid Ref</th>
+            <th>Lat / Lon</th>
+            <th>Prospectivity Score</th>
+            <th>AI Conf.</th>
+        </tr>
+        {% for zone in prospectivity %}
+        <tr>
+            <td>{{ zone.grid_id }}</td>
+            <td>{{ zone.lat|round(4) }}, {{ zone.lon|round(4) }}</td>
+            <td class="numeric">{{ "%.2f"|format(zone.prospectivity_score) }}</td>
+            <td class="numeric">{{ "%.2f"|format(zone.ai_confidence) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="section">
+    <h2>7. Equipment Status</h2>
+    <table>
+        <tr>
+            <th>Equipment Type</th>
+            <th>Status</th>
+            <th>Count</th>
+        </tr>
+        {% for eq in equipment %}
+        <tr>
+            <td>{{ eq.type }}</td>
+            <td>{{ eq.status }}</td>
+            <td class="numeric">{{ eq.count }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="section">
+    <h2>8. Operational Log</h2>
+    <div class="chart-container">
+        <img src="data:image/png;base64,{{ charts.ops_chart }}" alt="Operational Log Chart">
+        <div class="chart-caption">Downtime Hours Distribution</div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>9. Blasting Delays</h2>
+    <div class="chart-container">
+        <img src="data:image/png;base64,{{ charts.blast_chart }}" alt="Blasting Delays Chart">
+        <div class="chart-caption">Frequency of Delays by Reason</div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>10. Value Forecast</h2>
+    <table>
+        <tr>
+            <th>Grade Band</th>
+            <th>Forecasted Tonnage</th>
+            <th>Est. Price/T</th>
+            <th>Total Value Est.</th>
+        </tr>
+        {% for vf in value_forecast %}
+        <tr>
+            <td>{{ vf.grade_band }}</td>
+            <td class="numeric">{{ "%.1f"|format(vf.forecast_tonnage) }}</td>
+            <td class="numeric">{{ vf.price }}</td>
+            <td class="numeric">{{ "%.2f"|format(vf.forecast_tonnage * vf.price) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
+
+{% block provenance %}
+<ul>
+    <li><strong>Production Summary:</strong> Contains {{ provenance.prod_real }} real anchor points and {{ provenance.prod_synth }} synthetic points.</li>
+    <li><strong>Shortfall Events:</strong> {{ provenance.shortfall_real }} realized events and {{ provenance.shortfall_synth }} forecasted events.</li>
+    <li><strong>Cause Analysis & Corrective Actions:</strong> AI-driven derivations based on production inputs.</li>
+</ul>
+{% endblock %}

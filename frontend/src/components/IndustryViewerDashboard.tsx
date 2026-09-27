@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { type PortalRoute } from './Navbar';
 import { ThemeToggleSwitch } from './ui/ThemeToggleSwitch';
 import { useAuth } from '../contexts/AuthContext';
+import { apiPostRaw } from '../services/apiClient';
 
 interface IndustryViewerDashboardProps {
   onNavigate: (route: PortalRoute) => void;
@@ -899,6 +900,20 @@ export const IndustryViewerDashboard: React.FC<IndustryViewerDashboardProps> = (
 
         {/* Right controls */}
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              apiPostRaw(`/reports/industry?period_start=2026-09-01&period_end=2026-09-30`)
+                .then((res: any) => {
+                  alert(`Industry report generation started! ID: ${res.report_id}. Please wait...`);
+                })
+                .catch(err => alert("Failed to generate report: " + err.message));
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#D97706] hover:bg-[#B05B04] text-white text-[10px] font-black uppercase tracking-wider rounded-lg shadow-md transition-all cursor-pointer mr-2"
+            title="Generate PDF Report"
+          >
+            <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
+            <span className="hidden md:inline">Generate Report</span>
+          </button>
           {onToggleTheme && <ThemeToggleSwitch isDark={isDark} onToggle={onToggleTheme} />}
           <span className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/20 border border-blue-400/30 text-blue-300 text-[10px] font-bold">
             <span className="material-symbols-outlined text-sm">visibility</span>

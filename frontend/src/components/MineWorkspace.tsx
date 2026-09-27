@@ -18,7 +18,7 @@ import {
   MINE_PRODUCTION_PROFILES,
 } from '../data/mineProductionData';
 import { MINE_BOUNDARIES } from '../lib/prospectivityMapConfig';
-import { apiGet } from '../services/apiClient';
+import { apiGet, apiPostRaw } from '../services/apiClient';
 
 interface MineWorkspaceProps {
   onNavigate: (route: PortalRoute) => void;
@@ -1644,10 +1644,28 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
 
         {/* Right Header Icons */}
         <div className="flex items-center gap-3">
+          {(userRole === 'admin' || userRole === 'site_manager') && (
+            <button
+              onClick={() => {
+                apiPostRaw(`/reports/admin/${selectedMineId}?period_start=2026-09-01&period_end=2026-09-30`)
+                  .then((res: any) => {
+                    alert(`Report generation started! ID: ${res.report_id}. Please wait...`);
+                  })
+                  .catch(err => alert("Failed to generate report: " + err.message));
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#D97706] hover:bg-[#B05B04] text-white text-[10px] font-black uppercase tracking-wider rounded-lg shadow-md transition-all cursor-pointer mr-2"
+              title="Generate PDF Report"
+            >
+              <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
+              <span className="hidden md:inline">Generate Report</span>
+            </button>
+          )}
+
           <button
             onClick={() => setActiveTab('alerts')}
             className="p-1.5 text-white/80 hover:text-white transition-colors cursor-pointer relative"
             title="Notifications"
+
           >
             <span className="material-symbols-outlined text-lg text-[#FEA619]">notifications</span>
             <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#B03A2E] animate-ping" />

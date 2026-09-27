@@ -44,6 +44,7 @@ graph TD;
         API[REST API Layer]
         Auth[JWT & RBAC Middleware]
         Reg[In-Memory Model Registry]
+        DB[(PostgreSQL + PostGIS)]
     end
 
     subgraph AI_Engine [Machine Learning Core]
@@ -58,6 +59,7 @@ graph TD;
     3D <-->|GeoJSON/TIFs| API
     API <--> Auth
     API <--> Reg
+    API <--> DB
     Reg --> AI_Engine
     AI_Engine --> Reg
 ```
@@ -126,6 +128,7 @@ The FastAPI backend is compartmentalized via APIRouters. All requests are protec
 
 ### Server (Backend)
 - **Framework:** FastAPI (Python 3.12)
+- **Database:** PostgreSQL 16+ with PostGIS, SQLAlchemy 2.0 (Async), GeoAlchemy2, Alembic
 - **Data Processing:** Pandas, NumPy
 - **Machine Learning:** XGBoost, Scikit-Learn, SHAP, Rasterio
 - **Server:** Uvicorn
@@ -145,9 +148,25 @@ cd SIH-26_009
 python -m venv venv
 source venv/Scripts/activate  # (On Windows: venv\Scripts\activate)
 pip install -r requirements.txt
+### 2. Set Up the Database
+1. Install **PostgreSQL** and the **PostGIS** extension.
+2. Create a database: `CREATE DATABASE mine_db;`
+3. Configure your database URL (Windows PowerShell example):
+   ```bash
+   $env:DATABASE_URL="postgresql+asyncpg://postgres:yourpassword@localhost:5432/mine_db"
+   ```
+4. Initialize the schemas, migrations, and seed data:
+   ```bash
+   cd backend
+   python scripts/enable_postgis.py
+   alembic upgrade head
+   python scripts/migrate_csv_to_db.py
+   python scripts/apply_rls.py
+   ```
 
-# Run the server
-cd backend
+### 3. Start the FastAPI Backend
+```bash
+# Run the server from the backend directory
 python -m uvicorn app.main:app --reload --port 8000
 ```
 *API docs available at `http://localhost:8000/docs`.*
