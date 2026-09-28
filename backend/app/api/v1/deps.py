@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status, Request
-from .auth import get_current_user # Assuming auth.py has get_current_user
+from app.core.security import verify_jwt as get_current_user
 
-def require_role(*allowed_roles):
+def require_role(allowed_roles: list[str]):
     """
     FastAPI Dependency to strictly enforce RBAC at the application layer.
     """

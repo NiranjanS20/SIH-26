@@ -3,12 +3,13 @@
 <head>
     <meta charset="utf-8">
     <title>{{ report_title }}</title>
-    <link href="file://{{ css_path }}" rel="stylesheet">
+    <style>
+{{ inline_css }}
+    </style>
 </head>
 <body>
     <div class="header">
-        <!-- Assuming moil_logo.png is in the same path, but we pass absolute path -->
-        <img src="file://{{ logo_path }}" alt="MOIL Logo">
+        <img src="{{ logo_data_uri }}" alt="MOIL Logo">
         <div class="header-title">{{ report_title }}</div>
         <div class="header-tagline">Government of India Enterprise</div>
     </div>
