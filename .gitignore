@@ -88,3 +88,5 @@ alembic.ini.backup
 # Agent Temporary Media
 .tempmediaStorage/
 
+# Generated Reports Output
+backend/app/reporting/output/

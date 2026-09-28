@@ -1649,7 +1649,11 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
               onClick={() => {
                 apiPostRaw(`/reports/admin/${selectedMineId}?period_start=2026-09-01&period_end=2026-09-30`)
                   .then((res: any) => {
-                    alert(`Report generation started! ID: ${res.report_id}. Please wait...`);
+                    if (res.download_url) {
+                      window.open(res.download_url, '_blank');
+                    } else {
+                      alert(`Report generation started! ID: ${res.report_id}. Please wait...`);
+                    }
                   })
                   .catch(err => alert("Failed to generate report: " + err.message));
               }}
