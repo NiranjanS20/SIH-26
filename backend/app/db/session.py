@@ -1,4 +1,8 @@
 import os
+from dotenv import load_dotenv
+
+# Load .env file explicitly so uvicorn picks up Supabase URL
+load_dotenv()
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 

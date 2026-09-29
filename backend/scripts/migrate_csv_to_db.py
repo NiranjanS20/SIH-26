@@ -1,6 +1,9 @@
 import asyncio
 import os
 import pandas as pd
+from dotenv import load_dotenv
+
+load_dotenv()
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.postgresql import insert

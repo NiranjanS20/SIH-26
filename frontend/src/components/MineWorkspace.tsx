@@ -12,6 +12,7 @@ import { ThemeToggleSwitch } from './ui/ThemeToggleSwitch';
 import { CustomerView } from './CustomerView';
 import { ProspectivityView } from './ProspectivityView';
 import { RecentActivityCard } from './RecentActivityCard';
+import { WhatIfSimulator } from './WhatIfSimulator';
 import { PORTFOLIO_MINE_PROFILES } from '../data/portfolioData';
 
 // Fallback lookup with old schema mapping
@@ -53,6 +54,7 @@ export type OverviewTab =
   | 'shortfall-diagnosis'
   | 'corrective-actions'
   | 'alerts'
+  | 'what-if'
   | 'portfolio-view'
   | 'customer-view';
 
@@ -96,6 +98,7 @@ const SITE_MANAGER_TABS: OverviewTab[] = [
   'shortfall-diagnosis',
   'corrective-actions',
   'alerts',
+  'what-if',
 ];
 
 // Tabs accessible to industry_viewer
@@ -675,20 +678,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
     },
   ];
 
-  // What-If Simulation Sliders State
-  const [simEquipment, setSimEquipment] = useState<number>(80);
-  const [simBlastingDelay, setSimBlastingDelay] = useState<number>(2);
-  const [simRainfall, setSimRainfall] = useState<number>(70);
-  const [simNdvi, setSimNdvi] = useState<number>(0.42);
-  const [isSimulating, setIsSimulating] = useState<boolean>(false);
-
   const isDark = themeMode === 'dark';
-
-  // Calculate simulated output dynamically based on inputs
-  const simulatedGain = Math.round(
-    (simEquipment - 80) * 25 - (simBlastingDelay - 2) * 120 - (simRainfall - 70) * 10
-  );
-  const simulatedOutput = 4100 + Math.max(-400, Math.min(900, simulatedGain));
 
   // Toggle Action Status
   const handleToggleActionStatus = (id: string) => {
@@ -1692,6 +1682,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                 { id: 'shortfall-diagnosis', label: 'Shortfall Diagnosis', icon: 'analytics' },
                 { id: 'corrective-actions', label: 'Corrective Actions', icon: 'checklist' },
                 { id: 'alerts', label: 'Alerts', icon: 'notifications' },
+                { id: 'what-if', label: 'What-If Simulator', icon: 'tune' },
               ]
               .filter((item) => {
                 if (userRole === 'admin') return true;
@@ -1965,7 +1956,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                           GEOLOGICAL STRATA &amp; LEASE PROFILE
                         </span>
                         <p className="text-xs leading-relaxed text-slate-200">
-                          "{mineProfile.mineName} is an active {mineProfile.type.toLowerCase()} manganese ore lease in {mineProfile.district?.replace(/\s+District$/i, '')} district, {mineProfile.state}, producing metallurgical and high-grade battery oxide ores."
+                          "{mineProfile.mineName} is an active {(mineProfile?.type || 'opencast').toLowerCase()} manganese ore lease in {mineProfile.district?.replace(/\s+District$/i, '')} district, {mineProfile.state}, producing metallurgical and high-grade battery oxide ores."
                         </p>
                       </div>
                     </div>
@@ -2889,9 +2880,9 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                   {(CURRENT_MINE_INTERNAL_BENCHES[normSelectedMineId] || CURRENT_MINE_INTERNAL_BENCHES['dongri-buzurg'])
                     .filter((bench) =>
                       siteStatusSearch === '' ||
-                      bench.benchName.toLowerCase().includes(siteStatusSearch.toLowerCase()) ||
-                      bench.zone.toLowerCase().includes(siteStatusSearch.toLowerCase()) ||
-                      bench.assignedMachinery.toLowerCase().includes(siteStatusSearch.toLowerCase())
+                      (bench?.benchName || '').toLowerCase().includes(siteStatusSearch.toLowerCase()) ||
+                      (bench?.zone || '').toLowerCase().includes(siteStatusSearch.toLowerCase()) ||
+                      (bench?.assignedMachinery || '').toLowerCase().includes(siteStatusSearch.toLowerCase())
                     )
                     .map((bench) => {
                       const outputPct = bench.shiftTargetTons > 0
@@ -3538,74 +3529,44 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                 </div>
               </div>
 
-              {/* WHAT-IF SIMULATION */}
-              {userRole === 'admin' && (
-              <div className={`p-6 rounded-xl border space-y-5 ${cardBg}`}>
-                <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4 ${borderDivider}`}>
-                  <div>
-                    <h3 className={`font-headline font-black text-xl uppercase tracking-wide flex items-center gap-2 ${textPrimary}`}>
-                      <span className="material-symbols-outlined text-[#0E7C7B]">tune</span>
-                      WHAT-IF SIMULATION
-                    </h3>
-                    <p className={`text-xs mt-0.5 ${textSecondary}`}>"Explore how operational and environmental changes could affect predicted output." </p>
-                  </div>
-                  <div className={`p-4 rounded-xl border text-right shrink-0 ${nestedBg} ${!isDark ? 'bg-gradient-to-br from-teal-50/60 via-white to-white border-teal-200 shadow-xs' : ''}`}>
-                    <span className={`text-[10px] font-black uppercase tracking-wider block ${isDark ? 'text-[#0E7C7B]' : 'text-teal-800'}`}>SIMULATED OUTPUT</span>
-                    <span className={`font-headline font-black text-2xl block ${isDark ? textPrimary : 'text-slate-950'}`}>{simulatedOutput.toLocaleString()} t</span>
-                    <span className={`text-xs font-extrabold block ${isDark ? 'text-emerald-500' : 'text-emerald-700'}`}>{simulatedGain >= 0 ? `+${simulatedGain}` : simulatedGain} t vs current forecast</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold">
-                      <span className={isDark ? textSecondary : 'text-slate-800'}>Equipment Efficiency</span>
-                      <span className={`font-mono ${isDark ? 'text-[#0E7C7B]' : 'text-teal-700 font-black'}`}>{simEquipment}%</span>
+              {/* WHAT-IF SIMULATION - Navigate to dedicated tab */}
+              {(userRole === 'admin' || userRole === 'site_manager') && (
+                <div className={`p-5 rounded-xl border flex items-center justify-between ${cardBg}`}>
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-[#0E7C7B] text-xl">tune</span>
+                    <div>
+                      <h3 className={`font-headline font-black text-sm uppercase tracking-wider ${textPrimary}`}>
+                        WHAT-IF SIMULATOR
+                      </h3>
+                      <p className={`text-xs mt-0.5 ${textMuted}`}>
+                        Explore how operational changes affect predicted output using the trained ML model.
+                      </p>
                     </div>
-                    <input type="range" min="50" max="100" value={simEquipment} onChange={(e) => setSimEquipment(Number(e.target.value))} className="w-full accent-[#0E7C7B] cursor-pointer" />
                   </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold">
-                      <span className={isDark ? textSecondary : 'text-slate-800'}>Blasting Delay</span>
-                      <span className={`font-mono ${isDark ? 'text-[#D97706]' : 'text-amber-700 font-black'}`}>{simBlastingDelay} days</span>
-                    </div>
-                    <input type="range" min="0" max="7" value={simBlastingDelay} onChange={(e) => setSimBlastingDelay(Number(e.target.value))} className="w-full accent-[#D97706] cursor-pointer" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold">
-                      <span className={isDark ? textSecondary : 'text-slate-800'}>Rainfall</span>
-                      <span className={`font-mono ${isDark ? 'text-blue-500' : 'text-blue-700 font-black'}`}>{simRainfall}%</span>
-                    </div>
-                    <input type="range" min="0" max="100" value={simRainfall} onChange={(e) => setSimRainfall(Number(e.target.value))} className="w-full accent-blue-500 cursor-pointer" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold">
-                      <span className={isDark ? textSecondary : 'text-slate-800'}>NDVI</span>
-                      <span className={`font-mono ${isDark ? 'text-emerald-500' : 'text-emerald-700 font-black'}`}>{simNdvi.toFixed(2)}</span>
-                    </div>
-                    <input type="range" min="10" max="90" value={simNdvi * 100} onChange={(e) => setSimNdvi(Number(e.target.value) / 100)} className="w-full accent-emerald-500 cursor-pointer" />
-                  </div>
-                </div>
-
-                <div className="flex justify-end pt-2">
                   <button
-                    onClick={() => {
-                      setIsSimulating(true);
-                      setTimeout(() => setIsSimulating(false), 600);
-                    }}
-                    className="px-6 py-2.5 rounded-lg bg-[#0E7C7B] hover:bg-[#0C6A69] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-md border border-[#0E7C7B]"
+                    onClick={() => setActiveTab('what-if')}
+                    className="px-5 py-2.5 rounded-lg bg-[#0E7C7B] hover:bg-[#0C6A69] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-md"
                   >
-                    {isSimulating ? 'Computing Simulation...' : 'Run Simulation'}
+                    Open Simulator →
                   </button>
                 </div>
-              </div>
               )}
             </div>
           )}
 
           {/* ========================================================================= */}
-          {/* TAB 3: SHORTFALL DIAGNOSIS TAB CONTENT */}
+          {/* TAB: WHAT-IF SIMULATOR */}
           {/* ========================================================================= */}
+          {activeTab === 'what-if' && (
+            <WhatIfSimulator 
+              mineId={selectedMineId}
+              mineName={mineProfile.mineName}
+              miningMethod={(mineProfile?.type || 'opencast').toLowerCase().includes('open') ? 'opencast' : 'underground'}
+              themeMode={themeMode}
+              userRole={userRole}
+            />
+          )}
+
           {/* ========================================================================= */}
           {/* TAB 3: SHORTFALL DIAGNOSIS TAB CONTENT */}
           {/* ========================================================================= */}

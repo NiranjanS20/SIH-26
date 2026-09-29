@@ -84,6 +84,86 @@
             "before": null,
             "after": 52.080565556395484,
             "improved": true
+        },
+        {
+            "timestamp": "2026-09-29T21:24:37.283837",
+            "model_name": "model2_whatif_xgb_dongri-buzurg",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 71.36438598534276,
+            "improved": true
+        },
+        {
+            "timestamp": "2026-09-29T21:24:39.567654",
+            "model_name": "model2_whatif_xgb_sitapatore",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 31.098270772314372,
+            "improved": true
+        },
+        {
+            "timestamp": "2026-09-29T21:24:41.689886",
+            "model_name": "model2_whatif_xgb_tirodi",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 72.52192925455867,
+            "improved": true
+        },
+        {
+            "timestamp": "2026-09-29T21:24:42.846965",
+            "model_name": "model2_whatif_xgb_balaghat",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 96.88720601265459,
+            "improved": true
+        },
+        {
+            "timestamp": "2026-09-29T21:24:44.517187",
+            "model_name": "model2_whatif_xgb_ukwa",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 72.36328157094214,
+            "improved": true
+        },
+        {
+            "timestamp": "2026-09-29T21:24:45.649585",
+            "model_name": "model2_whatif_xgb_chikla",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 37.42403826166949,
+            "improved": true
+        },
+        {
+            "timestamp": "2026-09-29T21:24:49.654159",
+            "model_name": "model2_whatif_xgb_kandri",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 27.811500041219226,
+            "improved": true
+        },
+        {
+            "timestamp": "2026-09-29T21:24:51.033353",
+            "model_name": "model2_whatif_xgb_beldongri",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 18.923158132265616,
+            "improved": true
+        },
+        {
+            "timestamp": "2026-09-29T21:24:53.360131",
+            "model_name": "model2_whatif_xgb_munsar",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 31.182991223762496,
+            "improved": true
+        },
+        {
+            "timestamp": "2026-09-29T21:24:54.742495",
+            "model_name": "model2_whatif_xgb_gumgaon",
+            "metric_name": "RMSE",
+            "before": null,
+            "after": 23.696437131309644,
+            "improved": true
         }
     ],
     "model1_unfc_check": {
@@ -119,5 +199,55 @@
         "metric_name": "RMSE",
         "metric_value": 52.080565556395484,
         "last_updated": "2026-09-27T17:23:05.479143"
+    },
+    "model2_whatif_xgb_dongri-buzurg": {
+        "metric_name": "RMSE",
+        "metric_value": 71.36438598534276,
+        "last_updated": "2026-09-29T21:24:37.283837"
+    },
+    "model2_whatif_xgb_sitapatore": {
+        "metric_name": "RMSE",
+        "metric_value": 31.098270772314372,
+        "last_updated": "2026-09-29T21:24:39.567654"
+    },
+    "model2_whatif_xgb_tirodi": {
+        "metric_name": "RMSE",
+        "metric_value": 72.52192925455867,
+        "last_updated": "2026-09-29T21:24:41.689886"
+    },
+    "model2_whatif_xgb_balaghat": {
+        "metric_name": "RMSE",
+        "metric_value": 96.88720601265459,
+        "last_updated": "2026-09-29T21:24:42.846965"
+    },
+    "model2_whatif_xgb_ukwa": {
+        "metric_name": "RMSE",
+        "metric_value": 72.36328157094214,
+        "last_updated": "2026-09-29T21:24:44.517187"
+    },
+    "model2_whatif_xgb_chikla": {
+        "metric_name": "RMSE",
+        "metric_value": 37.42403826166949,
+        "last_updated": "2026-09-29T21:24:45.649585"
+    },
+    "model2_whatif_xgb_kandri": {
+        "metric_name": "RMSE",
+        "metric_value": 27.811500041219226,
+        "last_updated": "2026-09-29T21:24:49.654159"
+    },
+    "model2_whatif_xgb_beldongri": {
+        "metric_name": "RMSE",
+        "metric_value": 18.923158132265616,
+        "last_updated": "2026-09-29T21:24:51.033353"
+    },
+    "model2_whatif_xgb_munsar": {
+        "metric_name": "RMSE",
+        "metric_value": 31.182991223762496,
+        "last_updated": "2026-09-29T21:24:53.360131"
+    },
+    "model2_whatif_xgb_gumgaon": {
+        "metric_name": "RMSE",
+        "metric_value": 23.696437131309644,
+        "last_updated": "2026-09-29T21:24:54.742495"
     }
 }

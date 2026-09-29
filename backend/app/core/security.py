@@ -37,7 +37,7 @@ def require_role(allowed_roles: List[str]):
     return role_checker
 
 
-def generate_demo_token(role: str, name: str) -> str:
+def generate_demo_token(role: str, name: str, assigned_mine_id: str = None) -> str:
     """Generate a signed JWT for demo purposes."""
     now = datetime.datetime.utcnow()
     payload = {
@@ -47,4 +47,6 @@ def generate_demo_token(role: str, name: str) -> str:
         "iat": now,
         "exp": now + datetime.timedelta(hours=settings.JWT_EXPIRE_HOURS),
     }
+    if assigned_mine_id:
+        payload["assigned_mine_id"] = assigned_mine_id
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
