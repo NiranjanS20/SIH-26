@@ -96,7 +96,7 @@ export default function MapLibreProspectivityCanvas({
 
   // Layer Toggles - Pure clean map mode
   const [showHeatmap, setShowHeatmap] = useState<boolean>(true);
-  const [isLegendOpen, setIsLegendOpen] = useState<boolean>(false);
+  const [isLegendOpen, setIsLegendOpen] = useState<boolean>(true);
 
   const [mapLoaded, setMapLoaded] = useState<boolean>(false);
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
@@ -763,21 +763,32 @@ export default function MapLibreProspectivityCanvas({
           <div className="grid grid-cols-2 gap-2 mb-2">
             <div className="p-2 rounded-lg bg-white/5 border border-white/10">
               <span className="text-[9px] uppercase font-bold text-slate-400 block">Est. MnO% Grade</span>
-              <span className="text-base font-black text-rose-400">
+              <span className={`text-base font-black ${
+                (selectedPoint.grade || 0) < 30 ? 'text-purple-400' :
+                (selectedPoint.grade || 0) < 40 ? 'text-amber-400' : 'text-rose-400'
+              }`}>
                 {selectedPoint.gradeDisplay || `${selectedPoint.grade?.toFixed(1)}% MnO`}
               </span>
               <span className="text-[8.5px] text-slate-400 block truncate">
-                {selectedPoint.gradeTier || 'Ferro-Mn Tier'}
+                {selectedPoint.gradeTier || ((selectedPoint.grade || 0) < 30 ? 'Low Grade (<30% MnO)' : 'Medium Grade')}
               </span>
             </div>
             <div className="p-2 rounded-lg bg-white/5 border border-white/10">
               <div className="flex items-center justify-between">
                 <span className="text-[9px] uppercase font-bold text-slate-400">Confidence</span>
-                <span className="text-[8px] font-extrabold text-emerald-300 bg-emerald-950/80 px-1 py-0.5 rounded border border-emerald-500/40">
-                  {selectedPoint.confidenceBand || 'Very High'}
+                <span className={`text-[8px] font-extrabold px-1 py-0.5 rounded border ${
+                  selectedPoint.confidenceBand === 'Very High' ? 'text-emerald-300 bg-emerald-950/80 border-emerald-500/40' :
+                  selectedPoint.confidenceBand === 'High' ? 'text-teal-300 bg-teal-950/80 border-teal-500/40' :
+                  selectedPoint.confidenceBand === 'Moderate' ? 'text-amber-300 bg-amber-950/80 border-amber-500/40' :
+                  'text-purple-300 bg-purple-950/80 border-purple-500/40'
+                }`}>
+                  {selectedPoint.confidenceBand || 'Moderate'}
                 </span>
               </div>
-              <span className="text-base font-black text-emerald-400">
+              <span className={`text-base font-black ${
+                (selectedPoint.confidence || 0) >= 85 ? 'text-emerald-400' :
+                (selectedPoint.confidence || 0) >= 75 ? 'text-teal-400' : 'text-amber-400'
+              }`}>
                 {selectedPoint.confidence ? selectedPoint.confidence.toFixed(1) : '95.2'}%
               </span>
               <div className="w-full h-1 bg-white/10 rounded-full mt-1.5 overflow-hidden">
@@ -1003,42 +1014,54 @@ export default function MapLibreProspectivityCanvas({
         </button>
       </div>
 
-      {/* BOTTOM-RIGHT: Minimal Color Bar Legend */}
-      <div className="absolute bottom-3 right-2.5 z-20 pointer-events-auto max-w-[240px] w-full">
-        <div className="rounded-xl bg-slate-950/95 backdrop-blur-md border border-white/15 shadow-2xl p-2.5 text-white transition-all">
-          <div className="flex items-center justify-between border-b border-white/10 pb-1 mb-1.5">
-            <span className="text-[10px] font-black uppercase tracking-wider text-teal-300 flex items-center gap-1">
-              <Info size={11} />
-              Color Scale
+      {/* BOTTOM-RIGHT: Expanded, Highly Readable Color Scale Legend */}
+      <div className="absolute bottom-3 right-2.5 z-20 pointer-events-auto max-w-[320px] sm:max-w-[350px] w-full">
+        <div className="rounded-2xl bg-slate-950/98 backdrop-blur-md border border-white/20 shadow-2xl p-3 sm:p-3.5 text-white transition-all">
+          <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-2">
+            <span className="text-xs font-black uppercase tracking-wider text-teal-300 flex items-center gap-1.5">
+              <Info size={14} className="text-teal-400" />
+              <span>Map Color Scale</span>
             </span>
             <button
               type="button"
               onClick={() => setIsLegendOpen(!isLegendOpen)}
-              className="text-slate-400 hover:text-white transition-colors cursor-pointer text-xs"
+              className="text-slate-400 hover:text-white p-1 rounded transition-colors cursor-pointer text-xs"
               title={isLegendOpen ? 'Collapse Legend' : 'Expand Legend'}
             >
-              {isLegendOpen ? <EyeOff size={12} /> : <Eye size={12} />}
+              {isLegendOpen ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
           </div>
 
           {isLegendOpen && (
-            <div className="space-y-1.5 text-[10.5px] animate-in fade-in duration-100">
-              <div className="flex items-center justify-between text-[9.5px] font-mono text-slate-300 mb-0.5">
-                <span className="font-bold">{filterConfig.shortName}</span>
-                <span className="text-teal-400 font-bold">{filterConfig.unit}</span>
+            <div className="space-y-2 text-xs animate-in fade-in duration-100">
+              <div className="flex items-center justify-between text-xs font-mono mb-1">
+                <span className="font-extrabold text-white text-[12px]">{filterConfig.shortName}</span>
+                <span className="text-teal-300 font-extrabold text-[11px] bg-teal-950/80 px-2 py-0.5 rounded border border-teal-500/30">
+                  {filterConfig.unit}
+                </span>
               </div>
               <div
-                className="w-full h-2 rounded-full border border-white/20 shadow-inner"
+                className="w-full h-3.5 rounded-full border border-white/25 shadow-inner"
                 style={{ background: filterConfig.colorScale }}
               />
-              <div className="flex items-center justify-between text-[8.5px] font-mono text-slate-400 mt-0.5">
+              <div className="flex items-center justify-between text-[10px] font-mono text-slate-300 font-bold px-0.5">
                 <span>{filterConfig.minVal}</span>
                 <span>{filterConfig.midVal}</span>
-                <span className="font-bold text-white">{filterConfig.maxVal}</span>
+                <span className="text-white">{filterConfig.maxVal}</span>
               </div>
+
               {activeFilter === 'prospectivity' && (
-                <div className="text-[8.5px] text-purple-300 font-mono mt-1 px-1.5 py-0.5 rounded bg-purple-950/60 border border-purple-800/40">
-                  <span className="font-bold text-purple-300">Purple:</span> Low-Grade (&lt;28% MnO) • <span className="font-bold text-amber-300">Gold:</span> High-Grade Ore
+                <div className="text-[10.5px] font-mono mt-2 p-2 rounded-xl bg-purple-950/40 border border-purple-500/30 space-y-1">
+                  <div className="flex items-center gap-1.5 text-purple-200">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#4c0080] border border-purple-400 shrink-0 shadow-sm" />
+                    <span className="font-bold text-purple-300">Dark Purple:</span>
+                    <span>Low-Grade (&lt;30% MnO) Host Rock</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-amber-200">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#fde047] border border-amber-300 shrink-0 shadow-sm" />
+                    <span className="font-bold text-amber-300">Bright Gold:</span>
+                    <span>High-Grade (&gt;45% MnO) In-Pit Reef</span>
+                  </div>
                 </div>
               )}
             </div>

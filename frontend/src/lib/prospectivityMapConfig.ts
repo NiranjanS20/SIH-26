@@ -699,63 +699,78 @@ export function computePointProspectivity(
 
   // Sausar Group regional synclinal strike (~N70°E -> 20° from horizontal)
   const strikeRad = (20 * Math.PI) / 180;
+  // Perpendicular distance across the strike
   const crossDist = -dLng * Math.sin(strikeRad) + dLat * Math.cos(strikeRad);
+  // Longitudinal distance along the strike
+  const alongDist = dLng * Math.cos(strikeRad) + dLat * Math.sin(strikeRad);
 
-  // Distance from primary ore reef axis (Gaussian dispersion across ~400m width)
-  const reefFactor = Math.exp(-Math.pow((crossDist * 220) / 1.0, 2));
+  // Normalized distance metric from active ore body core
+  // The ore reef extends ~1.2km along strike and ~400m across strike
+  const dCrossNorm = Math.abs(crossDist) / 0.0035; // ~380m half-width
+  const dAlongNorm = Math.abs(alongDist) / 0.0090; // ~950m strike half-length
 
-  // Mine baseline grade mapping
-  const mineAverages: Record<string, number> = {
-    'dongri-buzurg': 43.2,
-    'chikla': 44.1,
-    'tirodi': 41.8,
-    'sitapatore': 39.5,
-    'balaghat': 46.8,
-    'kandri': 44.5,
-    'mansar': 42.0,
-    'gumgaon': 43.5,
-    'beldongri': 41.5,
-    'ukwa': 45.2,
+  // Combined elliptical distance from main high-grade lode
+  const lodeDist = Math.sqrt(Math.pow(dCrossNorm, 2) + Math.pow(dAlongNorm, 2));
+
+  // Gaussian ore intensity [0.0 = deep country rock, 1.0 = central ore reef apex]
+  const oreIntensity = Math.exp(-Math.pow(lodeDist, 1.6));
+
+  // Mine-specific peak lode grade at apex
+  const peakGrades: Record<string, number> = {
+    'dongri-buzurg': 49.5,
+    'chikla': 48.8,
+    'tirodi': 48.2,
+    'sitapatore': 46.5,
+    'balaghat': 51.2,
+    'kandri': 49.0,
+    'munsar': 47.8,
+    'mansar': 47.8,
+    'gumgaon': 48.5,
+    'beldongri': 46.8,
+    'ukwa': 50.4,
   };
-  const baselineGrade = mineAverages[config.id] || 42.5;
+  const peakGrade = peakGrades[config.id] || 48.5;
 
-  // High-frequency deterministic geological spatial micro-variance
-  const spatialVariance = Math.sin(dLng * 1400 + dLat * 1100) * 1.8;
+  // Regional country rock background grade (<28% MnO, matching dark purple in legend)
+  const backgroundGrade = 24.5;
 
-  // Grade calculation
-  const gradePct = Math.max(
-    23.5,
-    Math.min(50.8, Math.round((baselineGrade - 5.0 + 10.5 * reefFactor + spatialVariance) * 10) / 10)
-  );
+  // Spatial geostatistical micro-variation (drilling nugget effect ±1.2%)
+  const nugget = Math.sin(dLng * 1800 + dLat * 1400) * 1.2;
 
-  // Confidence calculation: highest near confirmed mine pit center and along strike line
-  const radialDist = Math.sqrt(Math.pow(dLng * 75, 2) + Math.pow(dLat * 75, 2));
-  const confidencePct = Math.max(
-    74.0,
-    Math.min(97.8, Math.round((95.8 - radialDist * 18.0 + 3.8 * reefFactor) * 10) / 10)
-  );
+  // Continuous interpolated MnO% grade:
+  // When oreIntensity -> 1 (gold pit core): ~48 - 51% MnO
+  // When oreIntensity -> 0.5 (copper/orange transition): ~36 - 40% MnO
+  // When oreIntensity -> 0 (dark purple outer area): ~24 - 27.5% MnO (ALWAYS < 30%!)
+  const rawGrade = backgroundGrade + (peakGrade - backgroundGrade) * oreIntensity + nugget;
+  const gradePct = Math.max(22.0, Math.min(52.0, Math.round(rawGrade * 10) / 10));
 
-  let confidenceBand: 'Very High' | 'High' | 'Moderate' | 'Low' = 'Moderate';
-  if (confidencePct >= 92.0) confidenceBand = 'Very High';
-  else if (confidencePct >= 85.0) confidenceBand = 'High';
-  else if (confidencePct >= 78.0) confidenceBand = 'Moderate';
+  // Confidence calculation:
+  // Core: 92% - 97.5% (Very High)
+  // Fringe/Purple: 68% - 78% (Low to Moderate)
+  const confidenceRaw = 72.0 + 24.5 * oreIntensity - Math.min(10.0, lodeDist * 2.5);
+  const confidencePct = Math.max(68.0, Math.min(97.8, Math.round(confidenceRaw * 10) / 10));
+
+  let confidenceBand: 'Very High' | 'High' | 'Moderate' | 'Low' = 'Low';
+  if (confidencePct >= 90.0) confidenceBand = 'Very High';
+  else if (confidencePct >= 82.0) confidenceBand = 'High';
+  else if (confidencePct >= 75.0) confidenceBand = 'Moderate';
   else confidenceBand = 'Low';
 
-  let gradeTier = 'Medium Grade (Blast Furnace Feed)';
+  let gradeTier = 'Low Grade (<30% Siliceous Ore)';
   if (gradePct >= 46.0) gradeTier = 'Ultra-High Grade (Ferro-Mn Grade)';
-  else if (gradePct >= 42.0) gradeTier = 'High Grade (Silico-Mn Grade)';
-  else if (gradePct >= 35.0) gradeTier = 'Medium Grade (Blast Furnace Feed)';
-  else gradeTier = 'Low Grade (Siliceous Ore)';
+  else if (gradePct >= 40.0) gradeTier = 'High Grade (Silico-Mn Grade)';
+  else if (gradePct >= 30.0) gradeTier = 'Medium Grade (Blast Furnace Feed)';
+  else gradeTier = 'Low Grade (<30% MnO Siliceous Ore)';
 
   // UNFC reserve classification & tonnage estimation
-  const estTonnage = Math.round(2600 + reefFactor * 2200 + (Math.abs(Math.sin(dLng * 800)) * 600));
-  let reserveCategory = 'UNFC 331 (Inferred Resource)';
+  const estTonnage = Math.round(1200 + oreIntensity * 3800 + Math.abs(Math.sin(dLng * 600)) * 400);
+  let reserveCategory = 'UNFC 333 (Reconnaissance Resource)';
   if (gradePct >= 42.0 && confidencePct >= 85.0) {
     reserveCategory = 'UNFC 111 (Proved High-Grade Reserve)';
-  } else if (gradePct >= 35.0) {
+  } else if (gradePct >= 30.0) {
     reserveCategory = 'UNFC 121 (Probable Silico-Mn Reserve)';
   } else {
-    reserveCategory = 'UNFC 331 (Inferred Mineral Resource)';
+    reserveCategory = 'UNFC 331 (Inferred Low-Grade Resource)';
   }
 
   return {
@@ -765,7 +780,7 @@ export function computePointProspectivity(
     confidenceBand,
     gradeTier,
     formation: 'Mansar Formation (Sausar Group)',
-    lithology: gradePct >= 44.0 ? 'Dense Crystalline Braunite Reef' : 'Quartzite Mica Schist Contact',
+    lithology: gradePct >= 44.0 ? 'Dense Crystalline Braunite Reef' : (gradePct >= 30.0 ? 'Secondary Manganese Footwall Lode' : 'Host Quartzite Mica Schist'),
     estTonnage,
     reserveCategory,
   };

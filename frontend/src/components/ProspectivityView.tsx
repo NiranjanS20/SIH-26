@@ -449,7 +449,6 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
               selectedPoint={crossSectionPoint}
               onSelectPoint={(pt) => {
                 setCrossSectionPoint(pt);
-                setCrossSectionActive(true);
                 if (pt.grade !== undefined) {
                   setSelectedZone((prev) => ({
                     ...prev,
