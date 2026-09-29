@@ -5,7 +5,6 @@ import { ProductionForecastEChart } from './ProductionForecastEChart';
 import { FeatureImportanceEChart } from './FeatureImportanceEChart';
 import { BlastingDelayHistogramEChart } from './BlastingDelayHistogramEChart';
 import { SiteProductionPulseEChart } from './SiteProductionPulseEChart';
-import { MineSiteVisualizer } from './MineSiteVisualizer';
 import { PortfolioView } from './PortfolioView';
 import { ShaderCard } from './ui/ShaderCard';
 import Beams from './ui/Beams';
@@ -1914,37 +1913,10 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
           {activeTab === 'overview' && (
             <div className="space-y-8 animate-in fade-in duration-300">
 
-              {/* UPPER TWO-COLUMN SECTION */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                {/* MINE OVERVIEW / SITE VISUAL CARD (7 COLS) */}
-                <div className={`lg:col-span-7 p-6 rounded-xl border space-y-4 flex flex-col justify-between ${cardBg}`}>
-                  <div className="space-y-3">
-                    <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
-                      <h2 className={`font-headline font-black text-sm uppercase tracking-wider flex items-center gap-2 ${textPrimary}`}>
-                        <span className="material-symbols-outlined text-[#0E7C7B] text-base">domain</span>
-                        {mineProfile.mineName.toUpperCase()} OVERVIEW
-                      </h2>
-                      <span className={`text-[10px] font-mono uppercase font-bold ${textMuted}`}>
-                        LEASE ID: MOIL-{mineProfile.shortCode}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className={`text-[10px] font-bold uppercase tracking-wider block ${textMuted}`}>
-                        DESCRIPTION & GEOLOGICAL STRATA
-                      </span>
-                      <p className={`text-sm leading-relaxed font-medium ${textSecondary}`}>
-                        "{mineProfile.mineName} is an active {mineProfile.type.toLowerCase()} manganese ore lease in {mineProfile.district?.replace(/\s+District$/i, '')} district, {mineProfile.state}, producing metallurgical and high-grade battery oxide ores." 
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* MINE INTELLIGENCE VIEW (TERRAIN, SATELLITE, INTELLIGENCE) */}
-                  <MineSiteVisualizer mineId={selectedMineId} themeMode={themeMode} />
-                </div>
-
-                {/* CURRENT STATUS CARD (5 COLS) - RICHER DARKER BLUE THEME WITH INTEGRATED ARTWORK */}
-                <div className={`lg:col-span-5 rounded-3xl border-2 p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden transition-all duration-300 shadow-xl group min-h-[420px] ${
+              {/* UPPER HERO SECTION */}
+              <div className="w-full">
+                {/* CURRENT STATUS & GEOLOGICAL CONTEXT HERO CARD */}
+                <div className={`rounded-3xl border-2 p-6 sm:p-7 relative overflow-hidden transition-all duration-300 shadow-xl group ${
                   isDark
                     ? 'bg-gradient-to-br from-[#081524] via-[#0E2036] to-[#142C4B] border-blue-900/50 text-white'
                     : 'bg-gradient-to-br from-[#0C3466] via-[#14498C] to-[#1C5EB3] border-[#1C5EB3]/50 text-white'
@@ -1962,68 +1934,82 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
                   {/* Soft Vignette Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#001026]/75 via-transparent to-transparent pointer-events-none" />
 
-                  {/* Top Header Content */}
-                  <div className="space-y-3 relative z-10">
-                    <div className="flex items-start justify-between">
-                      <span className="font-mono text-3xl font-extralight tracking-tighter text-sky-300 drop-shadow-sm">
-                        01
-                      </span>
-                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs border bg-amber-400/20 border-amber-400/40 text-amber-300 backdrop-blur-sm">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                        <span>ACTIVE MONITORING</span>
+                  {/* Two-Column Responsive Layout across wide desktop */}
+                  <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    {/* Left Column: Status, Badges & Geological Context */}
+                    <div className="lg:col-span-6 space-y-4">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className="font-mono text-3xl sm:text-4xl font-extralight tracking-tighter text-sky-300 drop-shadow-sm">
+                          01
+                        </span>
+                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider shadow-xs border bg-amber-400/20 border-amber-400/40 text-amber-300 backdrop-blur-sm">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                          <span>ACTIVE MONITORING</span>
+                        </div>
+                        <span className="text-[10px] font-mono uppercase font-bold text-slate-300 bg-white/10 px-2.5 py-0.5 rounded-md border border-white/15">
+                          LEASE ID: MOIL-{mineProfile.shortCode}
+                        </span>
+                      </div>
+
+                      <div>
+                        <h2 className="font-headline font-black text-2xl sm:text-3xl uppercase tracking-tight leading-tight text-white drop-shadow-sm">
+                          CURRENT STATUS: <span className="text-[#FEA619]">MEDIUM RISK</span>
+                        </h2>
+                        <p className="text-xs sm:text-sm font-medium mt-1 uppercase tracking-wider text-blue-100/90">
+                          Active operational telemetry &amp; extraction shortfall tracking
+                        </p>
+                      </div>
+
+                      <div className="p-3.5 rounded-xl bg-white/10 border border-white/15 backdrop-blur-sm">
+                        <span className="text-[9.5px] font-bold uppercase tracking-wider text-sky-300 block mb-1">
+                          GEOLOGICAL STRATA &amp; LEASE PROFILE
+                        </span>
+                        <p className="text-xs leading-relaxed text-slate-200">
+                          "{mineProfile.mineName} is an active {mineProfile.type.toLowerCase()} manganese ore lease in {mineProfile.district?.replace(/\s+District$/i, '')} district, {mineProfile.state}, producing metallurgical and high-grade battery oxide ores."
+                        </p>
                       </div>
                     </div>
 
-                    <div>
-                      <h2 className="font-headline font-black text-xl sm:text-2xl uppercase tracking-tight leading-tight text-white drop-shadow-sm">
-                        CURRENT STATUS: <br className="hidden sm:inline" />
-                        <span className="text-[#FEA619]">MEDIUM RISK</span>
-                      </h2>
-                      <p className="text-[11px] font-medium mt-1 uppercase tracking-wider text-blue-100/90">
-                        Active operational telemetry &amp; extraction shortfall tracking
+                    {/* Right Column: Recommendation, Telemetry Checklist & Action */}
+                    <div className="lg:col-span-6 space-y-3.5 lg:border-l lg:border-white/15 lg:pl-6">
+                      <div>
+                        <span className="text-[9px] font-mono font-black uppercase tracking-[0.25em] block mb-0.5 text-sky-300">
+                          HOW TO PROCEED
+                        </span>
+                        <h3 className="font-serif italic text-lg sm:text-xl tracking-wide font-normal text-white">
+                          RECOMMENDATION
+                        </h3>
+                      </div>
+
+                      <p className="text-xs sm:text-sm leading-relaxed font-medium text-blue-100">
+                        "Production is currently being monitored against monthly target. Initiate bench throughput optimization."
                       </p>
-                    </div>
-                  </div>
 
-                  {/* Bottom Docked Recommendation Module (Transparent Editorial Section) */}
-                  <div className="mt-6 pt-4 border-t border-white/20 space-y-3.5 relative z-10">
-                    <div>
-                      <span className="text-[9px] font-mono font-black uppercase tracking-[0.25em] block mb-0.5 text-sky-300">
-                        HOW TO PROCEED
-                      </span>
-                      <h3 className="font-serif italic text-lg tracking-wide font-normal text-white">
-                        RECOMMENDATION
-                      </h3>
-                    </div>
-
-                    <p className="text-xs leading-relaxed font-medium text-blue-100">
-                      "Production is currently being monitored against monthly target. Initiate bench throughput optimization." 
-                    </p>
-
-                    {/* Telemetry Checklist */}
-                    <div className="grid grid-cols-1 gap-1.5 pt-2.5 border-t border-white/15 text-[11px] font-semibold text-slate-100">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-xs shadow-emerald-400/80 shrink-0" />
-                        <span>Fleet &amp; Equipment Operational</span>
+                      {/* Telemetry Checklist */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 py-2 border-y border-white/15 text-[11px] font-semibold text-slate-100">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-xs shadow-emerald-400/80 shrink-0" />
+                          <span>Fleet Operational</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-xs shadow-emerald-400/80 shrink-0" />
+                          <span>Production Active</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-sky-400 shadow-xs shadow-sky-400/80 shrink-0" />
+                          <span>Telemetry Synced</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-xs shadow-emerald-400/80 shrink-0" />
-                        <span>Production Monitoring Active</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-sky-400 shadow-xs shadow-sky-400/80 shrink-0" />
-                        <span>Forecast &amp; Grade Telemetry Sync</span>
-                      </div>
-                    </div>
 
-                    {/* CTA Button */}
-                    <button
-                      onClick={() => setActiveTab('shortfall-diagnosis')}
-                      className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#FDE047] via-[#FACC15] to-[#EAB308] hover:from-[#FEF08A] hover:to-[#FACC15] text-slate-950 font-headline font-black text-xs uppercase tracking-wider shadow-md shadow-yellow-500/20 border border-yellow-200/40 flex items-center justify-center gap-2 transition-all transform active:scale-98 cursor-pointer mt-1"
-                    >
-                      <span>View Shortfall Diagnosis</span>
-                      <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    </button>
+                      {/* CTA Button */}
+                      <button
+                        onClick={() => setActiveTab('shortfall-diagnosis')}
+                        className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#FDE047] via-[#FACC15] to-[#EAB308] hover:from-[#FEF08A] hover:to-[#FACC15] text-slate-950 font-headline font-black text-xs uppercase tracking-wider shadow-md shadow-yellow-500/20 border border-yellow-200/40 flex items-center justify-center gap-2 transition-all transform active:scale-98 cursor-pointer"
+                      >
+                        <span>View Shortfall Diagnosis</span>
+                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
