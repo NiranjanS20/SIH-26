@@ -8,6 +8,9 @@ async def fetch_admin_mine_data(db, mine_id: str, period_start: str, period_end:
         FROM mines WHERE mine_id = :mine_id
     """), {"mine_id": mine_id})).fetchone()
     
+    if not mine:
+        raise ValueError(f"CRITICAL: Zero rows returned for core entity mine_id '{mine_id}'. Expected valid mine profile.")
+        
     # 2. Production Summary
     prod = (await db.execute(text("""
         SELECT date, actual_tonnage, target_tonnage, forecast_tonnage, is_synthetic, is_real_anchor

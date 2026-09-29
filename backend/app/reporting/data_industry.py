@@ -14,17 +14,12 @@ async def fetch_industry_data(db, period_start: str, period_end: str) -> Dict[st
         ORDER BY p.date, m.name
     """), {"start": period_start, "end": period_end})).fetchall()
     
-    # 3. Product & Grade
-    # grade_polygons (avg_mno_pct) joined to mines, price_tiers
-    # Wait, the prompt says "grade_polygons joined to mines, price_tiers"
-    # Actually, we don't have grade_polygons in the typical layout, maybe it's in DB.
-    # We will simulate or select safely
     grades = (await db.execute(text("""
-        SELECT p.tier_name as band, STRING_AGG(DISTINCT m.name, ', ') as mines, AVG(p.price_per_tonne) as price
-        FROM value_forecast v
-        JOIN mines m ON v.mine_id = m.mine_id
-        JOIN price_tiers p ON v.price_tier_id = p.tier_id
-        GROUP BY p.tier_name
+        SELECT m.name as mines, p.tier_name as band, p.price_per_tonne as price
+        FROM grade_polygons g
+        JOIN mines m ON g.mine_id = m.mine_id
+        JOIN price_tiers p ON p.tier_name = CASE WHEN g.avg_mno_pct > 40 THEN 'High Grade' WHEN g.avg_mno_pct > 30 THEN 'Medium Grade' ELSE 'Low Grade' END
+        GROUP BY m.name, p.tier_name, p.price_per_tonne
     """))).fetchall()
 
     # 4. ESG & Compliance
@@ -35,7 +30,7 @@ async def fetch_industry_data(db, period_start: str, period_end: str) -> Dict[st
     """))).fetchall()
 
     # 5. Source Comparison (value_forecast + price_tiers across mines)
-    comparison = (await db.execute(text("""
+    comparison_raw = (await db.execute(text("""
         SELECT m.name as mine_name, p.tier_name as grade_band, SUM(v.forecast_tonnage * p.price_per_tonne) as value
         FROM value_forecast v
         JOIN mines m ON v.mine_id = m.mine_id
@@ -44,6 +39,13 @@ async def fetch_industry_data(db, period_start: str, period_end: str) -> Dict[st
         GROUP BY m.name, p.tier_name
         ORDER BY value DESC
     """), {"start": period_start, "end": period_end})).fetchall()
+    
+    comparison = []
+    for row in comparison_raw:
+        justification = f"{row.mine_name} offers significant realized value at {row.grade_band} grade, based on a total value forecast of {row.value} for the period."
+        comp_dict = dict(row._mapping)
+        comp_dict['justification'] = justification
+        comparison.append(comp_dict)
 
     # 6. Value/Economic Context (aggregate)
     total = (await db.execute(text("""
@@ -66,7 +68,7 @@ async def fetch_industry_data(db, period_start: str, period_end: str) -> Dict[st
         "supply": [r._mapping for r in supply],
         "grades": [r._mapping for r in grades],
         "compliance": [r._mapping for r in compliance],
-        "comparison": [r._mapping for r in comparison],
+        "comparison": comparison,
         "total": total._mapping if total else {"total_tonnage": 0, "total_value": 0},
         "model_versions": model_versions
     }

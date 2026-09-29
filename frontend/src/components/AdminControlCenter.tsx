@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { type PortalRoute } from './Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import { MOIL_MINES } from '../data/minesData';
-import { apiGet } from '../services/apiClient';
+import { apiGet, apiPostRaw } from '../services/apiClient';
 import { MineProspectivityIntelligence } from './MineProspectivityIntelligence';
 
 interface AdminControlCenterProps {
@@ -2362,9 +2362,28 @@ export const AdminControlCenter: React.FC<AdminControlCenterProps> = ({
                 </div>
               </div>
 
-              <span className="text-xs font-mono font-bold bg-white/15 border border-white/20 text-white px-3 py-1.5 rounded-xl">
-                6 Audited Dossiers
-              </span>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    apiPostRaw(`/reports/admin/overview?period_start=2026-09-01&period_end=2026-09-30`)
+                      .then((res: any) => {
+                        if (res.download_url) {
+                          window.open(res.download_url, '_blank');
+                        } else {
+                          alert(`Report generation started! ID: ${res.report_id}. Please wait...`);
+                        }
+                      })
+                      .catch((err: any) => alert("Failed to generate report: " + err.message));
+                  }}
+                  className="px-4 py-2 bg-[#D97706] hover:bg-[#B05B04] text-white text-xs font-black uppercase tracking-wider rounded-lg shadow-md transition-all cursor-pointer flex items-center gap-1.5 border border-white/10"
+                >
+                  <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
+                  <span>Generate Live Report</span>
+                </button>
+                <span className="text-xs font-mono font-bold bg-white/15 border border-white/20 text-white px-3 py-1.5 rounded-xl hidden sm:block">
+                  6 Audited Dossiers
+                </span>
+              </div>
             </div>
 
             {/* Reports 3x2 Grid matching the modern squircle card reference */}

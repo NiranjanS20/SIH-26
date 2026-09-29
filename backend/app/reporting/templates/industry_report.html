@@ -30,7 +30,7 @@
         <tr>
             <td>{{ grade.band }}</td>
             <td>{{ grade.mines }}</td>
-            <td class="numeric">₹{{ grade.price }}</td>
+            <td class="numeric">{{ grade.price | inr_currency }}</td>
         </tr>
         {% endfor %}
     </table>
@@ -68,11 +68,18 @@
         <tr>
             <td>{{ src.mine_name }}</td>
             <td>{{ src.grade_band }}</td>
-            <td class="numeric">₹{{ "%.2f"|format(src.value) }}</td>
+            <td class="numeric">{{ src.value | inr_currency }}</td>
         </tr>
         {% endfor %}
     </table>
-    <p><em>Justification:</em> Based on robust price indices, sustained high-grade output forecasting, and historical reliability, the highlighted operations offer the most secure supply matrix for the current quarter.</p>
+    <div class="justifications">
+        <h4>Justifications:</h4>
+        <ul>
+        {% for src in source_comparison %}
+            <li><em>{{ src.mine_name }}:</em> {{ src.justification }}</li>
+        {% endfor %}
+        </ul>
+    </div>
 </div>
 
 <div class="section">
@@ -84,7 +91,7 @@
         </tr>
         <tr>
             <td class="numeric">{{ "%.1f"|format(total_tonnage) }} T</td>
-            <td class="numeric">₹{{ "%.2f"|format(total_value) }}</td>
+            <td class="numeric">{{ total_value | inr_currency }}</td>
         </tr>
     </table>
 </div>

@@ -137,8 +137,8 @@
         <tr>
             <td>{{ vf.grade_band }}</td>
             <td class="numeric">{{ "%.1f"|format(vf.forecast_tonnage) }}</td>
-            <td class="numeric">{{ vf.price }}</td>
-            <td class="numeric">{{ "%.2f"|format(vf.forecast_tonnage * vf.price) }}</td>
+            <td class="numeric">{{ vf.price | inr_currency }}</td>
+            <td class="numeric">{{ (vf.forecast_tonnage * vf.price) | inr_currency }}</td>
         </tr>
         {% endfor %}
     </table>
