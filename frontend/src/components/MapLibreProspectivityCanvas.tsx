@@ -4,16 +4,11 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import {
   UNIFIED_MAP_STYLE,
   getMineBoundary,
-  getMinePitZones,
-  getMinePitBoundary,
-  getMineFaultLines,
   getMineRasterHeatmapBounds,
-  getMineWorldMask,
   FILTER_MODES,
-  CONFIDENCE_BAND_COLORS,
-  STRUCTURAL_LINE_COLORS,
+  computePointProspectivity,
 } from '../lib/prospectivityMapConfig';
-import type { ProspectivityFilterMode, MineBoundaryConfig } from '../lib/prospectivityMapConfig';
+import type { ProspectivityFilterMode, MineBoundaryConfig, PointProspectivityEstimate } from '../lib/prospectivityMapConfig';
 import {
   Mountain,
   Maximize2,
@@ -28,6 +23,7 @@ import {
   Eye,
   EyeOff,
   AlertTriangle,
+  X,
 } from 'lucide-react';
 
 // Static worker registration for MapLibre in Vite
@@ -37,15 +33,33 @@ if (typeof window !== 'undefined') {
   }
 }
 
+export interface SelectedLocationPoint {
+  lat: number;
+  lng: number;
+  siteName?: string;
+  zoneName?: string;
+  grade?: number;
+  gradeDisplay?: string;
+  confidence?: number;
+  confidenceBand?: 'Very High' | 'High' | 'Moderate' | 'Low' | string;
+  gradeTier?: string;
+  formation?: string;
+  lithology?: string;
+  estTonnage?: number;
+  reserveCategory?: string;
+}
 
 interface MapLibreProspectivityCanvasProps {
   selectedMineName?: string;
   isDark?: boolean;
   crossSectionActive: boolean;
   onToggleCrossSection: () => void;
-  selectedPoint: { lat: number; lng: number; siteName?: string; zoneName?: string } | null;
-  onSelectPoint: (point: { lat: number; lng: number; siteName?: string; zoneName?: string }) => void;
+  selectedPoint: SelectedLocationPoint | null;
+  onSelectPoint: (point: SelectedLocationPoint) => void;
 }
+
+
+
 
 export default function MapLibreProspectivityCanvas({
   selectedMineName = 'Dongri Buzurg Mine',
@@ -63,8 +77,8 @@ export default function MapLibreProspectivityCanvas({
 
   // View Mode: 2D Flat Image View vs 3D Terrain DEM View
   const [viewDimension, setViewDimension] = useState<'2D' | '3D'>('2D');
-  // 3D Terrain actual photorealistic satellite color mode vs multispectral overlay
-  const [terrainActualColor, setTerrainActualColor] = useState<boolean>(true);
+  // 3D Terrain actual photorealistic satellite color mode vs multispectral overlay (defaults to false for High Colour)
+  const [terrainActualColor, setTerrainActualColor] = useState<boolean>(false);
 
   // Filter Mode Dropdown (Standard: Prospectivity, NDVI, Soil Moisture, LST, Elevation)
   const [activeFilter, setActiveFilter] = useState<ProspectivityFilterMode>(() => {
@@ -79,12 +93,9 @@ export default function MapLibreProspectivityCanvas({
   });
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
 
-  // Layer Toggles
+  // Layer Toggles - Pure clean map mode
   const [showHeatmap, setShowHeatmap] = useState<boolean>(true);
-  const [showZones, setShowZones] = useState<boolean>(true);
-  const [showFaults, setShowFaults] = useState<boolean>(true);
-  const [showPitBoundary, setShowPitBoundary] = useState<boolean>(true);
-  const [isLegendOpen, setIsLegendOpen] = useState<boolean>(true);
+  const [isLegendOpen, setIsLegendOpen] = useState<boolean>(false);
 
   const [mapLoaded, setMapLoaded] = useState<boolean>(false);
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
@@ -109,19 +120,18 @@ export default function MapLibreProspectivityCanvas({
     onSelectPointRef.current = onSelectPoint;
   }, [onSelectPoint]);
 
-  // Dynamic Opacity: in 3D terrain mode, displays the actual real-world satellite ground colour
+  // Dynamic Opacity: in 2D or 3D, displays actual real-world satellite ground colour or rich AI multispectral overlay
   const computeLayerOpacity = useCallback(
     (filter: ProspectivityFilterMode, dimension: '2D' | '3D', actualColor: boolean) => {
+      if (actualColor) {
+        // Pure photorealistic satellite ground imagery (0.0 opacity) for ALL filters across ALL mines
+        return 0.0;
+      }
       if (dimension === '3D') {
-        if (actualColor) {
-          // Pure photorealistic satellite ground imagery (0.0 opacity) for ALL filters across ALL mines
-          return 0.0;
-        }
         if (filter === 'elevation') {
           // Topographic elevation overlay tint in 3D
           return 0.40;
         }
-        // Multispectral overlay in 3D
         return FILTER_MODES[filter].fillOpacity;
       }
       return FILTER_MODES[filter].fillOpacity;
@@ -129,12 +139,93 @@ export default function MapLibreProspectivityCanvas({
     []
   );
 
-  // Set up GeoJSON vector layers & Continuous Raster Heatmap overlay
+  // Core Inspector: Calculates continuous grade & confidence and renders high-tech MapLibre popup
+  const handleLocationInspect = useCallback(
+    (lngLat: maplibregl.LngLat, pointPx?: { x: number; y: number }, specificZoneProps?: any) => {
+      const map = mapRef.current;
+      if (!map) return;
+
+      const currentConfig = mineConfigRef.current;
+      const currentFilter = activeFilterRef.current;
+      const currentRaster = getMineRasterHeatmapBounds(currentConfig, currentFilter);
+      const [sw, ne] = currentRaster.restrictedBounds;
+      const buffer = 0.04; // Permissive sampling buffer (~4km)
+      const isWithinTrainedBounds =
+        lngLat.lng >= sw[0] - buffer &&
+        lngLat.lng <= ne[0] + buffer &&
+        lngLat.lat >= sw[1] - buffer &&
+        lngLat.lat <= ne[1] + buffer;
+
+      if (!isWithinTrainedBounds) {
+        setOutOfBoundsWarning(`Sampling restricted to within ${currentConfig.name} district.`);
+        setTimeout(() => setOutOfBoundsWarning(null), 3500);
+        return;
+      }
+
+      let zoneName = 'In-Pit Ore Reef';
+      let formation = 'Mansar Formation (Sausar Group)';
+      let lithology = 'Dense Crystalline Braunite Horizon';
+
+      if (specificZoneProps) {
+        if (specificZoneProps.zone_name) zoneName = specificZoneProps.zone_name;
+        if (specificZoneProps.formation) formation = specificZoneProps.formation;
+        if (specificZoneProps.lithology) lithology = specificZoneProps.lithology;
+      } else if (pointPx) {
+        try {
+          const features = map.queryRenderedFeatures([pointPx.x, pointPx.y], { layers: ['pit-zones-fill'] });
+          if (features && features.length > 0) {
+            const props = features[0].properties || {};
+            if (props.zone_name) zoneName = props.zone_name;
+            if (props.formation) formation = props.formation;
+            if (props.lithology) lithology = props.lithology;
+          }
+        } catch {
+          // query fallback
+        }
+      }
+
+      const estimate: PointProspectivityEstimate = computePointProspectivity(
+        lngLat.lat,
+        lngLat.lng,
+        currentConfig
+      );
+
+      // Dismiss any legacy popup so map stays 100% clean and unobstructed
+      if (popupRef.current) {
+        popupRef.current.remove();
+        popupRef.current = null;
+      }
+
+      onSelectPointRef.current({
+        lat: lngLat.lat,
+        lng: lngLat.lng,
+        siteName: currentConfig.name,
+        zoneName,
+        grade: estimate.gradePct,
+        gradeDisplay: estimate.gradeDisplay,
+        confidence: estimate.confidencePct,
+        confidenceBand: estimate.confidenceBand,
+        gradeTier: estimate.gradeTier,
+        formation,
+        lithology: estimate.lithology || lithology,
+        estTonnage: estimate.estTonnage,
+        reserveCategory: estimate.reserveCategory,
+      });
+    },
+    []
+  );
+
+  const handleLocationInspectRef = useRef(handleLocationInspect);
+  useEffect(() => {
+    handleLocationInspectRef.current = handleLocationInspect;
+  }, [handleLocationInspect]);
+
+  // Set up Continuous Raster Heatmap overlay (Pure & Clean - No cluttering vector lines)
   const setupLayers = useCallback((map: maplibregl.Map, config: MineBoundaryConfig) => {
     if (!map) return;
 
     // ─────────────────────────────────────────────────────────────────────────
-    // 1. TRUE RASTER HEATMAP OVERLAY: Draped multispectral image over pit
+    // PURE CLEAN RASTER HEATMAP OVERLAY: Draped multispectral image over pit
     // ─────────────────────────────────────────────────────────────────────────
     try {
       const rasterInfo = getMineRasterHeatmapBounds(config, activeFilter);
@@ -165,8 +256,8 @@ export default function MapLibreProspectivityCanvas({
           paint: {
             'raster-opacity': initialOpacity,
             'raster-hue-rotate': 0,
-            'raster-contrast': 0.10,
-            'raster-saturation': 0.10,
+            'raster-contrast': 0.15,
+            'raster-saturation': 0.20,
             'raster-fade-duration': 0, // CRITICAL: 0ms fade so camera movements never trigger fade-in pulses
           },
         });
@@ -181,239 +272,19 @@ export default function MapLibreProspectivityCanvas({
     } catch (err) {
       console.warn('Raster heatmap setup notice:', err);
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // 1b. WORLD MASK: Completely removes the extra map outside the mine heatmap
-    // ─────────────────────────────────────────────────────────────────────────
-    try {
-      const maskData = getMineWorldMask(config);
-      const existingMaskSource = map.getSource('mine-world-mask-source') as maplibregl.GeoJSONSource;
-      if (existingMaskSource) {
-        existingMaskSource.setData(maskData);
-      } else {
-        map.addSource('mine-world-mask-source', {
-          type: 'geojson',
-          data: maskData,
-        });
-
-        // Mask layer covering all terrain outside the mine
-        map.addLayer({
-          id: 'mine-world-mask-layer',
-          type: 'fill',
-          source: 'mine-world-mask-source',
-          paint: {
-            'fill-color': '#020617', // Dark slate backdrop
-            'fill-opacity': 1.0,
-          },
-        });
-
-        // Clean border along the edge of the mine square
-        map.addLayer({
-          id: 'mine-world-mask-border',
-          type: 'line',
-          source: 'mine-world-mask-source',
-          paint: {
-            'line-color': '#0e7490',
-            'line-width': 2.0,
-            'line-opacity': 0.75,
-          },
-        });
-      }
-    } catch (err) {
-      console.warn('World mask setup notice:', err);
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // 2. PIT SHELL / QUARRY RIM BOUNDARY: Vibrant Yellow Dashed Line
-    // ─────────────────────────────────────────────────────────────────────────
-    try {
-      const boundaryData = getMinePitBoundary(config);
-      const existingBoundarySource = map.getSource('mine-pit-boundary-source') as maplibregl.GeoJSONSource;
-      if (existingBoundarySource) {
-        existingBoundarySource.setData(boundaryData);
-      } else {
-        map.addSource('mine-pit-boundary-source', {
-          type: 'geojson',
-          data: boundaryData,
-        });
-
-        map.addLayer({
-          id: 'mine-pit-boundary-layer',
-          type: 'line',
-          source: 'mine-pit-boundary-source',
-          paint: {
-            'line-color': '#facc15', // High-visibility Yellow Pit Rim
-            'line-width': 3.5,
-            'line-dasharray': [4, 2],
-            'line-opacity': 0.95,
-          },
-        });
-      }
-    } catch (err) {
-      console.warn('Pit boundary setup notice:', err);
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // 3. STRUCTURAL FAULTS & SHEAR LINES: Bold Crimson Red & Amber Dashed Lines
-    // ─────────────────────────────────────────────────────────────────────────
-    try {
-      const faultData = getMineFaultLines(config);
-      const existingFaultSource = map.getSource('structural-lines-source') as maplibregl.GeoJSONSource;
-      if (existingFaultSource) {
-        existingFaultSource.setData(faultData);
-      } else {
-        map.addSource('structural-lines-source', {
-          type: 'geojson',
-          data: faultData,
-        });
-
-        map.addLayer({
-          id: 'structural-lines-layer',
-          type: 'line',
-          source: 'structural-lines-source',
-          paint: {
-            'line-width': ['interpolate', ['linear'], ['zoom'], 10, 2.8, 14, 4.0, 17, 5.5],
-            'line-color': [
-              'match',
-              ['get', 'structure_type'],
-              'fault', STRUCTURAL_LINE_COLORS.fault,
-              'shear_zone', STRUCTURAL_LINE_COLORS.shear_zone,
-              'fold_axis', STRUCTURAL_LINE_COLORS.fold_axis,
-              STRUCTURAL_LINE_COLORS.default,
-            ],
-            'line-opacity': 0.95,
-            'line-dasharray': [4, 2],
-          },
-        });
-
-        map.on('click', 'structural-lines-layer', (e: any) => {
-          if (!e.features || !e.features[0]) return;
-          const props = e.features[0].properties || {};
-          if (popupRef.current) popupRef.current.remove();
-
-          popupRef.current = new maplibregl.Popup({ closeButton: true })
-            .setLngLat(e.lngLat)
-            .setHTML(`
-              <div style="font-family: sans-serif; padding: 6px; color: #0f172a; min-width: 170px;">
-                <div style="font-weight: 800; font-size: 13px; color: #dc2626; border-bottom: 2px solid #ef4444; padding-bottom: 3px; margin-bottom: 4px;">
-                  ${props.label || 'Structural Fault'}
-                </div>
-                <div style="font-size: 11px;"><strong>Strike:</strong> N70°E Regional Fault</div>
-                <div style="font-size: 11px;"><strong>Dip:</strong> 72° NW (Mansar Contact)</div>
-                <div style="font-size: 10px; color: #64748b; margin-top: 4px;">Controls regional manganese reef displacement</div>
-              </div>
-            `)
-            .addTo(map);
-        });
-      }
-    } catch (err) {
-      console.warn('Fault lines setup notice:', err);
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // 4. ORE BENCH POLYGONS: High-contrast vector polygons with white border
-    // ─────────────────────────────────────────────────────────────────────────
-    try {
-      const zonesData = getMinePitZones(config);
-      const existingZonesSource = map.getSource('pit-zones-source') as maplibregl.GeoJSONSource;
-      if (existingZonesSource) {
-        existingZonesSource.setData(zonesData);
-      } else {
-        map.addSource('pit-zones-source', {
-          type: 'geojson',
-          data: zonesData,
-        });
-
-        // Pit Bench Polygon Fills
-        map.addLayer({
-          id: 'pit-zones-fill',
-          type: 'fill',
-          source: 'pit-zones-source',
-          paint: {
-            'fill-color': [
-              'match',
-              ['get', 'confidence_band'],
-              'Very High', CONFIDENCE_BAND_COLORS['Very High'],
-              'High', CONFIDENCE_BAND_COLORS['High'],
-              'Moderate', CONFIDENCE_BAND_COLORS['Moderate'],
-              CONFIDENCE_BAND_COLORS['Low'],
-            ],
-            'fill-opacity': 0.40,
-          },
-        });
-
-        // Pit Bench Outlines (Crisp White Vector Border)
-        map.addLayer({
-          id: 'pit-zones-line',
-          type: 'line',
-          source: 'pit-zones-source',
-          paint: {
-            'line-color': '#ffffff',
-            'line-width': 2.5,
-            'line-opacity': 0.95,
-          },
-        });
-
-        // Interactive click on any ore bench zone
-        map.on('click', 'pit-zones-fill', (e: any) => {
-          if (!e.features || !e.features[0]) return;
-          const f = e.features[0];
-          const props = f.properties || {};
-
-          onSelectPointRef.current({
-            lat: e.lngLat.lat,
-            lng: e.lngLat.lng,
-            siteName: config.name,
-            zoneName: props.zone_name,
-          });
-
-          if (popupRef.current) popupRef.current.remove();
-
-          popupRef.current = new maplibregl.Popup({ closeButton: true, className: 'zone-popup' })
-            .setLngLat(e.lngLat)
-            .setHTML(`
-              <div style="font-family: sans-serif; padding: 6px; color: #0f172a; min-width: 190px;">
-                <div style="font-weight: 800; font-size: 13px; color: #0e7490; border-bottom: 2px solid #0e7490; padding-bottom: 3px; margin-bottom: 6px;">
-                  ${props.zone_name || 'Ore Zone'}
-                </div>
-                <div style="font-size: 11px; margin-bottom: 3px;"><strong>Predicted Grade:</strong> <span style="color: #dc2626; font-weight: 800;">${props.avg_mno || 'N/A'}</span></div>
-                <div style="font-size: 11px; margin-bottom: 3px;"><strong>Confidence:</strong> ${props.confidence_band || 'High'}</div>
-                <div style="font-size: 11px; margin-bottom: 3px;"><strong>Formation:</strong> ${props.formation || 'Sausar Group'}</div>
-                <div style="font-size: 10px; color: #475569; font-style: italic; margin-top: 4px;">${props.lithology || ''}</div>
-                <div style="margin-top: 6px; font-size: 10px; color: #0e7490; font-weight: 700; background: #e0f2fe; padding: 3px 6px; border-radius: 4px; text-align: center;">
-                  ✓ Subsurface Cross-Section Loaded Below
-                </div>
-              </div>
-            `)
-            .addTo(map);
-        });
-
-        map.on('mouseenter', 'pit-zones-fill', () => {
-          map.getCanvas().style.cursor = 'pointer';
-        });
-        map.on('mouseleave', 'pit-zones-fill', () => {
-          map.getCanvas().style.cursor = '';
-        });
-      }
-    } catch (err) {
-      console.warn('Pit zones setup notice:', err);
-    }
-  }, [filterConfig]);
+  }, [activeFilter, viewDimension, terrainActualColor, showHeatmap, computeLayerOpacity]);
 
   // Initialize MapLibre GL
   useEffect(() => {
     if (!mapContainerRef.current) return;
-
-    const rasterInfo = getMineRasterHeatmapBounds(mineConfig, activeFilter);
 
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
       style: UNIFIED_MAP_STYLE,
       center: mineConfig.center,
       zoom: mineConfig.zoom,
-      minZoom: 13.5, // Strictly lock camera to mine area (no zooming out into outer geography)
+      minZoom: 11.5, // Smooth zooming
       maxZoom: 18.5,
-      maxBounds: rasterInfo.restrictedBounds, // Strictly lock camera panning to heatmap square
       renderWorldCopies: false,
       attributionControl: false,
     });
@@ -428,35 +299,23 @@ export default function MapLibreProspectivityCanvas({
     });
 
     map.on('error', (e: any) => {
-      // Ignore non-fatal tile errors (e.g. boundary tile not found)
-      console.warn('MapLibre event notice:', e.error?.message || e);
-    });
-
-    // Clicking anywhere on the pit canvas selects a point for 0-400m Cross-Section
-    // STRICT BOUNDS CHECK: Only sample within the trained mine range!
-    map.on('click', (e: maplibregl.MapMouseEvent) => {
-      const currentConfig = mineConfigRef.current;
-      const currentFilter = activeFilterRef.current;
-      const currentRaster = getMineRasterHeatmapBounds(currentConfig, currentFilter);
-      const [sw, ne] = currentRaster.restrictedBounds;
-      const isWithinTrainedBounds =
-        e.lngLat.lng >= sw[0] &&
-        e.lngLat.lng <= ne[0] &&
-        e.lngLat.lat >= sw[1] &&
-        e.lngLat.lat <= ne[1];
-
-      if (!isWithinTrainedBounds) {
-        setOutOfBoundsWarning(`Sampling restricted to within ${currentConfig.name} boundary.`);
-        setTimeout(() => setOutOfBoundsWarning(null), 3500);
+      // Gracefully ignore non-fatal DEM tile or satellite tile errors
+      const msg = e.error?.message || e.message || String(e);
+      if (
+        msg.includes('tile') ||
+        msg.includes('dem') ||
+        msg.includes('404') ||
+        msg.includes('403') ||
+        msg.includes('terrain')
+      ) {
         return;
       }
+      console.warn('MapLibre event notice:', msg);
+    });
 
-      onSelectPoint({
-        lat: e.lngLat.lat,
-        lng: e.lngLat.lng,
-        siteName: currentConfig.name,
-        zoneName: 'In-Pit Subsurface Core',
-      });
+    // Clicking anywhere on the pit canvas inspects continuous grade & confidence
+    map.on('click', (e: maplibregl.MapMouseEvent) => {
+      handleLocationInspectRef.current(e.lngLat, e.point);
     });
 
     mapRef.current = map;
@@ -494,7 +353,7 @@ export default function MapLibreProspectivityCanvas({
     if (dimension === '3D') {
       try {
         if (typeof (map as any).setTerrain === 'function') {
-          (map as any).setTerrain({ source: 'aws-dem-source', exaggeration: 2.2 });
+          (map as any).setTerrain({ source: 'aws-dem-source', exaggeration: 1.6 });
         }
         if (map.getLayer('hillshading-layer')) {
           map.setLayoutProperty('hillshading-layer', 'visibility', 'visible');
@@ -504,6 +363,8 @@ export default function MapLibreProspectivityCanvas({
         if (map.getLayer('pit-raster-heatmap-layer')) {
           map.setPaintProperty('pit-raster-heatmap-layer', 'raster-fade-duration', 0);
           map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', targetOpacity);
+          map.setPaintProperty('pit-raster-heatmap-layer', 'raster-contrast', is3DActual ? 0.10 : 0.20);
+          map.setPaintProperty('pit-raster-heatmap-layer', 'raster-saturation', is3DActual ? 0.10 : 0.25);
           map.setLayoutProperty(
             'pit-raster-heatmap-layer',
             'visibility',
@@ -511,8 +372,8 @@ export default function MapLibreProspectivityCanvas({
           );
         }
         map.easeTo({
-          pitch: 62,
-          bearing: -22,
+          pitch: 58,
+          bearing: -20,
           duration: 1200,
         });
       } catch (err) {
@@ -527,9 +388,12 @@ export default function MapLibreProspectivityCanvas({
           map.setLayoutProperty('hillshading-layer', 'visibility', 'none');
         }
         if (map.getLayer('pit-raster-heatmap-layer')) {
+          const targetOpacity = computeLayerOpacity(activeFilter, '2D', terrainActualColor);
           map.setPaintProperty('pit-raster-heatmap-layer', 'raster-fade-duration', 0);
-          map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', FILTER_MODES[activeFilter].fillOpacity);
-          map.setLayoutProperty('pit-raster-heatmap-layer', 'visibility', showHeatmap ? 'visible' : 'none');
+          map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', targetOpacity);
+          map.setPaintProperty('pit-raster-heatmap-layer', 'raster-contrast', terrainActualColor ? 0.10 : 0.14);
+          map.setPaintProperty('pit-raster-heatmap-layer', 'raster-saturation', terrainActualColor ? 0.10 : 0.20);
+          map.setLayoutProperty('pit-raster-heatmap-layer', 'visibility', showHeatmap && !terrainActualColor ? 'visible' : 'none');
         }
         map.easeTo({
           pitch: 0,
@@ -552,31 +416,17 @@ export default function MapLibreProspectivityCanvas({
     const mineChanged = prevMineRef.current !== selectedMineName;
     prevMineRef.current = selectedMineName;
 
-    const rasterInfo = getMineRasterHeatmapBounds(mineConfig, activeFilter);
-
     if (mineChanged) {
-      // Clear maxBounds first so camera is not trapped in previous mine district
-      map.setMaxBounds(null);
-
       // Smoothly travel to the newly selected mine
       map.easeTo({
         center: mineConfig.center,
         zoom: mineConfig.zoom,
-        pitch: viewDimension === '3D' ? 62 : 0,
-        bearing: viewDimension === '3D' ? -22 : 0,
+        pitch: viewDimension === '3D' ? 58 : 0,
+        bearing: viewDimension === '3D' ? -20 : 0,
         duration: 1200,
       });
 
-      // Re-lock to the new mine's boundary box after transition completes
-      const timer = setTimeout(() => {
-        if (mapRef.current) {
-          mapRef.current.setMaxBounds(rasterInfo.restrictedBounds);
-        }
-      }, 1300);
-
       setupLayers(map, mineConfig);
-
-      return () => clearTimeout(timer);
     } else {
       setupLayers(map, mineConfig);
     }
@@ -586,20 +436,13 @@ export default function MapLibreProspectivityCanvas({
   const handleRecenterPit = () => {
     const map = mapRef.current;
     if (!map) return;
-    const rasterInfo = getMineRasterHeatmapBounds(mineConfig, activeFilter);
-    map.setMaxBounds(null);
     map.easeTo({
       center: mineConfig.center,
       zoom: mineConfig.zoom,
-      pitch: viewDimension === '3D' ? 62 : 0,
-      bearing: viewDimension === '3D' ? -22 : 0,
+      pitch: viewDimension === '3D' ? 58 : 0,
+      bearing: viewDimension === '3D' ? -20 : 0,
       duration: 800,
     });
-    setTimeout(() => {
-      if (mapRef.current) {
-        mapRef.current.setMaxBounds(rasterInfo.restrictedBounds);
-      }
-    }, 850);
   };
 
   // React to Filter Mode changes from Dropdown - loads actual distinct raster layer
@@ -684,19 +527,7 @@ export default function MapLibreProspectivityCanvas({
         showHeatmap && !is3DActual ? 'visible' : 'none'
       );
     }
-    if (map.getLayer('pit-zones-fill')) {
-      map.setLayoutProperty('pit-zones-fill', 'visibility', showZones ? 'visible' : 'none');
-    }
-    if (map.getLayer('pit-zones-line')) {
-      map.setLayoutProperty('pit-zones-line', 'visibility', showZones ? 'visible' : 'none');
-    }
-    if (map.getLayer('structural-lines-layer')) {
-      map.setLayoutProperty('structural-lines-layer', 'visibility', showFaults ? 'visible' : 'none');
-    }
-    if (map.getLayer('mine-pit-boundary-layer')) {
-      map.setLayoutProperty('mine-pit-boundary-layer', 'visibility', showPitBoundary ? 'visible' : 'none');
-    }
-  }, [showHeatmap, showZones, showFaults, showPitBoundary, mapLoaded, activeFilter, viewDimension, terrainActualColor, computeLayerOpacity]);
+  }, [showHeatmap, mapLoaded, activeFilter, viewDimension, terrainActualColor, computeLayerOpacity]);
 
   // Dedicated reactive effect for Multispectral Filter Mode and 2D/3D dimension changes
   useEffect(() => {
@@ -723,8 +554,10 @@ export default function MapLibreProspectivityCanvas({
         showHeatmap && !is3DActual ? 'visible' : 'none'
       );
       map.setPaintProperty('pit-raster-heatmap-layer', 'raster-hue-rotate', 0);
-      map.setPaintProperty('pit-raster-heatmap-layer', 'raster-contrast', 0.10);
-      map.setPaintProperty('pit-raster-heatmap-layer', 'raster-saturation', 0.10);
+      const contrast = viewDimension === '3D' && !terrainActualColor ? 0.20 : 0.10;
+      const saturation = viewDimension === '3D' && !terrainActualColor ? 0.25 : 0.10;
+      map.setPaintProperty('pit-raster-heatmap-layer', 'raster-contrast', contrast);
+      map.setPaintProperty('pit-raster-heatmap-layer', 'raster-saturation', saturation);
     }
   }, [activeFilter, mapLoaded, mineConfig, viewDimension, terrainActualColor, showHeatmap, computeLayerOpacity]);
 
@@ -798,11 +631,21 @@ export default function MapLibreProspectivityCanvas({
   const handleSamplingClick = () => {
     onToggleCrossSection();
     if (!selectedPoint) {
+      const estimate = computePointProspectivity(mineConfig.center[1], mineConfig.center[0], mineConfig);
       onSelectPoint({
         lat: mineConfig.center[1],
         lng: mineConfig.center[0],
         siteName: mineConfig.name,
         zoneName: 'Main High-Grade Reef',
+        grade: estimate.gradePct,
+        gradeDisplay: estimate.gradeDisplay,
+        confidence: estimate.confidencePct,
+        confidenceBand: estimate.confidenceBand,
+        gradeTier: estimate.gradeTier,
+        formation: estimate.formation,
+        lithology: estimate.lithology,
+        estTonnage: estimate.estTonnage,
+        reserveCategory: estimate.reserveCategory,
       });
     }
   };
@@ -834,15 +677,99 @@ export default function MapLibreProspectivityCanvas({
         </div>
       )}
 
-      {/* TOP COMPACT HUD: Single sleek line that never clusters */}
-      <div className="absolute top-2.5 inset-x-2.5 z-20 flex items-center justify-between gap-1.5 flex-nowrap pointer-events-none">
-        {/* Left: 2D vs 3D Terrain DEM Switcher & 3D Terrain Colour Mode Toggle */}
-        <div className="flex items-center gap-1.5 pointer-events-auto">
-          <div className={`flex items-center gap-0.5 p-1 rounded-xl ${hudStyle}`}>
+      {/* ON-CANVAS LOCATION INSPECTION HUD: Shows Grade, Confidence & UNFC Reserve pinned on map */}
+      {selectedPoint && selectedPoint.grade !== undefined && (
+        <div className="absolute top-12 sm:top-14 left-2 sm:left-2.5 z-20 max-w-[320px] w-[calc(100%-16px)] sm:w-80 rounded-xl bg-slate-950/95 border border-cyan-500/40 p-2.5 sm:p-3 shadow-2xl backdrop-blur-md text-white animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-2">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+              <span className="text-[10px] font-black uppercase tracking-wider text-cyan-300">
+                Collar Inspection
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[9.5px] font-mono text-slate-400">
+                {selectedPoint.lat.toFixed(4)}°N, {selectedPoint.lng.toFixed(4)}°E
+              </span>
+              <button
+                type="button"
+                onClick={() => onSelectPointRef.current({ ...selectedPoint, grade: undefined })}
+                className="text-slate-400 hover:text-white p-0.5 rounded transition-colors cursor-pointer"
+                title="Close inspection collar"
+              >
+                <X size={12} />
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+              <span className="text-[9px] uppercase font-bold text-slate-400 block">Est. MnO% Grade</span>
+              <span className="text-base font-black text-rose-400">
+                {selectedPoint.gradeDisplay || `${selectedPoint.grade?.toFixed(1)}% MnO`}
+              </span>
+              <span className="text-[8.5px] text-slate-400 block truncate">
+                {selectedPoint.gradeTier || 'Ferro-Mn Tier'}
+              </span>
+            </div>
+            <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] uppercase font-bold text-slate-400">Confidence</span>
+                <span className="text-[8px] font-extrabold text-emerald-300 bg-emerald-950/80 px-1 py-0.5 rounded border border-emerald-500/40">
+                  {selectedPoint.confidenceBand || 'Very High'}
+                </span>
+              </div>
+              <span className="text-base font-black text-emerald-400">
+                {selectedPoint.confidence ? selectedPoint.confidence.toFixed(1) : '95.2'}%
+              </span>
+              <div className="w-full h-1 bg-white/10 rounded-full mt-1.5 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 rounded-full"
+                  style={{ width: `${selectedPoint.confidence || 95}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Reserve Mapping (UNFC Category & Tonnage) */}
+          <div className="px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/25 mb-2 flex items-center justify-between">
+            <div className="min-w-0 pr-1.5">
+              <span className="text-[8px] font-extrabold uppercase tracking-wider text-amber-400 block">
+                Reserve Mapping (UNFC Standards)
+              </span>
+              <span className="text-[10px] font-black text-amber-200 truncate block">
+                {selectedPoint.reserveCategory || 'UNFC 111 (Proved High-Grade Reserve)'}
+              </span>
+            </div>
+            <span className="text-xs font-mono font-black text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/40 shrink-0">
+              {selectedPoint.estTonnage ? `${selectedPoint.estTonnage.toLocaleString()} t` : '3,850 t'}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between gap-2 pt-1 border-t border-white/10">
+            <span className="text-[9px] text-cyan-200/80 font-mono truncate max-w-[170px]">
+              {selectedPoint.zoneName || 'Subsurface Core'}
+            </span>
+            <button
+              type="button"
+              onClick={() => onToggleCrossSection()}
+              className="px-2 py-1 rounded bg-teal-600 hover:bg-teal-500 text-white text-[9.5px] font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-md"
+            >
+              {crossSectionActive ? 'View 2D Seam' : 'Open 2D Seam'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* TOP RESPONSIVE HUD: Perfectly shows all options even on 100% zoom */}
+      <div className="absolute top-2 sm:top-2.5 inset-x-2 sm:inset-x-2.5 z-20 flex flex-wrap items-center justify-between gap-1 sm:gap-1.5 pointer-events-none">
+        {/* Left: 2D vs 3D Terrain DEM Switcher & 3D High Colour Mode Toggle */}
+        <div className="flex items-center gap-1 sm:gap-1.5 pointer-events-auto shrink-0">
+          <div className={`flex items-center gap-0.5 p-0.5 sm:p-1 rounded-lg sm:rounded-xl ${hudStyle}`}>
             <button
               type="button"
               onClick={() => handleDimensionChange('2D')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                 viewDimension === '2D'
                   ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30'
                   : 'text-slate-300 hover:text-white hover:bg-white/10'
@@ -850,12 +777,13 @@ export default function MapLibreProspectivityCanvas({
               title="2D Top-Down Orthographic Satellite View"
             >
               <MapIcon size={12} />
-              <span>2D View</span>
+              <span className="hidden sm:inline">2D View</span>
+              <span className="sm:hidden">2D</span>
             </button>
             <button
               type="button"
               onClick={() => handleDimensionChange('3D')}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+              className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-md sm:rounded-lg text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                 viewDimension === '3D'
                   ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30'
                   : 'text-slate-300 hover:text-white hover:bg-white/10'
@@ -863,49 +791,48 @@ export default function MapLibreProspectivityCanvas({
               title="3D DEM Terrain Elevation Model with Draped Heatmap"
             >
               <Mountain size={12} />
-              <span>3D Terrain DEM</span>
+              <span className="hidden sm:inline">3D Terrain</span>
+              <span className="sm:hidden">3D</span>
             </button>
           </div>
 
-          {/* 3D Actual Colour Mode Toggle */}
-          {viewDimension === '3D' && (
-            <button
-              type="button"
-              onClick={() => {
-                const nextActual = !terrainActualColor;
-                setTerrainActualColor(nextActual);
+          {/* High Colour / True Satellite Toggle (Active in 2D & 3D) */}
+          <button
+            type="button"
+            onClick={() => {
+              const nextActual = !terrainActualColor;
+              setTerrainActualColor(nextActual);
 
-                // Synchronously update MapLibre layer immediately
-                const map = mapRef.current;
-                if (map && map.getLayer('pit-raster-heatmap-layer')) {
-                  const targetOpacity = nextActual
-                    ? 0.0
-                    : (activeFilter === 'elevation' ? 0.40 : FILTER_MODES[activeFilter].fillOpacity);
-                  map.setPaintProperty('pit-raster-heatmap-layer', 'raster-fade-duration', 0);
-                  map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', targetOpacity);
-                  map.setLayoutProperty(
-                    'pit-raster-heatmap-layer',
-                    'visibility',
-                    showHeatmap && !nextActual ? 'visible' : 'none'
-                  );
-                }
-              }}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer border shadow-xl ${
-                terrainActualColor
-                  ? 'bg-emerald-600 text-white border-emerald-400 ring-2 ring-emerald-500/40 shadow-emerald-500/30'
-                  : 'bg-slate-950/90 text-amber-300 border-white/15 hover:bg-slate-900'
-              }`}
-              title={
-                terrainActualColor
-                  ? 'Showing actual photorealistic terrain ground colour (True Satellite). Click for overlay.'
-                  : 'Showing multispectral/elevation overlay. Click for actual terrain satellite colour.'
+              // Synchronously update MapLibre layer immediately
+              const map = mapRef.current;
+              if (map && map.getLayer('pit-raster-heatmap-layer')) {
+                const targetOpacity = computeLayerOpacity(activeFilter, viewDimension, nextActual);
+                map.setPaintProperty('pit-raster-heatmap-layer', 'raster-fade-duration', 0);
+                map.setPaintProperty('pit-raster-heatmap-layer', 'raster-opacity', targetOpacity);
+                map.setPaintProperty('pit-raster-heatmap-layer', 'raster-contrast', nextActual ? 0.10 : 0.16);
+                map.setPaintProperty('pit-raster-heatmap-layer', 'raster-saturation', nextActual ? 0.10 : 0.22);
+                map.setLayoutProperty(
+                  'pit-raster-heatmap-layer',
+                  'visibility',
+                  showHeatmap && !nextActual ? 'visible' : 'none'
+                );
               }
-            >
-              <Eye size={12} className={terrainActualColor ? 'text-emerald-200' : 'text-amber-400'} />
-              <span className="hidden sm:inline">{terrainActualColor ? 'Actual Colour' : 'Overlay Mode'}</span>
-              <span className="sm:hidden">{terrainActualColor ? 'Actual' : 'Overlay'}</span>
-            </button>
-          )}
+            }}
+            className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer border shadow-xl ${
+              !terrainActualColor
+                ? 'bg-amber-500/20 text-amber-300 border-amber-400/60 ring-1 ring-amber-400/40 shadow-amber-500/20'
+                : 'bg-emerald-600/30 text-emerald-300 border-emerald-400/60'
+            }`}
+            title={
+              !terrainActualColor
+                ? 'High Colour Active: Rich AI multispectral prospectivity overlay draped on satellite ground. Click for pure photorealistic satellite.'
+                : 'True Satellite Active: Photorealistic ground imagery with natural terrain relief. Click for High Colour overlay.'
+            }
+          >
+            <Eye size={12} className={!terrainActualColor ? 'text-amber-400' : 'text-emerald-300'} />
+            <span className="hidden sm:inline">{!terrainActualColor ? 'High Colour' : 'True Satellite'}</span>
+            <span className="sm:hidden">{!terrainActualColor ? 'Colour' : 'Satellite'}</span>
+          </button>
         </div>
 
         {/* Center: Standard Filter Dropdown */}
@@ -913,16 +840,16 @@ export default function MapLibreProspectivityCanvas({
           <button
             type="button"
             onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer hover:bg-slate-900 ${hudStyle}`}
+            className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer hover:bg-slate-900 ${hudStyle}`}
           >
-            <Layers size={13} className="text-teal-400 shrink-0" />
-            <span className="text-teal-300 truncate max-w-[140px] sm:max-w-[180px]">{filterConfig.shortName}</span>
-            <ChevronDown size={12} className={`text-slate-400 transition-transform ${isFilterDropdownOpen ? 'rotate-180' : ''}`} />
+            <Layers size={12} className="text-teal-400 shrink-0" />
+            <span className="text-teal-300 truncate max-w-[90px] sm:max-w-[130px] md:max-w-[170px]">{filterConfig.shortName}</span>
+            <ChevronDown size={11} className={`text-slate-400 transition-transform ${isFilterDropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {/* Filter Dropdown Menu */}
           {isFilterDropdownOpen && (
-            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5 w-64 rounded-xl bg-slate-950/98 border border-white/20 shadow-2xl p-1 z-40 backdrop-blur-xl animate-in fade-in duration-100">
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5 w-60 sm:w-64 rounded-xl bg-slate-950/98 border border-white/20 shadow-2xl p-1 z-40 backdrop-blur-xl animate-in fade-in duration-100">
               <div className="px-2 py-1 text-[9.5px] font-mono uppercase text-slate-400 font-bold border-b border-white/10 mb-1">
                 Select Multispectral Layer:
               </div>
@@ -953,12 +880,12 @@ export default function MapLibreProspectivityCanvas({
         </div>
 
         {/* Right: Sampling Tool, Focus Pit, Fullscreen */}
-        <div className="flex items-center gap-1.5 pointer-events-auto">
+        <div className="flex items-center gap-1 sm:gap-1.5 pointer-events-auto shrink-0">
           {/* Sampling Active Tool Button */}
           <button
             type="button"
             onClick={handleSamplingClick}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer border shadow-xl ${
+            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer border shadow-xl ${
               crossSectionActive
                 ? 'bg-teal-500 text-white border-teal-300 ring-2 ring-teal-400/50'
                 : 'bg-slate-950/90 backdrop-blur-md text-teal-400 border-white/15 hover:bg-slate-900'
@@ -974,18 +901,19 @@ export default function MapLibreProspectivityCanvas({
           <button
             type="button"
             onClick={handleRecenterPit}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer hover:bg-slate-900 ${hudStyle}`}
+            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer hover:bg-slate-900 ${hudStyle}`}
             title="Recenter camera on active mine pit benches"
           >
             <Compass size={12} className="text-teal-400 shrink-0" />
             <span className="hidden sm:inline">Focus Pit</span>
+            <span className="sm:hidden">Focus</span>
           </button>
 
           {/* Fullscreen Toggle Button */}
           <button
             type="button"
             onClick={toggleFullScreen}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer border shadow-xl ${
+            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer border shadow-xl ${
               isFullScreen
                 ? 'bg-amber-500 text-slate-950 border-amber-300 font-black'
                 : 'bg-slate-950/90 backdrop-blur-md text-slate-300 border-white/15 hover:bg-slate-900'
@@ -993,73 +921,37 @@ export default function MapLibreProspectivityCanvas({
             title={isFullScreen ? 'Exit Fullscreen (Esc)' : 'Expand to Fullscreen'}
           >
             {isFullScreen ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
-            <span className="hidden sm:inline">{isFullScreen ? 'Exit Fullscreen' : 'Fullscreen'}</span>
+            <span className="hidden sm:inline">{isFullScreen ? 'Exit' : 'Fullscreen'}</span>
+            <span className="sm:hidden">{isFullScreen ? 'Exit' : 'Full'}</span>
           </button>
         </div>
       </div>
 
-      {/* BOTTOM-LEFT: Compact Layer Toggles */}
-      <div className="absolute bottom-3 left-2.5 z-20 flex items-center gap-1 pointer-events-auto flex-wrap">
+      {/* BOTTOM-LEFT: Clean Minimal Heatmap Overlay Indicator & Toggle */}
+      <div className="absolute bottom-3 left-2.5 z-20 flex items-center gap-1.5 pointer-events-auto">
         <button
           type="button"
           onClick={() => setShowHeatmap(!showHeatmap)}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10.5px] font-extrabold uppercase tracking-wider transition-all cursor-pointer border ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10.5px] font-black uppercase tracking-wider transition-all cursor-pointer border shadow-xl ${
             showHeatmap
-              ? 'bg-rose-950/90 border-rose-500/60 text-rose-300'
+              ? 'bg-slate-950/95 border-teal-500/50 text-teal-300'
               : 'bg-slate-950/80 border-white/10 text-slate-400'
           }`}
+          title="Toggle Prospectivity Heatmap Overlay on/off"
         >
-          <span className={`w-2 h-2 rounded-full ${showHeatmap ? 'bg-rose-500 shadow-sm shadow-rose-500/50' : 'bg-slate-500'}`} />
-          <span>Heatmap</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setShowZones(!showZones)}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10.5px] font-extrabold uppercase tracking-wider transition-all cursor-pointer border ${
-            showZones
-              ? 'bg-teal-950/90 border-teal-500/60 text-teal-300'
-              : 'bg-slate-950/80 border-white/10 text-slate-400'
-          }`}
-        >
-          <span className={`w-2 h-2 rounded-full ${showZones ? 'bg-teal-400 shadow-sm shadow-teal-400/50' : 'bg-slate-500'}`} />
-          <span>Ore Benches</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setShowFaults(!showFaults)}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10.5px] font-extrabold uppercase tracking-wider transition-all cursor-pointer border ${
-            showFaults
-              ? 'bg-amber-950/90 border-amber-500/60 text-amber-300'
-              : 'bg-slate-950/80 border-white/10 text-slate-400'
-          }`}
-        >
-          <span className={`w-2 h-2 rounded-full ${showFaults ? 'bg-amber-500 shadow-sm shadow-amber-500/50' : 'bg-slate-500'}`} />
-          <span>Faults</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setShowPitBoundary(!showPitBoundary)}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10.5px] font-extrabold uppercase tracking-wider transition-all cursor-pointer border ${
-            showPitBoundary
-              ? 'bg-yellow-950/90 border-yellow-500/60 text-yellow-300'
-              : 'bg-slate-950/80 border-white/10 text-slate-400'
-          }`}
-        >
-          <span className={`w-2 h-2 rounded-full ${showPitBoundary ? 'bg-yellow-400 shadow-sm shadow-yellow-400/50' : 'bg-slate-500'}`} />
-          <span>Pit Shell</span>
+          <span className={`w-2 h-2 rounded-full ${showHeatmap ? 'bg-teal-400 shadow-sm shadow-teal-400/80 animate-pulse' : 'bg-slate-500'}`} />
+          <span>{filterConfig.shortName}</span>
+          <span className="text-[9px] font-mono opacity-70">({showHeatmap ? 'Active' : 'Off'})</span>
         </button>
       </div>
 
-      {/* BOTTOM-RIGHT: Collapsible Geoscientific Layer Legend */}
-      <div className="absolute bottom-3 right-2.5 z-20 pointer-events-auto max-w-[250px] w-full">
+      {/* BOTTOM-RIGHT: Minimal Color Bar Legend */}
+      <div className="absolute bottom-3 right-2.5 z-20 pointer-events-auto max-w-[240px] w-full">
         <div className="rounded-xl bg-slate-950/95 backdrop-blur-md border border-white/15 shadow-2xl p-2.5 text-white transition-all">
           <div className="flex items-center justify-between border-b border-white/10 pb-1 mb-1.5">
             <span className="text-[10px] font-black uppercase tracking-wider text-teal-300 flex items-center gap-1">
               <Info size={11} />
-              Layer Legend
+              Color Scale
             </span>
             <button
               type="button"
@@ -1072,73 +964,25 @@ export default function MapLibreProspectivityCanvas({
           </div>
 
           {isLegendOpen && (
-            <div className="space-y-2 text-[10.5px] animate-in fade-in duration-100">
-              {/* Active Color Gradient Bar */}
-              <div>
-                <div className="flex items-center justify-between text-[9.5px] font-mono text-slate-300 mb-0.5">
-                  <span className="font-bold">{filterConfig.shortName}</span>
-                  <span className="text-teal-400 font-bold">{filterConfig.unit}</span>
-                </div>
-                {viewDimension === '3D' && terrainActualColor ? (
-                  <div className="p-2 rounded-lg bg-emerald-950/80 border border-emerald-500/40 text-[9.5px] text-emerald-200 font-mono flex items-center gap-1.5 mt-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                    <span>3D Photorealistic DEM • Actual ground colour with natural relief</span>
-                  </div>
-                ) : (
-                  <>
-                    <div
-                      className="w-full h-2 rounded-full border border-white/20 shadow-inner"
-                      style={{ background: filterConfig.colorScale }}
-                    />
-                    <div className="flex items-center justify-between text-[8.5px] font-mono text-slate-400 mt-0.5">
-                      <span>{filterConfig.minVal}</span>
-                      <span>{filterConfig.midVal}</span>
-                      <span className="font-bold text-white">{filterConfig.maxVal}</span>
-                    </div>
-                  </>
-                )}
-                {activeFilter === 'prospectivity' && (viewDimension === '2D' || !terrainActualColor) && (
-                  <div className="text-[8.5px] text-purple-300 font-mono mt-1 px-1.5 py-0.5 rounded bg-purple-950/60 border border-purple-800/40">
-                    <span className="font-bold text-purple-300">Purple:</span> Low-Grade Host Rock (&lt;28% MnO) • <span className="font-bold text-amber-300">Gold:</span> High-Grade Ore
-                  </div>
-                )}
-                {activeFilter === 'elevation' && (viewDimension === '2D' || !terrainActualColor) && (
-                  <div className="text-[8.5px] text-amber-200 font-mono mt-1 px-1.5 py-0.5 rounded bg-amber-950/40 border border-amber-800/40">
-                    <span className="font-bold text-amber-300">Quarry Slate:</span> Pit Floor • <span className="font-bold text-emerald-300">Olive:</span> Plains • <span className="font-bold text-rose-300">Terracotta:</span> Ridge
-                  </div>
-                )}
-                {activeFilter === 'lst' && (viewDimension === '2D' || !terrainActualColor) && (
-                  <div className="text-[8.5px] text-orange-200 font-mono mt-1 px-1.5 py-0.5 rounded bg-orange-950/40 border border-orange-800/40">
-                    <span className="font-bold text-slate-300">Dark:</span> Host Rock • <span className="font-bold text-red-400">Crimson:</span> Alteration • <span className="font-bold text-yellow-300">Gold:</span> Gossan Cap
-                  </div>
-                )}
+            <div className="space-y-1.5 text-[10.5px] animate-in fade-in duration-100">
+              <div className="flex items-center justify-between text-[9.5px] font-mono text-slate-300 mb-0.5">
+                <span className="font-bold">{filterConfig.shortName}</span>
+                <span className="text-teal-400 font-bold">{filterConfig.unit}</span>
               </div>
-
-              {/* Symbology Legend */}
-              <div className="space-y-1 pt-1 border-t border-white/10 text-[10px]">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-0.5 border-b-2 border-yellow-400 border-dashed shrink-0" />
-                  <span className="text-slate-300">Pit Shell / Lease Rim</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-0.5 border-b-2 border-red-500 border-dashed shrink-0" />
-                  <span className="text-slate-300">Fault / Shear Zone</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded bg-red-600/70 border border-white shrink-0" />
-                  <span className="text-slate-300">High-Grade Ore Bench (≥40% MnO)</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-teal-400 border border-white shrink-0" />
-                  <span className="text-slate-300">Borehole Cross-Section Pin</span>
-                </div>
+              <div
+                className="w-full h-2 rounded-full border border-white/20 shadow-inner"
+                style={{ background: filterConfig.colorScale }}
+              />
+              <div className="flex items-center justify-between text-[8.5px] font-mono text-slate-400 mt-0.5">
+                <span>{filterConfig.minVal}</span>
+                <span>{filterConfig.midVal}</span>
+                <span className="font-bold text-white">{filterConfig.maxVal}</span>
               </div>
-
-              {/* Primary Evidence note from Ten_Mines_Data_Guide.pdf */}
-              <div className="p-1.5 rounded bg-white/5 border border-white/10 text-[9px] text-slate-300 leading-snug font-mono">
-                <span className="text-amber-400 font-bold">Evidence: </span>
-                {mineConfig.primaryEvidence}
-              </div>
+              {activeFilter === 'prospectivity' && (
+                <div className="text-[8.5px] text-purple-300 font-mono mt-1 px-1.5 py-0.5 rounded bg-purple-950/60 border border-purple-800/40">
+                  <span className="font-bold text-purple-300">Purple:</span> Low-Grade (&lt;28% MnO) • <span className="font-bold text-amber-300">Gold:</span> High-Grade Ore
+                </div>
+              )}
             </div>
           )}
         </div>

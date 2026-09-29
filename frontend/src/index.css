@@ -142,3 +142,38 @@
   animation: binauralFlow 6s ease infinite;
 }
 
+/* MapLibre Prospectivity & Grade/Confidence Popup styling */
+.maplibregl-popup.prospectivity-popup {
+  z-index: 50;
+}
+
+.maplibregl-popup.prospectivity-popup .maplibregl-popup-content {
+  background: rgba(10, 15, 29, 0.96) !important;
+  color: #f8fafc !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(14, 116, 144, 0.45) !important;
+  box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.8), 0 0 20px rgba(14, 116, 144, 0.35) !important;
+  padding: 0 !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+.maplibregl-popup.prospectivity-popup .maplibregl-popup-tip {
+  border-top-color: rgba(10, 15, 29, 0.96) !important;
+  border-bottom-color: rgba(10, 15, 29, 0.96) !important;
+}
+
+.maplibregl-popup.prospectivity-popup .maplibregl-popup-close-button {
+  color: #94a3b8 !important;
+  padding: 6px 10px !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  transition: all 0.15s ease !important;
+  outline: none !important;
+}
+
+.maplibregl-popup.prospectivity-popup .maplibregl-popup-close-button:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important;
+}
+

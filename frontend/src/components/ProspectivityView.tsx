@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Silk from './ui/Silk';
-import { Sparkles } from 'lucide-react';
 import { apiGet } from '../services/apiClient';
-import MapLibreProspectivityCanvas from './MapLibreProspectivityCanvas';
+import MapLibreProspectivityCanvas, { SelectedLocationPoint } from './MapLibreProspectivityCanvas';
 import CrossSectionDrawer from './CrossSectionDrawer';
-import { getMineBoundary } from '../lib/prospectivityMapConfig';
+import { getMineBoundary, computePointProspectivity } from '../lib/prospectivityMapConfig';
 
 interface ProspectivityViewProps {
   isDark?: boolean;
@@ -183,12 +182,8 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
 
 
   const [viewMode, setViewMode] = useState<'MAP' | 'LIST'>('MAP');
-  const [mapMode, setMapMode] = useState<'MAPLIBRE_GIS' | 'BENCH_SCHEMATIC'>('MAPLIBRE_GIS');
   const [crossSectionActive, setCrossSectionActive] = useState<boolean>(false);
-  const [crossSectionPoint, setCrossSectionPoint] = useState<{ lat: number; lng: number; siteName?: string; zoneName?: string } | null>(null);
-  const [showOreReef, setShowOreReef] = useState<boolean>(true);
-  const [showPitPerimeter, setShowPitPerimeter] = useState<boolean>(true);
-  const [showThermalOverlay, setShowThermalOverlay] = useState<boolean>(false);
+  const [crossSectionPoint, setCrossSectionPoint] = useState<SelectedLocationPoint | null>(null);
   const [sortField, setSortField] = useState<'prospectivity' | 'mno' | 'tonnage'>('prospectivity');
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
   const [showModelInfo, setShowModelInfo] = useState<boolean>(false);
@@ -403,9 +398,9 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
       {/* 3. MAIN PROSPECTIVITY CONTENT (SATELLITE MAP OVERLAY + ZONE DETAIL PANEL) */}
       {/* ========================================================================= */}
       {viewMode === 'MAP' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          {/* INTERACTIVE GIS MAP CANVAS (7 COLS) */}
-          <div className={`lg:col-span-7 p-6 rounded-2xl border ${cardBg} space-y-4 flex flex-col justify-between shadow-xl`}>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
+          {/* INTERACTIVE GIS MAP CANVAS (7 COLS on lg, 8 on 2xl) */}
+          <div className={`lg:col-span-7 2xl:col-span-8 p-3 sm:p-5 lg:p-6 rounded-2xl border ${cardBg} space-y-4 flex flex-col justify-between shadow-xl`}>
             <div className={`flex flex-wrap items-center justify-between border-b pb-3 gap-3 ${borderDivider}`}>
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#0E7C7B] text-lg">satellite_alt</span>
@@ -415,232 +410,67 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
               </div>
 
               {/* Controls Header */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {/* When in schematic mode, show schematic layer toggles */}
-                {mapMode === 'BENCH_SCHEMATIC' && (
-                  <div className="flex items-center gap-2 text-xs">
-                    <button
-                      onClick={() => setShowOreReef(!showOreReef)}
-                      className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 border text-[11px] ${
-                        showOreReef
-                          ? isDark ? 'bg-rose-950/80 border-rose-500/60 text-rose-300' : 'bg-rose-50 border-rose-300 text-rose-800'
-                          : isDark ? 'bg-black/40 border-white/10 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-600'
-                      }`}
-                    >
-                      <span className={`w-2 h-2 rounded-full ${showOreReef ? 'bg-rose-500 animate-pulse' : 'bg-slate-400'}`} />
-                      Ore Reef
-                    </button>
-                    <button
-                      onClick={() => setShowPitPerimeter(!showPitPerimeter)}
-                      className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 border text-[11px] ${
-                        showPitPerimeter
-                          ? isDark ? 'bg-amber-950/80 border-amber-500/60 text-amber-300' : 'bg-amber-50 border-amber-300 text-amber-800'
-                          : isDark ? 'bg-black/40 border-white/10 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-600'
-                      }`}
-                    >
-                      <span className={`w-2 h-2 rounded-full ${showPitPerimeter ? 'bg-amber-500' : 'bg-slate-400'}`} />
-                      Pit Shell
-                    </button>
-                    <button
-                      onClick={() => setShowThermalOverlay(!showThermalOverlay)}
-                      className={`px-2 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 border text-[11px] ${
-                        showThermalOverlay
-                          ? isDark ? 'bg-teal-950/80 border-teal-500/60 text-teal-300' : 'bg-teal-50 border-teal-300 text-teal-800'
-                          : isDark ? 'bg-black/40 border-white/10 text-slate-400' : 'bg-slate-100 border-slate-300 text-slate-600'
-                      }`}
-                    >
-                      <Sparkles className="w-3 h-3" />
-                      SWIR
-                    </button>
-                  </div>
-                )}
-
-                {/* View Switcher: MapLibre GIS vs Bench Schematic */}
-                <div className={`flex items-center p-1 rounded-xl border text-xs ${
-                  isDark ? 'bg-black/40 border-white/10' : 'bg-slate-100 border-slate-300'
-                }`}>
-                  <button
-                    onClick={() => setMapMode('MAPLIBRE_GIS')}
-                    className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                      mapMode === 'MAPLIBRE_GIS'
-                        ? 'bg-[#0E7C7B] text-white shadow-md'
-                        : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-sm">public</span>
-                    MapLibre GIS
-                  </button>
-                  <button
-                    onClick={() => setMapMode('BENCH_SCHEMATIC')}
-                    className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                      mapMode === 'BENCH_SCHEMATIC'
-                        ? 'bg-[#0E7C7B] text-white shadow-md'
-                        : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-sm">grid_view</span>
-                    Bench Schematic
-                  </button>
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 font-mono text-xs font-bold shadow-sm">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
+                  MapLibre 3D GIS Engine
+                </span>
               </div>
             </div>
 
-            {/* Map Body: MapLibre Vector GIS OR Static Bench Schematic */}
-            {mapMode === 'MAPLIBRE_GIS' ? (
-              <MapLibreProspectivityCanvas
-                selectedMineName={selectedMineName}
-                isDark={isDark}
-                crossSectionActive={crossSectionActive}
-                onToggleCrossSection={() => {
-                  const nextActive = !crossSectionActive;
-                  setCrossSectionActive(nextActive);
-                  if (nextActive && !crossSectionPoint) {
-                    const mine = getMineBoundary(selectedMineName);
-                    setCrossSectionPoint({
-                      lat: mine.center[1],
-                      lng: mine.center[0],
-                      siteName: mine.name,
-                      zoneName: 'Main High-Grade Reef',
-                    });
-                  }
-                }}
-                selectedPoint={crossSectionPoint}
-                onSelectPoint={(pt) => {
-                  setCrossSectionPoint(pt);
-                  setCrossSectionActive(true);
-                }}
-              />
-            ) : (
-              <div className="relative w-full h-[500px] rounded-2xl overflow-hidden border border-white/15 bg-slate-950 shadow-2xl flex items-center justify-center group select-none">
-                {/* Actual High-Res Top-Down Satellite Photo of Open Cast Mine */}
-                <img
-                  src={selectedMineName?.toLowerCase().includes('tirodi') || selectedMineName?.toLowerCase().includes('sitapatore') ? "/tirodi_heatmap.png" : "/dongri_heatmap.png"}
-                  alt={`${selectedMineName || 'Mine'} Heatmap Imagery`}
-                  className="absolute inset-0 w-full h-full object-cover filter"
-                />
-
-                {/* Subtle Dark Vignette for Premium Depth */}
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/80 via-transparent to-black/40" />
-
-                {/* SVG Vector Zone Overlay mapped across the real pit */}
-                <svg viewBox="0 0 640 280" className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-                  <defs>
-                    <filter id="glowEffect" x="-20%" y="-20%" width="140%" height="140%">
-                      <feGaussianBlur stdDeviation="3.5" result="blur" />
-                      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                    </filter>
-
-                    <linearGradient id="oreReefGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#FB7185" />
-                      <stop offset="50%" stopColor="#F43F5E" />
-                      <stop offset="100%" stopColor="#E11D48" />
-                    </linearGradient>
-                  </defs>
-
-                  {/* SWIR Thermal Multi-Spectral Heatmap Simulation */}
-                  {showThermalOverlay && !selectedMineName?.toLowerCase().includes('tirodi') && !selectedMineName?.toLowerCase().includes('sitapatore') && (
-                    <circle cx="330" cy="140" r="130" fill="#F43F5E" fillOpacity="0.22" filter="url(#glowEffect)" />
-                  )}
-
-                  {/* Main Open Pit Shell (Yellow Perimeter) */}
-                  {showPitPerimeter && !selectedMineName?.toLowerCase().includes('tirodi') && !selectedMineName?.toLowerCase().includes('sitapatore') && (
-                    <g>
-                      <path
-                        d="M 100 140 C 130 55 240 60 350 65 C 450 70 540 85 545 130 C 540 175 430 190 340 195 C 230 190 120 185 100 140 Z"
-                        fill="none"
-                        stroke="#FACC15"
-                        strokeWidth="2"
-                        strokeDasharray="5 3"
-                      />
-                    </g>
-                  )}
-
-                  {/* Manganese Ore Body Strike Line (Pink / Magenta Reef Line) */}
-                  {showOreReef && !selectedMineName?.toLowerCase().includes('tirodi') && !selectedMineName?.toLowerCase().includes('sitapatore') && (
-                    <g filter="url(#glowEffect)">
-                      <path
-                        d="M 120 150 Q 270 145 380 135 T 510 120"
-                        fill="none"
-                        stroke="url(#oreReefGradient)"
-                        strokeWidth="5"
-                        strokeLinecap="round"
-                      />
-                      <text x="290" y="125" fill="#FFE4E6" fontSize="9.5" fontWeight="900" textAnchor="middle" className="drop-shadow-md">
-                        Manganese Ore Body Reef
-                      </text>
-                    </g>
-                  )}
-
-                  {/* Model 1 Prospectivity Zones */}
-                  {zones.map((zone) => {
-                    const isSelected = selectedZone.id === zone.id;
-                    const style = getProspectivityColor(zone.prospectivityClass);
-
-                    return (
-                      <g
-                        key={zone.id}
-                        className="cursor-pointer group/zone transition-all duration-200"
-                        onClick={() => setSelectedZone(zone)}
-                      >
-                        <path
-                          d={zone.svgPolygon}
-                          fill={style.fill}
-                          fillOpacity={isSelected ? 0.6 : 0.28}
-                          stroke={isSelected ? '#FFFFFF' : style.hex}
-                          strokeWidth={isSelected ? 3.5 : 1.8}
-                          strokeDasharray={isSelected ? undefined : '4 2'}
-                          className="transition-all duration-200 group-hover/zone:fill-opacity-50"
-                        />
-
-                        <g transform={`translate(${zone.svgCenter.x}, ${zone.svgCenter.y})`}>
-                          <rect
-                            x="-42"
-                            y="-11"
-                            width="84"
-                            height="22"
-                            rx="6"
-                            fill={isSelected ? '#0F172A' : '#020617'}
-                            fillOpacity="0.88"
-                            stroke={isSelected ? '#FFFFFF' : style.hex}
-                            strokeWidth={isSelected ? 2 : 1}
-                          />
-                          <text
-                            x="0"
-                            y="4"
-                            fill="#FFFFFF"
-                            fontSize="9.5"
-                            fontWeight="900"
-                            textAnchor="middle"
-                            className="pointer-events-none select-none"
-                          >
-                            {zone.code} ({zone.predictedMnO}%)
-                          </text>
-                        </g>
-                      </g>
-                    );
-                  })}
-                </svg>
-
-                {/* Floating Bottom HUD Overlay */}
-                <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between px-3.5 py-2 rounded-xl bg-black/85 border border-white/15 text-[11px] font-mono text-white backdrop-blur-md">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="font-bold text-teal-300">
-                      {selectedMineName} Pit Floor • Bench Model Active
-                    </span>
-                  </div>
-                  <span className="text-slate-300 hidden sm:inline text-[10.5px]">
-                    Click any zone to inspect Model 1 parameters
-                  </span>
-                </div>
-              </div>
-            )}
+            {/* Map Body: Unified Interactive MapLibre GIS */}
+            <MapLibreProspectivityCanvas
+              selectedMineName={selectedMineName}
+              isDark={isDark}
+              crossSectionActive={crossSectionActive}
+              onToggleCrossSection={() => {
+                const nextActive = !crossSectionActive;
+                setCrossSectionActive(nextActive);
+                if (nextActive && !crossSectionPoint) {
+                  const mine = getMineBoundary(selectedMineName);
+                  const estimate = computePointProspectivity(mine.center[1], mine.center[0], mine);
+                  setCrossSectionPoint({
+                    lat: mine.center[1],
+                    lng: mine.center[0],
+                    siteName: mine.name,
+                    zoneName: 'Main High-Grade Reef',
+                    grade: estimate.gradePct,
+                    gradeDisplay: estimate.gradeDisplay,
+                    confidence: estimate.confidencePct,
+                    confidenceBand: estimate.confidenceBand,
+                    gradeTier: estimate.gradeTier,
+                    formation: estimate.formation,
+                    lithology: estimate.lithology,
+                    estTonnage: estimate.estTonnage,
+                    reserveCategory: estimate.reserveCategory,
+                  });
+                }
+              }}
+              selectedPoint={crossSectionPoint}
+              onSelectPoint={(pt) => {
+                setCrossSectionPoint(pt);
+                setCrossSectionActive(true);
+                if (pt.grade !== undefined) {
+                  setSelectedZone((prev) => ({
+                    ...prev,
+                    name: pt.zoneName || prev.name,
+                    predictedMnO: Number(pt.grade?.toFixed(1)) || prev.predictedMnO,
+                    estTonnage: pt.estTonnage || prev.estTonnage,
+                    geologicalStructure: pt.formation || prev.geologicalStructure,
+                    evidence: `Continuous spatial collar drill telemetry at ${pt.lat.toFixed(4)}°N, ${pt.lng.toFixed(4)}°E. ${pt.formation || 'Mansar Formation'} (${pt.lithology || 'Pyrolusite-Braunite Reef'}). AI Model Confidence: ${pt.confidence ? pt.confidence.toFixed(1) + '%' : '95%'}.`,
+                    recommendedAction: (pt.grade || 0) >= 42
+                      ? 'High-grade extraction priority — integrate with active opencast production bench'
+                      : 'Infill exploratory core drilling & blending cycle scheduled',
+                  }));
+                }
+              }}
+            />
           </div>
 
           {/* ========================================================================= */}
-          {/* 4. ZONE DETAIL PANEL (RIGHT 5 COLS) */}
+          {/* 4. ZONE DETAIL PANEL (5 COLS on lg, 4 on 2xl) */}
           {/* ========================================================================= */}
-          <div className={`lg:col-span-5 p-6 rounded-2xl border ${cardBg} space-y-5 flex flex-col justify-between shadow-2xl`}>
+          <div className={`lg:col-span-5 2xl:col-span-4 p-4 sm:p-5 lg:p-6 rounded-2xl border ${cardBg} space-y-4 flex flex-col justify-between shadow-2xl`}>
             <div className="space-y-4">
               {/* Header */}
               <div className={`flex items-center justify-between border-b pb-3 ${borderDivider}`}>
@@ -699,26 +529,39 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
                 </div>
 
                 {/* Estimated Tonnage */}
-                <div className={`p-4 rounded-xl border space-y-1 ${
+                <div className={`p-3.5 sm:p-4 rounded-xl border space-y-1 min-w-0 ${
                   isDark ? nestedBg : 'bg-gradient-to-br from-amber-50/70 via-white to-white border-amber-200 shadow-xs'
                 }`}>
                   <div className="flex items-center justify-between">
-                    <span className={`text-[10px] font-black uppercase tracking-wider ${
+                    <span className={`text-[9.5px] sm:text-[10px] font-black uppercase tracking-wider shrink-0 ${
                       isDark ? textMuted : 'text-amber-800'
                     }`}>
                       EST. TONNAGE
                     </span>
                     <span className={`material-symbols-outlined text-sm ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>inventory_2</span>
                   </div>
-                  <span className={`font-headline font-black text-2xl sm:text-3xl block ${
-                    isDark ? 'text-amber-400' : 'text-amber-600'
+                  <div className="flex items-baseline gap-1">
+                    <span
+                      className={`font-headline font-black text-xl sm:text-2xl xl:text-3xl block truncate ${
+                        isDark ? 'text-amber-400' : 'text-amber-600'
+                      }`}
+                      title={`${selectedZone.estTonnage.toLocaleString()} Metric Tonnes`}
+                    >
+                      {selectedZone.estTonnage >= 1_000_000
+                        ? `${(selectedZone.estTonnage / 1_000_000).toFixed(2)}M`
+                        : selectedZone.estTonnage.toLocaleString()}
+                    </span>
+                    <span className="text-xs font-bold text-amber-500/80">t</span>
+                  </div>
+                  <span className={`text-[10px] font-bold block truncate ${
+                    isDark ? 'text-amber-300/80' : 'text-amber-700'
                   }`}>
-                    {selectedZone.estTonnage.toLocaleString()} t
-                  </span>
-                  <span className={`text-[10.5px] font-semibold block ${
-                    isDark ? 'text-slate-400' : 'text-slate-600'
-                  }`}>
-                    Recoverable ore volume
+                    {selectedZone.predictedMnO >= 42
+                      ? 'UNFC 111 Proved'
+                      : selectedZone.predictedMnO >= 35
+                      ? 'UNFC 121 Probable'
+                      : 'UNFC 331 Inferred'}
+                    {' • '}{selectedZone.estTonnage >= 1000 ? `${(selectedZone.estTonnage / 1000).toFixed(1)}k MT` : `${selectedZone.estTonnage} MT`}
                   </span>
                 </div>
               </div>
@@ -749,6 +592,53 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
                       style={{ width: `${selectedZone.recoverabilityPct}%` }}
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* UNFC Reserve Mapping & Geostatistical Classification */}
+              <div className={`p-3.5 sm:p-4 rounded-xl border space-y-2 ${
+                isDark
+                  ? 'bg-amber-950/20 border-amber-500/30'
+                  : 'bg-gradient-to-br from-amber-50/80 via-white to-amber-50/40 border-amber-200/90 shadow-xs'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                    <span className={`text-[10px] sm:text-[10.5px] font-black uppercase tracking-wider ${
+                      isDark ? 'text-amber-400' : 'text-amber-900 font-extrabold'
+                    }`}>
+                      UNFC RESERVE MAPPING
+                    </span>
+                  </div>
+                  <span className={`text-[9px] font-black px-2 py-0.5 rounded border uppercase tracking-wider ${
+                    selectedZone.predictedMnO >= 42
+                      ? isDark ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40' : 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                      : isDark ? 'bg-amber-950/80 text-amber-300 border-amber-500/40' : 'bg-amber-100 text-amber-900 border-amber-300'
+                  }`}>
+                    {selectedZone.predictedMnO >= 42 ? 'UNFC 111 (Proved)' : selectedZone.predictedMnO >= 35 ? 'UNFC 121 (Probable)' : 'UNFC 331 (Inferred)'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-1.5 pt-1 text-center font-mono">
+                  <div className={`p-1.5 rounded-lg border ${isDark ? 'bg-black/30 border-white/10' : 'bg-white/80 border-amber-200'}`}>
+                    <span className="text-[8.5px] uppercase font-bold text-slate-400 block">E-Axis</span>
+                    <span className="text-[11px] font-black text-amber-400">E1 (Economic)</span>
+                  </div>
+                  <div className={`p-1.5 rounded-lg border ${isDark ? 'bg-black/30 border-white/10' : 'bg-white/80 border-amber-200'}`}>
+                    <span className="text-[8.5px] uppercase font-bold text-slate-400 block">F-Axis</span>
+                    <span className="text-[11px] font-black text-amber-400">F1 (Feasible)</span>
+                  </div>
+                  <div className={`p-1.5 rounded-lg border ${isDark ? 'bg-black/30 border-white/10' : 'bg-white/80 border-amber-200'}`}>
+                    <span className="text-[8.5px] uppercase font-bold text-slate-400 block">G-Axis</span>
+                    <span className="text-[11px] font-black text-amber-400">G1 (Explored)</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-[10.5px] pt-1 border-t border-amber-500/20">
+                  <span className={isDark ? textSecondary : 'text-slate-700 font-semibold'}>In-Situ Mn Metal Contained:</span>
+                  <span className={`font-mono font-black ${isDark ? 'text-amber-300' : 'text-amber-800'}`}>
+                    ~{Math.round((selectedZone.estTonnage * selectedZone.predictedMnO) / 100).toLocaleString()} MT Mn
+                  </span>
                 </div>
               </div>
 

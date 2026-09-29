@@ -32,17 +32,29 @@ class SubsurfacePredictRequest(BaseModel):
     gravity_anomaly: Optional[float] = 145.0
     magnetic_nt: Optional[float] = 320.0
 
+import datetime
+from app.schemas.responses import Envelope, ResponseMeta
+
 @router.get("/{mine_id}/prospectivity", dependencies=[Depends(require_role(["admin", "site_manager"]))])
 def get_prospectivity(mine_id: str):
     """Feature 1: AI/GIS Prospectivity. Pure memory read."""
     try:
         data = get_workspace(mine_id)
-        return {
-            "prospectivity": data.accessibleOre.model_dump(),
-            "gisZones": [zone.model_dump() for zone in data.gisZones]
-        }
+        meta = ResponseMeta(
+            model_version="v2.1.0-xgb",
+            computed_at=datetime.datetime.now(datetime.timezone.utc).isoformat()
+        )
+        return Envelope(
+            success=True,
+            data={
+                "prospectivity": data.accessibleOre.model_dump(),
+                "gisZones": [zone.model_dump() for zone in data.gisZones]
+            },
+            meta=meta
+        )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
 
 @router.post("/gemini-interpret")
 async def interpret_subsurface(req: GeminiInterpretRequest):

@@ -5,7 +5,19 @@ import { X, Activity, Sparkles, Loader2, Compass, Layers } from 'lucide-react';
 interface CrossSectionDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  point: { lat: number; lng: number; siteName?: string; zoneName?: string } | null;
+  point: {
+    lat: number;
+    lng: number;
+    siteName?: string;
+    zoneName?: string;
+    grade?: number;
+    gradeDisplay?: string;
+    confidence?: number;
+    confidenceBand?: string;
+    gradeTier?: string;
+    formation?: string;
+    lithology?: string;
+  } | null;
   isDark?: boolean;
 }
 
@@ -16,7 +28,7 @@ export interface BoreholeData {
   dip: number;
 }
 
-export function generateSubsurfaceGrid(lat: number, lng: number) {
+export function generateSubsurfaceGrid(lat: number, lng: number, targetGrade?: number) {
   const seed = Math.abs(Math.round((lat * 1000 + lng * 100) * 10)) % 1000;
   const nDist = 25;  // 0 to 480m in 20m steps
   const nDepth = 21; // 0 to 400m in 20m steps
@@ -26,7 +38,7 @@ export function generateSubsurfaceGrid(lat: number, lng: number) {
 
   const dipSlope = 0.15; // 15m drop per 100m horizontal strike advance
   const baseSeamCenter = 170 + (seed % 40);
-  const peakGrade = 38.5 + (seed % 7.2);
+  const peakGrade = targetGrade !== undefined ? targetGrade : (38.5 + (seed % 7.2));
 
   const zGrade: number[][] = [];
   for (let j = 0; j < nDepth; j++) {
@@ -70,7 +82,7 @@ export default function CrossSectionDrawer({ isOpen, onClose, point, isDark = tr
   const lng = point?.lng ?? 79.7020;
   const siteName = point?.siteName || 'MOIL Central Manganese Pit';
 
-  const gridData = useMemo(() => generateSubsurfaceGrid(lat, lng), [lat, lng]);
+  const gridData = useMemo(() => generateSubsurfaceGrid(lat, lng, point?.grade), [lat, lng, point?.grade]);
 
   // Reset AI interpretation when target point changes
   useEffect(() => {
@@ -250,9 +262,18 @@ export default function CrossSectionDrawer({ isOpen, onClose, point, isDark = tr
               Subsurface 2D Seam Cross-Section (0–400m)
             </h3>
           </div>
-          <span className="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
-            Kriged Dip Model (15°/100m)
-          </span>
+          {point?.grade !== undefined && (
+            <span className="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+              Grade: {point.gradeDisplay || `${point.grade.toFixed(1)}% MnO`}
+            </span>
+          )}
+          {point?.confidence !== undefined && (
+            <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              Confidence: {point.confidence.toFixed(1)}% ({point.confidenceBand || 'Very High'})
+            </span>
+          )}
           <span className={`text-xs font-mono font-medium flex items-center gap-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
             <Compass size={13} className="text-teal-500" />
             {siteName} • ({lat.toFixed(4)}°N, {lng.toFixed(4)}°E)
@@ -284,25 +305,49 @@ export default function CrossSectionDrawer({ isOpen, onClose, point, isDark = tr
       <div className="p-5 overflow-y-auto space-y-4 max-h-[calc(82vh-60px)]">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left Column: Key Subsurface KPIs */}
-          <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3">
-            {/* KPI 1 */}
-            <div className={`p-4 rounded-xl border flex flex-col justify-between ${cardBg}`}>
+          <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5">
+            {/* KPI 1: Estimated Grade */}
+            <div className={`p-3.5 rounded-xl border flex flex-col justify-between ${cardBg}`}>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black uppercase tracking-wider text-rose-400">
-                  Peak Estimated Grade
+                  Estimated Grade (MnO%)
                 </span>
                 <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
               </div>
-              <p className="text-2xl font-black font-headline mt-1">
-                {gridData.peakGrade.toFixed(1)}% <span className="text-xs font-bold text-teal-400">MnO</span>
+              <p className="text-2xl font-black font-headline mt-1 text-rose-400">
+                {(point?.grade ?? gridData.peakGrade).toFixed(1)}% <span className="text-xs font-bold text-teal-400">MnO</span>
               </p>
               <span className={`text-[10px] mt-1 font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                High-grade pyrolusite & braunite reef
+                {point?.gradeTier || 'High-grade pyrolusite & braunite reef'}
               </span>
             </div>
 
-            {/* KPI 2 */}
-            <div className={`p-4 rounded-xl border flex flex-col justify-between ${cardBg}`}>
+            {/* KPI 2: AI Model Confidence */}
+            <div className={`p-3.5 rounded-xl border flex flex-col justify-between ${cardBg}`}>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400">
+                  AI Model Confidence
+                </span>
+                <span className="text-[9px] font-black text-emerald-300 bg-emerald-950/70 border border-emerald-500/40 px-1.5 py-0.5 rounded">
+                  {point?.confidenceBand || 'Very High'}
+                </span>
+              </div>
+              <p className="text-2xl font-black font-headline mt-1 text-emerald-400">
+                {point?.confidence ? point.confidence.toFixed(1) : '94.8'}%
+              </p>
+              <div className="w-full h-1 bg-white/10 rounded-full mt-1.5 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-teal-400 to-emerald-400 rounded-full"
+                  style={{ width: `${point?.confidence || 94.8}%` }}
+                />
+              </div>
+              <span className={`text-[9.5px] mt-1 font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                Calibrated across Sausar syncline fold strike
+              </span>
+            </div>
+
+            {/* KPI 3: Target Seam Center */}
+            <div className={`p-3.5 rounded-xl border flex flex-col justify-between ${cardBg}`}>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black uppercase tracking-wider text-amber-400">
                   Target Seam Center
@@ -317,10 +362,10 @@ export default function CrossSectionDrawer({ isOpen, onClose, point, isDark = tr
               </span>
             </div>
 
-            {/* KPI 3 */}
-            <div className={`p-4 rounded-xl border flex flex-col justify-between ${cardBg}`}>
+            {/* KPI 4: Overburden Thickness */}
+            <div className={`p-3.5 rounded-xl border flex flex-col justify-between ${cardBg}`}>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] font-black uppercase tracking-wider text-cyan-400">
                   Overburden Thickness
                 </span>
                 <span className="text-[10px] font-mono text-cyan-400">0–45m</span>

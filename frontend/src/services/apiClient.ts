@@ -7,7 +7,7 @@ import { getAuthHeader, logoutUser } from './authService';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
-interface Envelope<T> {
+export interface Envelope<T> {
   success: boolean;
   data: T | null;
   meta: { model_version: string; computed_at: string } | null;
@@ -56,17 +56,20 @@ export async function apiGet<T>(path: string, signal?: AbortSignal): Promise<T> 
     );
   }
   
-  const envelope: Envelope<T> = await response.json();
+  const json: any = await response.json();
   
-  if (!envelope.success || envelope.error) {
-    throw new ApiError(
-      envelope.error?.message || 'Unknown API error',
-      envelope.error?.code || 'API_ERROR',
-      response.status
-    );
+  if (json && typeof json === 'object' && 'success' in json) {
+    if (!json.success || json.error) {
+      throw new ApiError(
+        json.error?.message || 'Unknown API error',
+        json.error?.code || 'API_ERROR',
+        response.status
+      );
+    }
+    return (json.data !== undefined ? json.data : json) as T;
   }
   
-  return envelope.data as T;
+  return json as T;
 }
 
 /**
@@ -100,17 +103,20 @@ export async function apiPost<T>(path: string, body: unknown, signal?: AbortSign
     );
   }
   
-  const envelope: Envelope<T> = await response.json();
+  const postJson: any = await response.json();
   
-  if (!envelope.success || envelope.error) {
-    throw new ApiError(
-      envelope.error?.message || 'Unknown API error',
-      envelope.error?.code || 'API_ERROR',
-      response.status
-    );
+  if (postJson && typeof postJson === 'object' && 'success' in postJson) {
+    if (!postJson.success || postJson.error) {
+      throw new ApiError(
+        postJson.error?.message || 'Unknown API error',
+        postJson.error?.code || 'API_ERROR',
+        response.status
+      );
+    }
+    return (postJson.data !== undefined ? postJson.data : postJson) as T;
   }
   
-  return envelope.data as T;
+  return postJson as T;
 }
 
 /**

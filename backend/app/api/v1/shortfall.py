@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
+import datetime
 from app.services.workspace_service import get_workspace
 from app.core.security import require_role
+from app.schemas.responses import Envelope, ResponseMeta
 
 router = APIRouter()
 
@@ -9,6 +11,15 @@ def get_shortfall(mine_id: str):
     """Feature 3: Shortfall Early Warning. Pure memory read."""
     try:
         data = get_workspace(mine_id)
-        return {"shortfall": data.shortfallRisk.model_dump(), "alerts": [a.model_dump() for a in data.alerts]}
+        meta = ResponseMeta(
+            model_version="v2.1.0-xgb",
+            computed_at=datetime.datetime.now(datetime.timezone.utc).isoformat()
+        )
+        return Envelope(
+            success=True,
+            data={"shortfall": data.shortfallRisk.model_dump(), "alerts": [a.model_dump() for a in data.alerts]},
+            meta=meta
+        )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
