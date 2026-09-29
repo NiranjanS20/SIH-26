@@ -4,7 +4,15 @@
 
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
-import { type MonthDataPoint } from '../data/mineProductionData';
+export interface MonthDataPoint {
+  label: string;
+  actual: number | null;
+  target: number;
+  forecast: number;
+  isMonsoon?: boolean;
+  confidenceLower?: number;
+  confidenceUpper?: number;
+}
 
 interface ProductionForecastEChartProps {
   data: MonthDataPoint[];

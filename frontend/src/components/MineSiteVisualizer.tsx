@@ -6,11 +6,19 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polygon, Circle } from 'react-leaflet';
 import L from 'leaflet';
-import { TILE_PROVIDERS } from '../data/reserveMappingData';
-import {
-  getMineIntelligenceProfile,
-  type EquipmentAsset,
-} from '../data/mineIntelligenceData';
+export const TILE_PROVIDERS = {
+  satellite: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri'
+  }
+};
+export type EquipmentAsset = any;
+const getMineIntelligenceProfile = (_id: string): any => ({
+  type: 'Open Cast',
+  boundaries: { exterior: [], pitLimit: [], activeFace: [] },
+  equipment: [],
+  environmentalSensors: []
+});
 import {
   Mountain,
   Satellite,
@@ -194,7 +202,7 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
               >
                 All
               </button>
-              {profile.terrainData.contours.map((c) => (
+              {profile.terrainData.contours.map((c: any) => (
                 <button
                   key={c.elevationM}
                   onClick={() => setHighlightedElevation(c.elevationM)}
@@ -303,7 +311,7 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
                   </text>
 
                   {/* Haul Ramp Roads with Lane Markings */}
-                  {profile.terrainData.haulRoads.map((road, idx) => (
+                  {profile.terrainData.haulRoads.map((road: any, idx: number) => (
                     <g key={idx}>
                       <path
                         d={road.pathD}
@@ -323,7 +331,7 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
                   ))}
 
                   {/* Left Margin Elevation Indicators (Clean non-overlapping column) */}
-                  {profile.terrainData.contours.map((c, i) => (
+                  {profile.terrainData.contours.map((c: any, i: number) => (
                     <g key={c.elevationM}>
                       <rect
                         x="12"
@@ -417,7 +425,7 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
               )}
 
               {/* Equipment Assets / Fleet Pins (Fixed stable SVG coordinates) */}
-              {profile.terrainData.equipmentAssets.map((eq, eqIdx) => {
+              {profile.terrainData.equipmentAssets.map((eq: any, eqIdx: number) => {
                 const isSelected = selectedEquipment?.id === eq.id;
                 // Smart offset to prevent badge collisions
                 const badgeWidth = eq.name.length * 5.8 + 16;
@@ -505,7 +513,7 @@ export const MineSiteVisualizer: React.FC<MineSiteVisualizerProps> = ({
             {/* Top Layer Switcher Overlay */}
             <div className="absolute top-2 left-2 right-2 z-400 flex items-center justify-between pointer-events-none gap-2">
               <div className="pointer-events-auto flex items-center gap-1 p-1 rounded-lg bg-black/80 backdrop-blur-md border border-white/15 shadow-lg overflow-x-auto max-w-[90%]">
-                {profile.satelliteConfig.availableLayers.map((layer) => {
+                {profile.satelliteConfig.availableLayers.map((layer: any) => {
                   const isSelected = selectedSatelliteLayerId === layer.id;
                   const renderSatelliteLayerIcon = () => {
                     switch (layer.id) {

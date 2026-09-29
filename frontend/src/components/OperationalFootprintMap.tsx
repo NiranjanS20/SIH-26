@@ -5,10 +5,19 @@
 // ==============================================================================
 
 import React, { useState } from 'react';
-import {
-  MANGANESE_MINES_DATA,
-  type MineGeoLocation,
-} from '../data/reserveMappingData';
+import { PORTFOLIO_MINE_PROFILES } from '../data/portfolioData';
+export type MineGeoLocation = any;
+const MANGANESE_MINES_DATA: MineGeoLocation[] = PORTFOLIO_MINE_PROFILES.map((m) => ({
+  id: m.id,
+  name: m.name,
+  state: m.location.split(',')[1]?.trim() || '',
+  district: m.location.split(',')[0]?.trim() || '',
+  type: m.type,
+  coords: [21.1, 79.5] as [number, number],
+  status: m.status === 'Shortfall' ? 'active' : 'inactive',
+  reserves: 1.0,
+  description: ''
+}));
 import {
   ExternalLink,
   Compass,

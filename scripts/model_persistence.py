@@ -25,9 +25,11 @@ def evaluate_and_save_model(model_name, new_model, new_metric, metric_name, mode
     log_data = load_persistence_log()
     improved = False
     
+    namespace_key = os.path.splitext(os.path.basename(model_path))[0]
+    
     # Check if existing model and log exist
-    if os.path.exists(model_path) and model_name in log_data:
-        old_metric = log_data[model_name].get('metric_value')
+    if os.path.exists(model_path) and namespace_key in log_data:
+        old_metric = log_data[namespace_key].get('metric_value')
         if old_metric is not None:
             if minimize:
                 improved = new_metric < (old_metric - epsilon)
@@ -42,7 +44,7 @@ def evaluate_and_save_model(model_name, new_model, new_metric, metric_name, mode
     # Build comparison record
     comparison = {
         'timestamp': datetime.now().isoformat(),
-        'model_name': model_name,
+        'model_name': namespace_key,
         'metric_name': metric_name,
         'before': float(old_metric) if old_metric is not None else None,
         'after': float(new_metric) if new_metric is not None else None,
@@ -50,16 +52,16 @@ def evaluate_and_save_model(model_name, new_model, new_metric, metric_name, mode
     }
     
     if improved:
-        print(f"\n[PERSISTENCE] {model_name} improved {metric_name} from {old_metric} to {new_metric}. Saving model.")
+        print(f"\n[PERSISTENCE] {namespace_key} improved {metric_name} from {old_metric} to {new_metric}. Saving model.")
         if not model_path.endswith('.json'):
             joblib.dump(new_model, model_path)
-        log_data[model_name] = {
+        log_data[namespace_key] = {
             'metric_name': metric_name,
             'metric_value': new_metric,
             'last_updated': comparison['timestamp']
         }
     else:
-        print(f"\n[PERSISTENCE] {model_name} did not improve {metric_name} (Old: {old_metric}, New: {new_metric}). Keeping existing model.")
+        print(f"\n[PERSISTENCE] {namespace_key} did not improve {metric_name} (Old: {old_metric}, New: {new_metric}). Keeping existing model.")
         
     # Keep history
     if 'history' not in log_data:
