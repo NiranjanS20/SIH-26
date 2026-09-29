@@ -188,7 +188,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
               ? data.riskContributors.map((rc: any, idx: number) => ({
                   feature: rc.factor,
                   weightPct: rc.importancePct,
-                  category: rc.factor.toLowerCase().includes('rain') || rc.factor.toLowerCase().includes('water') ? 'Environmental' : 'Operational',
+                  category: String(rc.factor || '').toLowerCase().includes('rain') || String(rc.factor || '').toLowerCase().includes('water') ? 'Environmental' : 'Operational',
                   color: ['#3B82F6', '#10B981', '#06B6D4', '#F59E0B', '#8B5CF6'][idx % 5]
                 }))
               : localFallback.featureImportance,
@@ -224,7 +224,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
               forecast: mt.forecast,
               confidenceLower: mt.lowerBound,
               confidenceUpper: mt.upperBound,
-              isMonsoon: ['Jun', 'Jul', 'Aug', 'Sep'].some(m => mt.month.includes(m))
+              isMonsoon: ['Jun', 'Jul', 'Aug', 'Sep'].some(m => String(mt.month || '').includes(m))
             })) : prev.monthlyTrend,
             predictedOutputTons: data.forecasting.forecast || prev.predictedOutputTons
           }));
@@ -263,7 +263,7 @@ export const MineWorkspace: React.FC<MineWorkspaceProps> = ({
             featureImportance: data.causeAnalysis ? data.causeAnalysis.map((rc: any, idx: number) => ({
               feature: rc.factor,
               weightPct: rc.importancePct,
-              category: rc.factor.toLowerCase().includes('rain') ? 'Environmental' : 'Operational',
+              category: String(rc.factor || '').toLowerCase().includes('rain') ? 'Environmental' : 'Operational',
               color: ['#3B82F6', '#10B981', '#06B6D4', '#F59E0B', '#8B5CF6'][idx % 5]
             })) : prev.featureImportance
           }));

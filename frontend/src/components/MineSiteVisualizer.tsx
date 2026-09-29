@@ -15,9 +15,47 @@ export const TILE_PROVIDERS = {
 export type EquipmentAsset = any;
 const getMineIntelligenceProfile = (_id: string): any => ({
   type: 'Open Cast',
-  boundaries: { exterior: [], pitLimit: [], activeFace: [] },
-  equipment: [],
-  environmentalSensors: []
+  mineName: 'Dongri Buzurg',
+  shortCode: 'DB-01',
+  district: 'Bhandara',
+  state: 'Maharashtra',
+  latitude: 21.55,
+  longitude: 79.68,
+  elevationMsl: 340,
+  leaseAreaHa: 105.4,
+  terrainData: {
+    contours: [
+      { elevationM: 340, color: '#94A3B8' },
+      { elevationM: 300, color: '#64748B' },
+      { elevationM: 260, color: '#475569' },
+      { elevationM: 230, color: '#334155' }
+    ],
+    haulRoads: [
+      { pathD: "M 100,60 Q 250,110 320,150" }
+    ],
+    equipmentAssets: [
+      { id: 'EX-01', name: 'Komatsu PC1250', status: 'ACTIVE', x: 180, y: 130, location: 'Bench 3', operator: 'R. Sharma' },
+      { id: 'DM-04', name: 'CAT 777G', status: 'STANDBY', x: 380, y: 150, location: 'Haul Road', operator: 'S. Singh' }
+    ],
+    boundaryCoords: [
+      [21.555, 79.675],
+      [21.555, 79.685],
+      [21.545, 79.685],
+      [21.545, 79.675]
+    ]
+  },
+  satelliteConfig: {
+    availableLayers: [
+      { id: 'TRUE_COLOR', label: 'True Color' },
+      { id: 'NDVI', label: 'Vegetation (NDVI)' },
+      { id: 'SOIL_MOISTURE', label: 'Soil Moisture' },
+      { id: 'THERMAL_LST', label: 'Thermal' },
+      { id: 'SAR_SUBSIDENCE', label: 'SAR Subsidence' }
+    ],
+    sensor: 'Sentinel-2A',
+    spatialResolution: '10m',
+    lastPassDate: '2026-09-28'
+  }
 });
 import {
   Mountain,
