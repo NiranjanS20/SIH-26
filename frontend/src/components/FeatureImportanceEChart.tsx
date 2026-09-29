@@ -4,14 +4,12 @@
 
 import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
-
 export interface FeatureImportanceItem {
   feature: string;
   weightPct: number;
-  category: 'Environmental' | 'Operational' | 'Geological';
+  category: string;
   color: string;
 }
-
 interface FeatureImportanceEChartProps {
   features: FeatureImportanceItem[];
   themeMode?: 'dark' | 'light';
