@@ -70,6 +70,8 @@ catboost_info/
 !data/processed/*.cbm
 !frontend/package.json
 !frontend/tsconfig.json
+!frontend/tsconfig.app.json
+!frontend/tsconfig.node.json
 !package.json
 
 # Local inspection captures
