@@ -5,6 +5,7 @@ import {
   UNIFIED_MAP_STYLE,
   getMineBoundary,
   getMineRasterHeatmapBounds,
+  getMineWorldMask,
   FILTER_MODES,
   computePointProspectivity,
 } from '../lib/prospectivityMapConfig';
@@ -272,19 +273,64 @@ export default function MapLibreProspectivityCanvas({
     } catch (err) {
       console.warn('Raster heatmap setup notice:', err);
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // WORLD MASK: Masks out all regions outside the heatmap boundary
+    // Strictly and exclusively displays ONLY the heatmap region for all mines!
+    // ─────────────────────────────────────────────────────────────────────────
+    try {
+      const maskData = getMineWorldMask(config);
+      const existingMaskSource = map.getSource('mine-world-mask-source') as maplibregl.GeoJSONSource;
+      if (existingMaskSource && existingMaskSource.setData) {
+        existingMaskSource.setData(maskData);
+      } else if (!existingMaskSource) {
+        map.addSource('mine-world-mask-source', {
+          type: 'geojson',
+          data: maskData,
+        });
+
+        map.addLayer({
+          id: 'mine-world-mask-layer',
+          type: 'fill',
+          source: 'mine-world-mask-source',
+          paint: {
+            'fill-color': '#020617',
+            'fill-opacity': 1.0,
+          },
+        });
+
+        map.addLayer({
+          id: 'mine-world-mask-border',
+          type: 'line',
+          source: 'mine-world-mask-source',
+          paint: {
+            'line-color': '#0e7490',
+            'line-width': 1.5,
+            'line-opacity': 0.75,
+          },
+        });
+      }
+    } catch (err) {
+      console.warn('World mask setup notice:', err);
+    }
   }, [activeFilter, viewDimension, terrainActualColor, showHeatmap, computeLayerOpacity]);
 
   // Initialize MapLibre GL
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
+    const [sw, ne] = mineConfig.bounds;
     const map = new maplibregl.Map({
       container: mapContainerRef.current,
       style: UNIFIED_MAP_STYLE,
       center: mineConfig.center,
-      zoom: mineConfig.zoom,
-      minZoom: 11.5, // Smooth zooming
+      zoom: 14.5,
+      minZoom: 13.0, // Strictly prevent zooming out to regional scale
       maxZoom: 18.5,
+      maxBounds: [
+        [sw[0] - 0.003, sw[1] - 0.003],
+        [ne[0] + 0.003, ne[1] + 0.003],
+      ],
       renderWorldCopies: false,
       attributionControl: false,
     });
@@ -295,6 +341,7 @@ export default function MapLibreProspectivityCanvas({
       setMapLoaded(true);
       mapRef.current = map;
       setupLayers(map, mineConfig);
+      map.fitBounds(mineConfig.bounds, { padding: 0, duration: 0 });
       map.resize();
     });
 
@@ -417,31 +464,42 @@ export default function MapLibreProspectivityCanvas({
     prevMineRef.current = selectedMineName;
 
     if (mineChanged) {
-      // Smoothly travel to the newly selected mine
-      map.easeTo({
-        center: mineConfig.center,
-        zoom: mineConfig.zoom,
+      // Temporarily release maxBounds to fly smoothly to the target mine
+      map.setMaxBounds(null);
+      setupLayers(map, mineConfig);
+
+      const [sw, ne] = mineConfig.bounds;
+      map.fitBounds(mineConfig.bounds, {
+        padding: 0,
         pitch: viewDimension === '3D' ? 58 : 0,
         bearing: viewDimension === '3D' ? -20 : 0,
-        duration: 1200,
+        duration: 900,
       });
 
-      setupLayers(map, mineConfig);
+      const timer = setTimeout(() => {
+        if (mapRef.current) {
+          mapRef.current.setMaxBounds([
+            [sw[0] - 0.003, sw[1] - 0.003],
+            [ne[0] + 0.003, ne[1] + 0.003],
+          ]);
+        }
+      }, 950);
+
+      return () => clearTimeout(timer);
     } else {
       setupLayers(map, mineConfig);
     }
-  }, [selectedMineName, mapLoaded, mineConfig]);
+  }, [selectedMineName, mapLoaded, mineConfig, viewDimension, setupLayers]);
 
-  // Recenter Pit View directly onto the active quarry pit
+  // Recenter Pit View directly onto the active mine heatmap
   const handleRecenterPit = () => {
     const map = mapRef.current;
     if (!map) return;
-    map.easeTo({
-      center: mineConfig.center,
-      zoom: mineConfig.zoom,
+    map.fitBounds(mineConfig.bounds, {
+      padding: 0,
       pitch: viewDimension === '3D' ? 58 : 0,
       bearing: viewDimension === '3D' ? -20 : 0,
-      duration: 800,
+      duration: 600,
     });
   };
 
