@@ -398,9 +398,9 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
       {/* 3. MAIN PROSPECTIVITY CONTENT (SATELLITE MAP OVERLAY + ZONE DETAIL PANEL) */}
       {/* ========================================================================= */}
       {viewMode === 'MAP' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
           {/* INTERACTIVE GIS MAP CANVAS (7 COLS on lg, 8 on 2xl) */}
-          <div className={`lg:col-span-7 2xl:col-span-8 p-3 sm:p-5 lg:p-6 rounded-2xl border ${cardBg} space-y-4 flex flex-col justify-between shadow-xl`}>
+          <div className={`lg:col-span-7 2xl:col-span-8 p-3 sm:p-5 lg:p-6 rounded-2xl border ${cardBg} space-y-4 flex flex-col shadow-xl`}>
             <div className={`flex flex-wrap items-center justify-between border-b pb-3 gap-3 ${borderDivider}`}>
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#0E7C7B] text-lg">satellite_alt</span>

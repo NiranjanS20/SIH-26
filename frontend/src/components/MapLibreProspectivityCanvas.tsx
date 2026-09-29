@@ -716,7 +716,7 @@ export default function MapLibreProspectivityCanvas({
       className={`select-none group transition-all duration-150 ${
         isFullScreen
           ? 'fixed inset-0 z-[99999] w-screen h-screen m-0 p-0 rounded-none border-0 bg-slate-950 flex flex-col'
-          : `relative w-full h-[580px] rounded-2xl overflow-hidden border shadow-2xl ${
+          : `relative w-full h-[620px] sm:h-[660px] lg:h-[700px] rounded-2xl overflow-hidden border shadow-2xl ${
               isDark ? 'border-white/15 bg-slate-950' : 'border-slate-300 bg-slate-900'
             }`
       }`}
