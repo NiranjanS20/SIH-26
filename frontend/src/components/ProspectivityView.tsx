@@ -182,7 +182,7 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
 
 
   const [viewMode, setViewMode] = useState<'MAP' | 'LIST'>('MAP');
-  const [crossSectionActive, setCrossSectionActive] = useState<boolean>(false);
+  const [crossSectionDrawerOpen, setCrossSectionDrawerOpen] = useState<boolean>(false);
   const [crossSectionPoint, setCrossSectionPoint] = useState<SelectedLocationPoint | null>(null);
   const [sortField, setSortField] = useState<'prospectivity' | 'mno' | 'tonnage'>('prospectivity');
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
@@ -422,11 +422,11 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
             <MapLibreProspectivityCanvas
               selectedMineName={selectedMineName}
               isDark={isDark}
-              crossSectionActive={crossSectionActive}
+              crossSectionActive={crossSectionDrawerOpen}
               onToggleCrossSection={() => {
-                const nextActive = !crossSectionActive;
-                setCrossSectionActive(nextActive);
-                if (nextActive && !crossSectionPoint) {
+                const nextOpen = !crossSectionDrawerOpen;
+                setCrossSectionDrawerOpen(nextOpen);
+                if (nextOpen && !crossSectionPoint) {
                   const mine = getMineBoundary(selectedMineName);
                   const estimate = computePointProspectivity(mine.center[1], mine.center[0], mine);
                   setCrossSectionPoint({
@@ -448,20 +448,23 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
               }}
               selectedPoint={crossSectionPoint}
               onSelectPoint={(pt) => {
-                setCrossSectionPoint(pt);
-                if (pt.grade !== undefined) {
-                  setSelectedZone((prev) => ({
-                    ...prev,
-                    name: pt.zoneName || prev.name,
-                    predictedMnO: Number(pt.grade?.toFixed(1)) || prev.predictedMnO,
-                    estTonnage: pt.estTonnage || prev.estTonnage,
-                    geologicalStructure: pt.formation || prev.geologicalStructure,
-                    evidence: `Continuous spatial collar drill telemetry at ${pt.lat.toFixed(4)}°N, ${pt.lng.toFixed(4)}°E. ${pt.formation || 'Mansar Formation'} (${pt.lithology || 'Pyrolusite-Braunite Reef'}). AI Model Confidence: ${pt.confidence ? pt.confidence.toFixed(1) + '%' : '95%'}.`,
-                    recommendedAction: (pt.grade || 0) >= 42
-                      ? 'High-grade extraction priority — integrate with active opencast production bench'
-                      : 'Infill exploratory core drilling & blending cycle scheduled',
-                  }));
+                if (!pt || pt.grade === undefined) {
+                  setCrossSectionPoint(null);
+                  return;
                 }
+                setCrossSectionPoint(pt);
+                // Inspect point only — do NOT open subsurface drawer on point click
+                setSelectedZone((prev) => ({
+                  ...prev,
+                  name: pt.zoneName || prev.name,
+                  predictedMnO: Number(pt.grade?.toFixed(1)) || prev.predictedMnO,
+                  estTonnage: pt.estTonnage || prev.estTonnage,
+                  geologicalStructure: pt.formation || prev.geologicalStructure,
+                  evidence: `Continuous spatial collar drill telemetry at ${pt.lat.toFixed(4)}°N, ${pt.lng.toFixed(4)}°E. ${pt.formation || 'Mansar Formation'} (${pt.lithology || 'Pyrolusite-Braunite Reef'}). AI Model Confidence: ${pt.confidence ? pt.confidence.toFixed(1) + '%' : '95%'}.`,
+                  recommendedAction: (pt.grade || 0) >= 42
+                    ? 'High-grade extraction priority — integrate with active opencast production bench'
+                    : 'Infill exploratory core drilling & blending cycle scheduled',
+                }));
               }}
             />
           </div>
@@ -686,6 +689,7 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
                   lng: boundary.center[0] + (selectedZone.svgCenter.x - 320) * 0.00015,
                   siteName: `${selectedMineName} • ${selectedZone.name}`,
                 });
+                setCrossSectionDrawerOpen(true);
               }}
               className="w-full py-2.5 px-4 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 font-headline font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md mt-3"
             >
@@ -928,10 +932,9 @@ export const ProspectivityView: React.FC<ProspectivityViewProps> = ({
 
       {/* Subsurface 2D Cross-Section Slide-Up Drawer */}
       <CrossSectionDrawer
-        isOpen={Boolean(crossSectionPoint)}
+        isOpen={crossSectionDrawerOpen}
         onClose={() => {
-          setCrossSectionPoint(null);
-          setCrossSectionActive(false);
+          setCrossSectionDrawerOpen(false);
         }}
         point={crossSectionPoint}
         isDark={isDark}

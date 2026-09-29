@@ -14,7 +14,7 @@ import {
   Mountain,
   Maximize2,
   Minimize2,
-  Crosshair,
+  Activity,
   Compass,
   CheckCircle2,
   Layers,
@@ -724,7 +724,7 @@ export default function MapLibreProspectivityCanvas({
       {/* MapLibre DOM Container */}
       <div
         ref={mapContainerRef}
-        className={`w-full h-full ${crossSectionActive ? 'cursor-crosshair' : 'cursor-grab'}`}
+        className="w-full h-full cursor-crosshair"
       />
 
       {/* Out of bounds toast notification */}
@@ -822,9 +822,10 @@ export default function MapLibreProspectivityCanvas({
             <button
               type="button"
               onClick={() => onToggleCrossSection()}
-              className="px-2 py-1 rounded bg-teal-600 hover:bg-teal-500 text-white text-[9.5px] font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-md"
+              className="px-2.5 py-1 rounded bg-teal-600 hover:bg-teal-500 text-white text-[9.5px] font-extrabold uppercase tracking-wider transition-all cursor-pointer shadow-md flex items-center gap-1"
             >
-              {crossSectionActive ? 'View 2D Seam' : 'Open 2D Seam'}
+              <Activity size={11} />
+              <span>{crossSectionActive ? 'Close 2D Seam' : 'View 2D Seam'}</span>
             </button>
           </div>
         </div>
@@ -950,20 +951,20 @@ export default function MapLibreProspectivityCanvas({
 
         {/* Right: Sampling Tool, Focus Pit, Fullscreen */}
         <div className="flex items-center gap-1 sm:gap-1.5 pointer-events-auto shrink-0">
-          {/* Sampling Active Tool Button */}
+          {/* Subsurface 2D Seam Cross-Section Drawer Toggle */}
           <button
             type="button"
             onClick={handleSamplingClick}
-            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer border shadow-xl ${
+            className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer border shadow-xl ${
               crossSectionActive
                 ? 'bg-teal-500 text-white border-teal-300 ring-2 ring-teal-400/50'
                 : 'bg-slate-950/90 backdrop-blur-md text-teal-400 border-white/15 hover:bg-slate-900'
             }`}
-            title="Click anywhere in pit to inspect 0-400m Subsurface Cross-Section"
+            title="Inspect 0-400m Subsurface 2D Seam Cross-Section"
           >
-            <Crosshair size={12} className={crossSectionActive ? 'rotate-90 transition-transform' : ''} />
-            <span className="hidden sm:inline">{crossSectionActive ? 'Sampling Active' : 'Sampling Tool'}</span>
-            <span className="sm:hidden">{crossSectionActive ? 'Active' : 'Sample'}</span>
+            <Activity size={13} className={crossSectionActive ? 'rotate-90 transition-transform text-white' : 'text-teal-400'} />
+            <span className="hidden sm:inline">{crossSectionActive ? '2D Seam Open' : '2D Seam'}</span>
+            <span className="sm:hidden">{crossSectionActive ? 'Open' : '2D Seam'}</span>
           </button>
 
           {/* Recenter on Active Mine Pit */}
@@ -1015,11 +1016,11 @@ export default function MapLibreProspectivityCanvas({
       </div>
 
       {/* BOTTOM-RIGHT: Expanded, Highly Readable Color Scale Legend */}
-      <div className="absolute bottom-3 right-2.5 z-20 pointer-events-auto max-w-[320px] sm:max-w-[350px] w-full">
-        <div className="rounded-2xl bg-slate-950/98 backdrop-blur-md border border-white/20 shadow-2xl p-3 sm:p-3.5 text-white transition-all">
-          <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-2">
-            <span className="text-xs font-black uppercase tracking-wider text-teal-300 flex items-center gap-1.5">
-              <Info size={14} className="text-teal-400" />
+      <div className="absolute bottom-3 right-2.5 z-20 pointer-events-auto max-w-[340px] sm:max-w-[380px] w-full">
+        <div className="rounded-2xl bg-slate-950/98 backdrop-blur-md border border-white/20 shadow-2xl p-3.5 sm:p-4 text-white transition-all">
+          <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-2.5">
+            <span className="text-[13px] font-black uppercase tracking-wider text-teal-300 flex items-center gap-1.5">
+              <Info size={15} className="text-teal-400" />
               <span>Map Color Scale</span>
             </span>
             <button
@@ -1028,37 +1029,37 @@ export default function MapLibreProspectivityCanvas({
               className="text-slate-400 hover:text-white p-1 rounded transition-colors cursor-pointer text-xs"
               title={isLegendOpen ? 'Collapse Legend' : 'Expand Legend'}
             >
-              {isLegendOpen ? <EyeOff size={14} /> : <Eye size={14} />}
+              {isLegendOpen ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           </div>
 
           {isLegendOpen && (
-            <div className="space-y-2 text-xs animate-in fade-in duration-100">
+            <div className="space-y-2.5 text-xs animate-in fade-in duration-100">
               <div className="flex items-center justify-between text-xs font-mono mb-1">
-                <span className="font-extrabold text-white text-[12px]">{filterConfig.shortName}</span>
+                <span className="font-extrabold text-white text-[13px]">{filterConfig.shortName}</span>
                 <span className="text-teal-300 font-extrabold text-[11px] bg-teal-950/80 px-2 py-0.5 rounded border border-teal-500/30">
                   {filterConfig.unit}
                 </span>
               </div>
               <div
-                className="w-full h-3.5 rounded-full border border-white/25 shadow-inner"
+                className="w-full h-4 rounded-full border border-white/30 shadow-inner"
                 style={{ background: filterConfig.colorScale }}
               />
-              <div className="flex items-center justify-between text-[10px] font-mono text-slate-300 font-bold px-0.5">
+              <div className="flex items-center justify-between text-[11px] font-mono text-slate-200 font-bold px-0.5">
                 <span>{filterConfig.minVal}</span>
                 <span>{filterConfig.midVal}</span>
-                <span className="text-white">{filterConfig.maxVal}</span>
+                <span className="text-white font-extrabold">{filterConfig.maxVal}</span>
               </div>
 
               {activeFilter === 'prospectivity' && (
-                <div className="text-[10.5px] font-mono mt-2 p-2 rounded-xl bg-purple-950/40 border border-purple-500/30 space-y-1">
-                  <div className="flex items-center gap-1.5 text-purple-200">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#4c0080] border border-purple-400 shrink-0 shadow-sm" />
+                <div className="text-[11px] font-mono mt-2.5 p-2.5 rounded-xl bg-purple-950/50 border border-purple-500/40 space-y-1.5">
+                  <div className="flex items-center gap-2 text-purple-200">
+                    <span className="w-3 h-3 rounded-full bg-[#4c0080] border border-purple-300 shrink-0 shadow-sm" />
                     <span className="font-bold text-purple-300">Dark Purple:</span>
                     <span>Low-Grade (&lt;30% MnO) Host Rock</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-amber-200">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#fde047] border border-amber-300 shrink-0 shadow-sm" />
+                  <div className="flex items-center gap-2 text-amber-200">
+                    <span className="w-3 h-3 rounded-full bg-[#fde047] border border-amber-300 shrink-0 shadow-sm" />
                     <span className="font-bold text-amber-300">Bright Gold:</span>
                     <span>High-Grade (&gt;45% MnO) In-Pit Reef</span>
                   </div>

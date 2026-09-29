@@ -249,8 +249,10 @@ export default function CrossSectionDrawer({ isOpen, onClose, point, isDark = tr
     ? 'bg-[#181f2b] border-white/10'
     : 'bg-slate-50 border-slate-200';
 
+  if (!isOpen) return null;
+
   return (
-    <div className={`fixed inset-x-0 bottom-0 z-50 flex flex-col border-t shadow-2xl transition-all duration-300 max-h-[82vh] overflow-hidden ${bgDrawer}`}>
+    <div className={`fixed inset-x-0 bottom-0 z-[100000] flex flex-col border-t shadow-2xl transition-all duration-300 max-h-[82vh] overflow-hidden ${bgDrawer}`}>
       {/* Top Header Bar */}
       <div className={`flex items-center justify-between px-6 py-3.5 border-b ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
         <div className="flex items-center gap-3 flex-wrap">
