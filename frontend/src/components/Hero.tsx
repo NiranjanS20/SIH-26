@@ -37,10 +37,11 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
         }}
       />
 
-      {/* Background Video - Plays once and stops at the end without looping */}
+      {/* Background Video - Seamless infinite loop on first landing page */}
       <video
         ref={videoRef}
         autoPlay
+        loop
         muted
         playsInline
         onCanPlay={() => setVideoLoaded(true)}
