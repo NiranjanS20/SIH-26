@@ -16,7 +16,12 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 OUTPUT_DIR = os.path.join(BASE_DIR, "output")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-from weasyprint import HTML, CSS
+try:
+    from weasyprint import HTML, CSS
+    WEASYPRINT_AVAILABLE = True
+except Exception:
+    WEASYPRINT_AVAILABLE = False
+    HTML, CSS = None, None
 
 def inr_currency(value):
     try:
@@ -64,15 +69,30 @@ async def generate_pdf(report_id: str, template_name: str, context: dict) -> tup
     html_out = template.render(context)
     
     # 1. Architectural Fix - Non-Negotiable
-    # Generate using WeasyPrint server-side. No window.print() or browser fallbacks.
+    # Generate using WeasyPrint or Playwright server-side. No window.print() or browser fallbacks.
     output_filename = f"{report_id}.pdf"
     output_filepath = os.path.join(OUTPUT_DIR, output_filename)
     
-    # Ensure WeasyPrint finds the static CSS
-    css = CSS(filename=os.path.join(STATIC_DIR, 'report_styles.css'))
-    
-    # Run WeasyPrint generation
-    HTML(string=html_out, base_url=f"file://{BASE_DIR}/").write_pdf(output_filepath, stylesheets=[css])
+    if WEASYPRINT_AVAILABLE and HTML is not None:
+        # Ensure WeasyPrint finds the static CSS
+        css = CSS(filename=os.path.join(STATIC_DIR, 'report_styles.css'))
+        HTML(string=html_out, base_url=f"file://{BASE_DIR}/").write_pdf(output_filepath, stylesheets=[css])
+    elif PLAYWRIGHT_AVAILABLE:
+        css_path = os.path.join(STATIC_DIR, 'report_styles.css')
+        if os.path.exists(css_path):
+            async with aiofiles.open(css_path, 'r', encoding='utf-8') as f:
+                css_content = await f.read()
+            html_with_css = f"<style>{css_content}</style>\n" + html_out
+        else:
+            html_with_css = html_out
+        async with async_playwright() as p:
+            browser = await p.chromium.launch()
+            page = await browser.new_page()
+            await page.set_content(html_with_css, wait_until="networkidle")
+            await page.pdf(path=output_filepath, format="A4", print_background=True)
+            await browser.close()
+    else:
+        raise RuntimeError("Neither WeasyPrint nor Playwright is available for PDF generation.")
     
     # Hash the generated file
     sha256_hash = hashlib.sha256()
