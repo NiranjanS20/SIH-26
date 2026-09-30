@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { getStoredUser } from './services/authService';
 import { Navbar, type PortalRoute } from './components/Navbar';
@@ -11,11 +11,22 @@ import { CTASection } from './components/CTASection';
 import { Footer } from './components/Footer';
 import { ServiceModal } from './components/ServiceModal';
 import { MineDetailModal } from './components/MineDetailModal';
-import { MineSelectionPage } from './components/MineSelectionPage';
-import { MineWorkspace } from './components/MineWorkspace';
-import { LoginPage } from './components/LoginPage';
-import { IndustryViewerDashboard } from './components/IndustryViewerDashboard';
-import { AdminControlCenter } from './components/AdminControlCenter';
+
+
+
+// Lazy load large components for code splitting
+const MineSelectionPage = lazy(() => import('./components/MineSelectionPage').then(module => ({ default: module.MineSelectionPage })));
+const MineWorkspace = lazy(() => import('./components/MineWorkspace').then(module => ({ default: module.MineWorkspace })));
+const LoginPage = lazy(() => import('./components/LoginPage').then(module => ({ default: module.LoginPage })));
+const IndustryViewerDashboard = lazy(() => import('./components/IndustryViewerDashboard').then(module => ({ default: module.IndustryViewerDashboard })));
+const AdminControlCenter = lazy(() => import('./components/AdminControlCenter').then(module => ({ default: module.AdminControlCenter })));
+
+// Loading fallback for lazy components
+const PageLoader = () => (
+  <div className="flex h-screen w-full items-center justify-center">
+    <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
+  </div>
+);
 
 // Inner app that has access to AuthContext
 function AppInner() {
@@ -145,7 +156,9 @@ function AppInner() {
       <main>
         {/* LOGIN PAGE */}
         {currentRoute === 'login' && (
-          <LoginPage onNavigate={handleNavigate} />
+          <Suspense fallback={<PageLoader />}>
+            <LoginPage onNavigate={handleNavigate} />
+          </Suspense>
         )}
 
         {/* LANDING PAGE */}
@@ -173,40 +186,48 @@ function AppInner() {
 
         {/* MINE SELECTION PAGE */}
         {currentRoute === 'mine-selection' && (
-          <MineSelectionPage
-            onNavigate={handleNavigate}
-            themeMode={themeMode}
-            onToggleTheme={handleToggleTheme}
-          />
+          <Suspense fallback={<PageLoader />}>
+            <MineSelectionPage
+              onNavigate={handleNavigate}
+              themeMode={themeMode}
+              onToggleTheme={handleToggleTheme}
+            />
+          </Suspense>
         )}
 
         {/* WORKSPACE PAGES */}
         {currentRoute.startsWith('workspace/') && (
-          <MineWorkspace
-            onNavigate={handleNavigate}
-            themeMode={themeMode}
-            onToggleTheme={handleToggleTheme}
-            initialMineId={currentRoute.replace('workspace/', '')}
-            userRole={user?.role ?? 'site_manager'}
-          />
+          <Suspense fallback={<PageLoader />}>
+            <MineWorkspace
+              onNavigate={handleNavigate}
+              themeMode={themeMode}
+              onToggleTheme={handleToggleTheme}
+              initialMineId={currentRoute.replace('workspace/', '')}
+              userRole={user?.role ?? 'site_manager'}
+            />
+          </Suspense>
         )}
 
         {/* INDUSTRY VIEWER DASHBOARD */}
         {currentRoute === 'industry-viewer' && (
-          <IndustryViewerDashboard
-            onNavigate={handleNavigate}
-            themeMode={themeMode}
-            onToggleTheme={handleToggleTheme}
-          />
+          <Suspense fallback={<PageLoader />}>
+            <IndustryViewerDashboard
+              onNavigate={handleNavigate}
+              themeMode={themeMode}
+              onToggleTheme={handleToggleTheme}
+            />
+          </Suspense>
         )}
 
         {/* ADMIN CONTROL CENTER */}
         {currentRoute === 'admin-control-center' && (
-          <AdminControlCenter
-            onNavigate={handleNavigate}
-            themeMode={themeMode}
-            onToggleTheme={handleToggleTheme}
-          />
+          <Suspense fallback={<PageLoader />}>
+            <AdminControlCenter
+              onNavigate={handleNavigate}
+              themeMode={themeMode}
+              onToggleTheme={handleToggleTheme}
+            />
+          </Suspense>
         )}
       </main>
 
