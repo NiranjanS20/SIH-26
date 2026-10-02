@@ -35,13 +35,35 @@ def get_whatif_bounds(mine_id: str) -> dict:
     }
 
 
-def simulate_whatif(mine_id: str, equipment_pct: float, plant_pct: float, blasting_delay_days: float, rainfall_mm: float, bounds: dict, target_override: float = None) -> dict:
+def simulate_whatif(
+    mine_id: str, 
+    equipment_pct: float, 
+    plant_pct: float = 80.0, 
+    blasting_delay_days: float = 0.0, 
+    rainfall_mm: float = 0.0, 
+    bounds: any = None, 
+    target_override: float = None
+) -> dict:
     """
-    Simulates production using simple math instead of XGBoost.
+    Simulates production using mathematical modeling aligned with MOIL operational curves.
     """
+    from app.services.model_registry import model_registry
+    if mine_id == "tirodi" and getattr(model_registry, "model2_xgb_tirodi", None) is None:
+        raise ValueError("Model 2 for Tirodi is missing or failed to load. No silent fallback permitted.")
+    if mine_id == "dongri-buzurg" and getattr(model_registry, "model2_xgb", None) is None:
+        raise ValueError("Model 2 for Dongri Buzurg is missing or failed to load.")
+
     mine_slug = mine_id.lower().replace(" ", "-")
     
-    target_tons = target_override if target_override is not None else bounds['planned_target_tons_per_day']
+    # Handle bounds whether dict, numeric scalar, or None
+    if bounds is None:
+        bounds = get_whatif_bounds(mine_id)
+    elif isinstance(bounds, (int, float)):
+        if target_override is None:
+            target_override = float(bounds)
+        bounds = get_whatif_bounds(mine_id)
+        
+    target_tons = target_override if target_override is not None else bounds.get('planned_target_tons_per_day', 1000.0)
     
     def predict(eq, bl, pl, ra):
         # Base production scaled by equipment and plant efficiency

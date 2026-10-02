@@ -47,6 +47,8 @@ def generate_demo_token(role: str, name: str, assigned_mine_id: str = None) -> s
         "iat": now,
         "exp": now + datetime.timedelta(hours=settings.JWT_EXPIRE_HOURS),
     }
-    if assigned_mine_id:
+    if role == "site_manager":
+        payload["assigned_mine_id"] = assigned_mine_id or "dongri-buzurg"
+    elif assigned_mine_id:
         payload["assigned_mine_id"] = assigned_mine_id
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
