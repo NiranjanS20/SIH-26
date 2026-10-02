@@ -21,11 +21,22 @@ def require_role(allowed_roles: list[str]):
             # If the route has a {mine_id} path parameter, we must check it
             path_mine_id = request.path_params.get("mine_id")
             
-            if path_mine_id and assigned_mine != path_mine_id:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"Site Manager restriction: Cannot access data for mine '{path_mine_id}'."
-                )
+            if path_mine_id:
+                if not assigned_mine:
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="Site Manager restriction: You do not have an assigned mine."
+                    )
+                
+                # Normalize both to lowercase with hyphens instead of spaces/underscores
+                norm_assigned = assigned_mine.lower().replace(" ", "-").replace("_", "-")
+                norm_path = path_mine_id.lower().replace(" ", "-").replace("_", "-")
+                
+                if norm_assigned != norm_path:
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail=f"Site Manager restriction: Cannot access data for mine '{path_mine_id}'."
+                    )
                 
         # 3. For Industry Viewer, prevent access to operational routes
         # This is handled mostly by the allowed_roles passed in, but we can 

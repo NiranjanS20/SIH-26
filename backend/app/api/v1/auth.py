@@ -20,6 +20,7 @@ DEMO_USERS = {
         "role": "site_manager",
         "name": "Priya Sharma (Site Manager)",
         "display_name": "Priya Sharma",
+        "assigned_mine_id": "dongri-buzurg",
     },
     "industry": {
         "password": "industry123",
@@ -52,7 +53,11 @@ def login(req: LoginRequest):
     if not user or user["password"] != req.password:
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
-    token = generate_demo_token(role=user["role"], name=user["name"])
+    token = generate_demo_token(
+        role=user["role"], 
+        name=user["name"],
+        assigned_mine_id=user.get("assigned_mine_id")
+    )
     return LoginResponse(
         token=token,
         role=user["role"],
