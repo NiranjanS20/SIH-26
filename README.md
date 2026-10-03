@@ -2,135 +2,70 @@
   <img src="https://via.placeholder.com/150/002452/FFFFFF?text=MOIL" alt="MOIL Logo" width="120" height="120" style="border-radius: 20px;" />
   
   # 🏭 MOIL 
-  **Intelligent Operations & Compliance Platform**
+  **Intelligent Geospatial AI & Subsurface Prospectivity Engine**
 
   <p align="center">
     <img src="https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
     <img src="https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-    <img src="https://img.shields.io/badge/AI_Engine-XGBoost%20%7C%20SHAP-FF9900?style=for-the-badge" alt="AI Engine" />
+    <img src="https://img.shields.io/badge/AI_Engine-PyTorch%20Geometric%20%7C%20XGBoost-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" alt="AI Engine" />
     <img src="https://img.shields.io/badge/Compliance-IBM%20Standards-002452?style=for-the-badge" alt="IBM Standards" />
   </p>
 
   <p align="center">
-    <em>Predictive production forecasting, automated gap-to-target optimization, and seamless statutory compliance for Manganese Ore India Limited (MOIL). Built for SIH 26009.</em>
+    <em>Advanced 2D/3D Graph Neural Networks for mineral exploration, predictive production forecasting, and automated compliance for Manganese Ore India Limited (MOIL).</em>
   </p>
 </div>
 
 ---
 
-## 🚀 The Vision: A-Z Explanation
+## 🚀 The Vision: Next-Generation Mining
 
-**MOIL** isn't just a dashboard; it's a **proactive intelligence layer** for mining operations across all 10 MOIL mines (including Dongri Buzurg, Chikla, Kandri, Beldongri, etc.).
+This platform isn't just a dashboard; it is a **proactive intelligence layer** designed for enterprise-scale mining operations across major sites (including Dongri Buzurg, Chikla, Kandri, and Beldongri).
 
-In traditional operations, site managers react to production shortfalls *after* they happen. Compliance reports (like the Indian Bureau of Mines returns) are compiled manually, and geological data is siloed. 
-
-Our platform changes that by integrating **live operational metrics, predictive machine learning, and automated compliance tracking** into one unified, stunning interface. It doesn't just tell you that you will miss your target—it tells you *why*, and exactly *what buttons to push* today to fix it.
+Traditional exploration and operation rely on isolated drilling data and reactive production management. Our platform revolutionizes this workflow by deploying state-of-the-art **Graph Neural Networks (GNNs)** to map subsurface ore bodies in 3D, while simultaneously tracking live operational metrics, forecasting shortfalls, and enforcing statutory compliance into one unified, high-performance interface.
 
 ---
 
-## ✨ System Architecture & Flow
+## ✨ Core AI Architecture
 
-The system employs a tightly-coupled architecture between the **React** client, the **FastAPI** backend, and an **In-Memory Model Registry** that serves ML models at sub-millisecond latencies.
+The intelligence core is powered by bespoke machine learning and deep learning pipelines, capable of rendering sub-millisecond inferences via an In-Memory Model Registry.
 
-```mermaid
-graph TD;
-    subgraph Frontend [React / Vite / TypeScript]
-        UI[Operational Dashboard]
-        3D[MapLibre Prospectivity View]
-        RBAC[Role-Based Routing]
-    end
-
-    subgraph Backend [FastAPI Server]
-        API[REST API Layer]
-        Auth[JWT & RBAC Middleware]
-        Reg[In-Memory Model Registry]
-        DB[(PostgreSQL + PostGIS)]
-    end
-
-    subgraph AI_Engine [Machine Learning Core]
-        M1(Model 1: Prospectivity RF)
-        M2(Model 2: Production XGBoost)
-        M3(Model 3: Risk Classifier)
-        M4(Model 4: SHAP Explainer)
-        M5(Model 5: Action Optimizer)
-    end
-
-    UI <-->|API Requests| API
-    3D <-->|GeoJSON/TIFs| API
-    API <--> Auth
-    API <--> Reg
-    API <--> DB
-    Reg --> AI_Engine
-    AI_Engine --> Reg
-```
-
----
-
-## 🧠 AI Engine & Model Training Accuracies
-
-The AI core is powered by 5 bespoke machine learning models, trained on real MOIL MCDR historical data, augmented via our synthetic methodology. Recently, models for **Kandri** and **Beldongri** have been successfully added and trained on geotechnical and subsidence-proxy parameters.
-
-| Model Pipeline | Technology / Algorithm | Accuracy / Metric | Purpose |
+| AI Pipeline | Architecture | Key Metric | Purpose |
 | :--- | :--- | :--- | :--- |
-| **Model 1: Prospectivity** | Random Forest / Kriging | **~91.2% Accuracy** (ROC-AUC 0.94) | Classifies and scores land grids (using LST, NDVI, Elevation, Soil Moisture) for potential manganese deposits. |
-| **Model 2: Production** | XGBoost TimeSeries | **RMSE ~97 tonnes/day** | Forecasts daily production constraints based on equipment uptime, blasting delays, and seasonal weather. |
-| **Model 3: Risk Logic** | Deterministic / Heuristic | **100% Rule Compliance** | Routes forecasted days into Low, Medium, and High-Risk shortfall categories based on IBM standards. |
-| **Model 4: SHAP Explainer** | TreeExplainer (SHAP) | **Deterministic Allocation** | Deconstructs the XGBoost model to assign exact tonnage penalties to individual operational blockers. |
-| **Model 5: Action Optimizer**| 441-Point Grid Search | **Sub-millisecond Search** | Back-solves optimal operational adjustments to hit targets (e.g., *Increase uptime to 75.5%*). |
-
-> **Training Note:** The models do not re-train on every request. They are pre-trained via our pipeline (`scripts/04_train_model2_production.py`, `train_model2_beldongri_kandri.py`), saved as JSON/Pickle artifacts, and loaded strictly into memory on server boot (`model_registry.py`), eliminating disk I/O latency.
+| **3D Subsurface Engine** | 3D Graph Attention Network (GAT) | **87% TP / 99.4% Acc** | Ingests raw drillhole logs (X, Y, Z, Assay, Lithology) and constructs a massive 3D spatial k-NN graph to predict continuous underground ore grades volumetrically. |
+| **2D Prospectivity GNN** | GraphSAGE / GAT | **4x Baseline AUPRC** | Fuses remote sensing rasters (NDVI, LST, Elevation) into a 2D spatial graph to identify new surface manganese deposits. |
+| **Production Forecaster** | XGBoost TimeSeries | **RMSE ~97 tonnes/day** | Forecasts daily production bottlenecks based on equipment uptime, blasting delays, and environmental factors. |
+| **Action Optimizer (SHAP)** | TreeExplainer + Grid Search | **Sub-millisecond Search** | Deconstructs predictive models to isolate specific blockers and back-solves exact operational adjustments to hit targets (e.g., *Increase blast frequency by 1.2%*). |
 
 ---
 
 ## 🔒 Role-Based Access Control (RBAC) Workflow
 
-Security and data context are strictly enforced at both the Frontend (React Router) and Backend (FastAPI Dependency) levels.
+Security and data context are strictly enforced across the stack using JWT middleware.
 
 1. **Administrator (HQ Executives)**
-   - **Access:** Complete unrestricted global access.
-   - **View:** `Admin Control Center` + `Portfolio View` + Every individual mine's operational tabs.
-   - **Purpose:** Macro-level intervention, global strategic planning, and system health governance.
+   - Complete global access to the `Admin Control Center` and `Portfolio View`. Capable of macro-level interventions and resource allocation across all integrated mines.
    
 2. **Site Manager (Mine Managers / Geologists)**
-   - **Access:** Restricted strictly to their assigned mine(s).
-   - **View:** Action-oriented tabs (`Overview`, `Prospectivity`, `Production Forecast`, `Corrective Actions`).
-   - **Purpose:** Day-to-day metric monitoring. They cannot see global portfolio analytics, enforcing the principle of least privilege.
+   - Restricted strictly to their assigned mine(s). Access to actionable tabs: `3D Block Models`, `Production Forecast`, and `Corrective Actions`. Enforces the principle of least privilege.
    
 3. **Industry Viewer (B2B Buyers / Steel Manufacturers)**
-   - **Access:** Bypass internal workings completely.
-   - **View:** `Industry Dashboard` exclusively.
-   - **Purpose:** Sanitized market-facing data—supply reliability, grades, ESG compliance (Forest Clearances), and 3-month outlooks. Proprietary breakdown risks are completely hidden.
+   - Sanitized, market-facing data views. Real-time supply reliability, ESG compliance (Forest Clearances), and quarterly outlooks without exposing proprietary internal breakdown logic.
 
 ---
 
-## 🛣️ Backend API Routes
-
-The FastAPI backend is compartmentalized via APIRouters. All requests are protected by JWT authentication and RBAC scope verification.
-
-- **`/auth`** — `POST /login` (Issues JWT with Role claims), `GET /me`.
-- **`/mines`** — Workspace routing. `GET /mines/{id}/metrics`, `GET /mines/{id}/status`.
-- **`/mines/prospectivity`** — Connects Model 1 & MapLibre. Serves heatmaps (NDVI, LST) and predictions.
-- **`/mines/forecasting`** — Connects Model 2. Returns 365-day XGBoost production predictions.
-- **`/mines/shortfall`** — Connects Model 3. Returns aggregated loss categorizations.
-- **`/mines/cause_analysis`** — Connects Model 4. Returns SHAP waterfall data payload.
-- **`/mines/corrective_action`** — Connects Model 5. Returns the optimized Grid Search solutions.
-- **`/whatif`** — Sandbox for Site Managers to manually test blasting/uptime configurations.
-- **`/admin`** — Global system health, model metrics, and user provisioning.
-
----
-
-## 🛠️ Tech Stack
+## 🛠️ Technology Stack
 
 ### Client (Frontend)
 - **Framework:** React 18 + TypeScript + Vite
 - **Styling:** TailwindCSS (Glassmorphism, Dark Mode, Premium Aesthetics)
-- **Visuals:** Recharts for data visualization, MapLibre GL for geological mapping.
+- **Visuals:** Recharts for analytics, MapLibre GL for geological mapping, Three.js for 3D block rendering.
 
 ### Server (Backend)
 - **Framework:** FastAPI (Python 3.12)
-- **Database:** PostgreSQL 16+ with PostGIS, SQLAlchemy 2.0 (Async), GeoAlchemy2, Alembic
-- **Data Processing:** Pandas, NumPy
-- **Machine Learning:** XGBoost, Scikit-Learn, SHAP, Rasterio
+- **Database:** PostgreSQL 16+ with PostGIS, SQLAlchemy 2.0 (Async)
+- **Deep Learning:** PyTorch, PyTorch Geometric (PyG)
+- **Machine Learning:** XGBoost, Scikit-Learn, SHAP
 - **Server:** Uvicorn
 
 ---
@@ -139,34 +74,28 @@ The FastAPI backend is compartmentalized via APIRouters. All requests are protec
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/NiranjanS20/SIH-26_009.git
-cd SIH-26_009
+git clone https://github.com/NiranjanS20/SIH-26.git
+cd SIH-26
 ```
 
-### 2. Start the FastAPI Backend
+### 2. Set Up the Database & Backend
 ```bash
+# Initialize Virtual Environment
 python -m venv venv
-source venv/Scripts/activate  # (On Windows: venv\Scripts\activate)
+source venv/Scripts/activate  # (Windows: venv\Scripts\activate)
 pip install -r requirements.txt
-### 2. Set Up the Database
-1. Install **PostgreSQL** and the **PostGIS** extension.
-2. Create a database: `CREATE DATABASE mine_db;`
-3. Configure your database URL (Windows PowerShell example):
-   ```bash
-   $env:DATABASE_URL="postgresql+asyncpg://postgres:yourpassword@localhost:5432/mine_db"
-   ```
-4. Initialize the schemas, migrations, and seed data:
-   ```bash
-   cd backend
-   python scripts/enable_postgis.py
-   alembic upgrade head
-   python scripts/migrate_csv_to_db.py
-   python scripts/apply_rls.py
-   ```
 
-### 3. Start the FastAPI Backend
-```bash
-# Run the server from the backend directory
+# Configure PostgreSQL + PostGIS database URL
+$env:DATABASE_URL="postgresql+asyncpg://postgres:password@localhost:5432/mine_db"
+
+# Initialize Schemas and Seed Data
+cd backend
+python scripts/enable_postgis.py
+alembic upgrade head
+python scripts/migrate_csv_to_db.py
+python scripts/apply_rls.py
+
+# Start FastAPI Server
 python -m uvicorn app.main:app --reload --port 8000
 ```
 *API docs available at `http://localhost:8000/docs`.*
@@ -183,9 +112,9 @@ npm run dev
 ---
 
 ## 🛡️ License & Compliance
-This project was developed for **SIH 26009**. Designed strictly around the reporting protocols of the **Indian Bureau of Mines (IBM)** and MOIL operational constraints. 
+Designed strictly around the reporting protocols of the **Indian Bureau of Mines (IBM)** and enterprise-grade operational constraints. 
 
 <br/>
 <p align="center">
-  <i>Built with precision. Engineered for MOIL.</i>
+  <i>Built with precision. Engineered for modern mining.</i>
 </p>
