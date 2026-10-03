@@ -42,9 +42,46 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
   const [result, setResult] = useState<WhatIfSimulateResponse | null>(null);
   const [simLoading, setSimLoading] = useState(false);
   const [simError, setSimError] = useState<string | null>(null);
+  const [hasUserInput, setHasUserInput] = useState(false);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  const runSimulation = async (
+    eq = equipmentUptime,
+    pl = plantAvailability,
+    bl = blastingDelay,
+    ra = rainfall,
+    tgt = targetOverride
+  ) => {
+    if (!bounds) return;
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
+
+    setSimLoading(true);
+    setSimError(null);
+
+    try {
+      const data = await apiPost<WhatIfSimulateResponse>(
+        `/whatif/${mineId}/simulate`,
+        {
+          equipment_uptime_pct: eq,
+          plant_availability_pct: pl,
+          blasting_delay_days: bl,
+          rainfall_mm: ra,
+          target_tons_per_day_override: tgt,
+        },
+        abortRef.current.signal
+      );
+      setResult(data);
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        setSimError(err.message || 'Simulation failed');
+      }
+    } finally {
+      setSimLoading(false);
+    }
+  };
 
   // 1. Fetch Bounds
   useEffect(() => {
@@ -81,55 +118,36 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
     };
   }, [mineId]);
 
-  // 2. Debounced Simulation
+  // 2. Debounced Simulation — only triggers after user interaction
   useEffect(() => {
-    if (!bounds) return; // Wait for bounds to be ready
+    if (!bounds || !hasUserInput) return;
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
-    debounceRef.current = setTimeout(async () => {
-      if (abortRef.current) abortRef.current.abort();
-      abortRef.current = new AbortController();
-
-      setSimLoading(true);
-      setSimError(null);
-
-      try {
-        const data = await apiPost<WhatIfSimulateResponse>(
-          `/whatif/${mineId}/simulate`,
-          {
-            equipment_uptime_pct: equipmentUptime,
-            plant_availability_pct: plantAvailability,
-            blasting_delay_days: blastingDelay,
-            rainfall_mm: rainfall,
-            target_tons_per_day_override: targetOverride,
-          },
-          abortRef.current.signal
-        );
-        setResult(data);
-      } catch (err: any) {
-        if (err.name !== 'AbortError') {
-          setSimError(err.message || 'Simulation failed');
-        }
-      } finally {
-        setSimLoading(false);
-      }
-    }, 300);
+    debounceRef.current = setTimeout(() => {
+      runSimulation();
+    }, 250);
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [equipmentUptime, plantAvailability, blastingDelay, rainfall, targetOverride, mineId, bounds]);
+  }, [equipmentUptime, plantAvailability, blastingDelay, rainfall, targetOverride, hasUserInput, mineId, bounds]);
 
   // Handlers
   const handleReset = () => {
     if (bounds) {
-      setEquipmentUptime(bounds.drivers.equipment_uptime_pct.median);
-      setPlantAvailability(bounds.drivers.plant_availability_pct.median);
-      setBlastingDelay(bounds.drivers.blasting_delay_days.median);
-      setRainfall(bounds.drivers.rainfall_mm.median);
+      const medEq = bounds.drivers.equipment_uptime_pct.median;
+      const medPl = bounds.drivers.plant_availability_pct.median;
+      const medBl = bounds.drivers.blasting_delay_days.median;
+      const medRa = bounds.drivers.rainfall_mm.median;
+      setEquipmentUptime(medEq);
+      setPlantAvailability(medPl);
+      setBlastingDelay(medBl);
+      setRainfall(medRa);
       setTargetOverride(null);
       setTargetInputText('');
+      setHasUserInput(true);
+      runSimulation(medEq, medPl, medBl, medRa, null);
     }
   };
 
@@ -139,8 +157,10 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
     const num = parseFloat(val);
     if (!isNaN(num) && val.trim() !== '') {
       setTargetOverride(num);
+      setHasUserInput(true);
     } else if (val.trim() === '') {
       setTargetOverride(null);
+      setHasUserInput(true);
     }
   };
 
@@ -239,7 +259,7 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
               <span>{mineName}</span>
               <span className="text-white/30">•</span>
               <span className="font-mono">
-                {result ? result.model_version : 'Loading model...'}
+                {hasUserInput && result ? 'AI Model 2: Production Forecaster (XGBoost)' : 'XGBoost Time-Series Engine'}
               </span>
             </p>
           </div>
@@ -279,7 +299,10 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
                 max={bounds.drivers.equipment_uptime_pct.max}
                 step={0.5}
                 value={equipmentUptime}
-                onChange={(e) => setEquipmentUptime(Number(e.target.value))}
+                onChange={(e) => {
+                  setEquipmentUptime(Number(e.target.value));
+                  setHasUserInput(true);
+                }}
                 className="w-full accent-[#0E7C7B] cursor-pointer"
               />
               <div className={`flex justify-between text-[10px] ${textMuted}`}>
@@ -301,7 +324,10 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
                 max={bounds.drivers.plant_availability_pct.max}
                 step={0.5}
                 value={plantAvailability}
-                onChange={(e) => setPlantAvailability(Number(e.target.value))}
+                onChange={(e) => {
+                  setPlantAvailability(Number(e.target.value));
+                  setHasUserInput(true);
+                }}
                 className="w-full accent-[#0E7C7B] cursor-pointer"
               />
               <div className={`flex justify-between text-[10px] ${textMuted}`}>
@@ -323,7 +349,10 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
                 max={bounds.drivers.blasting_delay_days.max}
                 step={1}
                 value={blastingDelay}
-                onChange={(e) => setBlastingDelay(Number(e.target.value))}
+                onChange={(e) => {
+                  setBlastingDelay(Number(e.target.value));
+                  setHasUserInput(true);
+                }}
                 className="w-full accent-amber-500 cursor-pointer"
               />
               <div className={`flex justify-between text-[10px] ${textMuted}`}>
@@ -345,7 +374,10 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
                 max={bounds.drivers.rainfall_mm.max}
                 step={0.5}
                 value={rainfall}
-                onChange={(e) => setRainfall(Number(e.target.value))}
+                onChange={(e) => {
+                  setRainfall(Number(e.target.value));
+                  setHasUserInput(true);
+                }}
                 className="w-full accent-blue-500 cursor-pointer"
               />
               <div className="flex justify-between items-center mt-1">
@@ -391,6 +423,22 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
             </div>
           </div>
 
+          {/* Explicit Run Simulation Trigger Button */}
+          <button
+            type="button"
+            onClick={() => {
+              setHasUserInput(true);
+              runSimulation();
+            }}
+            disabled={simLoading}
+            className="w-full mt-2 py-3 bg-gradient-to-r from-[#0E7C7B] to-[#129A98] hover:brightness-110 active:scale-[0.99] text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span className="material-symbols-outlined text-base">
+              {simLoading ? 'autorenew' : 'play_arrow'}
+            </span>
+            <span>{simLoading ? 'Simulating Scenario...' : 'Run What-If Simulation'}</span>
+          </button>
+
         </div>
 
         {/* RIGHT COLUMN: Results */}
@@ -408,7 +456,7 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
               <h3 className={`font-headline font-black text-sm uppercase tracking-wider ${textPrimary}`}>
                 Simulation Result
               </h3>
-              {result && (
+              {hasUserInput && result && (
                 <span className={`text-[10px] font-mono ${textMuted}`}>
                   ⚡ {result.inference_time_ms}ms
                 </span>
@@ -419,7 +467,7 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
               <div className="p-4 rounded bg-red-500/10 border border-red-500/30 text-red-500 text-xs">
                 {simError}
               </div>
-            ) : result ? (
+            ) : hasUserInput && result ? (
               <>
                 <div className="grid grid-cols-2 gap-4">
                   
@@ -487,14 +535,35 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
 
               </>
             ) : (
-              <div className={`h-48 flex items-center justify-center text-sm font-medium ${textMuted}`}>
-                Awaiting simulation...
+              <div className={`p-8 rounded-xl border flex flex-col items-center justify-center text-center gap-4 ${nestedBg} min-h-[300px]`}>
+                <div className="w-12 h-12 rounded-2xl bg-[#0E7C7B]/10 border border-[#0E7C7B]/20 flex items-center justify-center text-[#0E7C7B]">
+                  <span className="material-symbols-outlined text-2xl">tune</span>
+                </div>
+                <div>
+                  <h4 className={`font-headline font-black text-sm uppercase tracking-wider ${textPrimary}`}>
+                    Awaiting Scenario Input
+                  </h4>
+                  <p className={`text-xs max-w-xs mt-1.5 leading-relaxed ${textSecondary}`}>
+                    Adjust any operational driver on the left or click Run Simulation to compute live production forecasts and shortfall risk.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setHasUserInput(true);
+                    runSimulation();
+                  }}
+                  className="px-4 py-2 bg-[#0E7C7B] hover:bg-[#0c6b6a] text-white font-bold text-xs uppercase tracking-wider rounded-lg shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-sm">play_arrow</span>
+                  Simulate with Current Inputs
+                </button>
               </div>
             )}
           </div>
 
           {/* Extrapolation Warning */}
-          {result?.extrapolation_warning && (
+          {hasUserInput && result?.extrapolation_warning && (
             <div className={`p-4 rounded-xl border border-amber-500/50 flex gap-3 ${isDark ? 'bg-amber-500/10' : 'bg-amber-50'}`}>
               <span className="material-symbols-outlined text-amber-500">warning</span>
               <div>
@@ -507,7 +576,7 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
           )}
 
           {/* Sensitivity Chart */}
-          {result && (
+          {hasUserInput && result && (
             <div className={`p-4 rounded-xl border ${cardBg}`}>
               <WhatIfSensitivityEChart result={result} themeMode={themeMode} />
             </div>

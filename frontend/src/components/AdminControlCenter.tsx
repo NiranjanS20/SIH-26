@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { type PortalRoute } from './Navbar';
 import { useAuth } from '../contexts/AuthContext';
 import { MOIL_MINES } from '../data/minesData';
-import { apiGet, apiPostRaw } from '../services/apiClient';
+import { apiPostRaw } from '../services/apiClient';
 import { MineProspectivityIntelligence } from './MineProspectivityIntelligence';
 
 interface AdminControlCenterProps {
@@ -556,9 +556,6 @@ export const AdminControlCenter: React.FC<AdminControlCenterProps> = ({
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'Open Cast' | 'Underground'>('ALL');
   const [hoveredMonth, setHoveredMonth] = useState<string | null>(null);
 
-  // Backend Health State
-  const [backendStatus, setBackendStatus] = useState<'CONNECTED' | 'OFFLINE' | 'CHECKING'>('CHECKING');
-
   const isDark = themeMode === 'dark';
 
   // Theme Design Tokens for crisp contrast
@@ -567,25 +564,6 @@ export const AdminControlCenter: React.FC<AdminControlCenterProps> = ({
   const textHeading = isDark ? 'text-white' : 'text-[#0B1E38]';
   const textSub = isDark ? 'text-slate-400' : 'text-slate-600';
   const borderDivider = isDark ? 'border-slate-800' : 'border-slate-200';
-
-  // Fetch backend overview on load
-  useEffect(() => {
-    let isMounted = true;
-    apiGet<any>('/admin/overview')
-      .then((res) => {
-        if (isMounted && res && res.success) {
-          setBackendStatus('CONNECTED');
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setBackendStatus('OFFLINE');
-        }
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const triggerNotification = (msg: string) => {
     setActionNotification(msg);
@@ -756,21 +734,6 @@ export const AdminControlCenter: React.FC<AdminControlCenterProps> = ({
 
           {/* User Controls Right */}
           <div className="flex items-center gap-3">
-            {/* Backend status indicator */}
-            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 border border-white/15 text-[11px]">
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  backendStatus === 'CONNECTED'
-                    ? 'bg-teal-400 animate-pulse'
-                    : backendStatus === 'CHECKING'
-                    ? 'bg-amber-400'
-                    : 'bg-rose-400'
-                }`}
-              />
-              <span className="text-slate-200 font-medium">
-                API: {backendStatus}
-              </span>
-            </div>
 
             {/* Theme Toggle */}
             {onToggleTheme && (

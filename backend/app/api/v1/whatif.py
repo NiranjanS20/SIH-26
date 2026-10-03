@@ -1,21 +1,31 @@
 from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
+from typing import Optional, Any
 from app.schemas.responses import Envelope, ResponseMeta
 from app.services.whatif_service import simulate_whatif, get_whatif_bounds
 from app.api.v1.deps import require_role
 from fastapi.concurrency import run_in_threadpool
-from typing import Optional
 import datetime
 import time
 
 router = APIRouter()
 
 class WhatIfRequest(BaseModel):
-    equipment_uptime_pct: float
-    plant_availability_pct: float
-    blasting_delay_days: float
-    rainfall_mm: float
+    equipment_uptime_pct: float = 85.0
+    plant_availability_pct: float = 80.0
+    blasting_delay_days: float = 2.0
+    rainfall_mm: float = 50.0
     target_tons_per_day_override: Optional[float] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def handle_legacy_fields(cls, data: Any):
+        if isinstance(data, dict):
+            if "equipment_uptime_pct" not in data and "equipment_availability_pct" in data:
+                data["equipment_uptime_pct"] = data["equipment_availability_pct"]
+            if "rainfall_mm" not in data and "precipitation_mm" in data:
+                data["rainfall_mm"] = data["precipitation_mm"]
+        return data
 
 @router.get("/{mine_id}/bounds", response_model=Envelope[dict])
 async def get_bounds(mine_id: str):

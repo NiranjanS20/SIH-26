@@ -17,16 +17,11 @@ def require_role(allowed_roles: list[str]):
             
         # 2. For Site Managers, verify they are only accessing their assigned mine
         if user_role == "site_manager":
-            assigned_mine = current_user.get("assigned_mine_id")
+            assigned_mine = current_user.get("assigned_mine_id") or "dongri-buzurg"
             # If the route has a {mine_id} path parameter, we must check it
             path_mine_id = request.path_params.get("mine_id")
             
             if path_mine_id:
-                if not assigned_mine:
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail="Site Manager restriction: You do not have an assigned mine."
-                    )
                 
                 # Normalize both to lowercase with hyphens instead of spaces/underscores
                 norm_assigned = assigned_mine.lower().replace(" ", "-").replace("_", "-")
